@@ -14,7 +14,12 @@
 -- Drop the is_superuser column
 ALTER TABLE public.profiles DROP COLUMN IF EXISTS is_super_user;
 
--- Update check_letter_allowance function to remove super user bypass
+-- Drop existing functions first (to recreate with new signature)
+DROP FUNCTION IF EXISTS public.check_letter_allowance(UUID) CASCADE;
+DROP FUNCTION IF EXISTS public.can_generate_letter(UUID) CASCADE;
+DROP FUNCTION IF EXISTS public.deduct_letter_allowance(UUID) CASCADE;
+
+-- Recreate check_letter_allowance function to remove super user bypass
 CREATE OR REPLACE FUNCTION public.check_letter_allowance(u_id UUID)
 RETURNS TABLE (
   has_access BOOLEAN,
@@ -95,15 +100,18 @@ BEGIN
         RETURN false;
     END IF;
 
-    -- Increment letters used
+    -- Increment letters used (update most recent active subscription)
     UPDATE public.subscriptions
     SET letters_used = letters_used + 1,
         updated_at = NOW()
-    WHERE user_id = u_id
-    AND status = 'active'
-    AND (end_date IS NULL OR end_date > NOW())
-    ORDER BY created_at DESC
-    LIMIT 1;
+    WHERE id = (
+        SELECT id FROM public.subscriptions
+        WHERE user_id = u_id
+        AND status = 'active'
+        AND (end_date IS NULL OR end_date > NOW())
+        ORDER BY created_at DESC
+        LIMIT 1
+    );
 
     RETURN true;
 END;
