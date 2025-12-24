@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { subscriptionRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
 import { validateCouponWithFraudDetection } from '@/lib/fraud-detection/coupon-fraud'
+import { authenticateUser } from '@/lib/auth/authenticate-user'
+import { PLAN_CONFIG } from '@/lib/constants'
 
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-12-15.clover',
@@ -20,25 +22,20 @@ export async function POST(request: NextRequest) {
       return rateLimitResponse
     }
 
-    const supabase = await createClient()
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    console.log('[Checkout] Auth check - user:', user?.id, 'error:', authError?.message)
-    
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Authenticate user
+    const authResult = await authenticateUser()
+    if (!authResult.authenticated || !authResult.user) {
+      return authResult.errorResponse!
     }
+    const user = authResult.user
+    
+    console.log('[Checkout] Auth check - user:', user.id)
 
+    const supabase = await createClient()
     const body = await request.json()
     const { planType, couponCode } = body
 
-    const planConfig: Record<string, { price: number, letters: number, planType: string, name: string }> = {
-      'one_time': { price: 299, letters: 1, planType: 'one_time', name: 'Single Letter' },
-      'standard_4_month': { price: 299, letters: 4, planType: 'standard_4_month', name: 'Monthly Plan' },
-      'premium_8_month': { price: 599, letters: 8, planType: 'premium_8_month', name: 'Yearly Plan' }
-    }
-
-    const selectedPlan = planConfig[planType]
+    const selectedPlan = PLAN_CONFIG[planType]
     if (!selectedPlan) {
       return NextResponse.json({ error: 'Invalid plan type' }, { status: 400 })
     }

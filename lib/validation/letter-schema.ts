@@ -24,83 +24,47 @@ export interface LetterIntakeSchema {
   attachments?: { type: 'array'; required: false }
 }
 
-// Define letter type schemas
+/**
+ * Base schema shared by all letter types
+ * Reduces duplication by defining common fields once
+ */
+const baseLetterSchema = {
+  senderName: { type: 'string', required: true, maxLength: 100 },
+  senderAddress: { type: 'string', required: true, maxLength: 500 },
+  senderEmail: { type: 'email', required: false },
+  senderPhone: { type: 'string', required: false, maxLength: 20 },
+  recipientName: { type: 'string', required: true, maxLength: 100 },
+  recipientAddress: { type: 'string', required: true, maxLength: 500 },
+  recipientEmail: { type: 'email', required: false },
+  recipientPhone: { type: 'string', required: false, maxLength: 20 },
+  issueDescription: { type: 'string', required: true, maxLength: 2000 },
+  desiredOutcome: { type: 'string', required: true, maxLength: 1000 },
+  additionalDetails: { type: 'string', required: false, maxLength: 3000 },
+  attachments: { type: 'array', required: false }
+} as const
+
+/**
+ * Create letter type schema by extending base schema with specific fields
+ */
+function createLetterSchema(additionalFields: Record<string, any> = {}): LetterIntakeSchema {
+  return { ...baseLetterSchema, ...additionalFields } as LetterIntakeSchema
+}
+
+// Define letter type schemas with variations from base
 export const LETTER_TYPE_SCHEMAS: Record<string, LetterIntakeSchema> = {
-  'Demand Letter': {
-    senderName: { type: 'string', required: true, maxLength: 100 },
-    senderAddress: { type: 'string', required: true, maxLength: 500 },
-    senderEmail: { type: 'email', required: false },
-    senderPhone: { type: 'string', required: false, maxLength: 20 },
-    recipientName: { type: 'string', required: true, maxLength: 100 },
-    recipientAddress: { type: 'string', required: true, maxLength: 500 },
-    recipientEmail: { type: 'email', required: false },
-    recipientPhone: { type: 'string', required: false, maxLength: 20 },
-    issueDescription: { type: 'string', required: true, maxLength: 2000 },
-    desiredOutcome: { type: 'string', required: true, maxLength: 1000 },
+  'Demand Letter': createLetterSchema({
     amountDemanded: { type: 'number', required: false, min: 0, max: 10000000 },
     deadlineDate: { type: 'string', required: false, maxLength: 50 },
     incidentDate: { type: 'string', required: false, maxLength: 50 },
-    additionalDetails: { type: 'string', required: false, maxLength: 3000 },
-    attachments: { type: 'array', required: false }
-  },
-  'Cease and Desist': {
-    senderName: { type: 'string', required: true, maxLength: 100 },
-    senderAddress: { type: 'string', required: true, maxLength: 500 },
-    senderEmail: { type: 'email', required: false },
-    senderPhone: { type: 'string', required: false, maxLength: 20 },
-    recipientName: { type: 'string', required: true, maxLength: 100 },
-    recipientAddress: { type: 'string', required: true, maxLength: 500 },
-    recipientEmail: { type: 'email', required: false },
-    recipientPhone: { type: 'string', required: false, maxLength: 20 },
-    issueDescription: { type: 'string', required: true, maxLength: 2000 },
-    desiredOutcome: { type: 'string', required: true, maxLength: 1000 },
+  }),
+  'Cease and Desist': createLetterSchema({
     deadlineDate: { type: 'string', required: false, maxLength: 50 },
-    additionalDetails: { type: 'string', required: false, maxLength: 3000 },
-    attachments: { type: 'array', required: false }
-  },
-  'Legal Notice': {
-    senderName: { type: 'string', required: true, maxLength: 100 },
-    senderAddress: { type: 'string', required: true, maxLength: 500 },
-    senderEmail: { type: 'email', required: false },
-    senderPhone: { type: 'string', required: false, maxLength: 20 },
-    recipientName: { type: 'string', required: true, maxLength: 100 },
-    recipientAddress: { type: 'string', required: true, maxLength: 500 },
-    recipientEmail: { type: 'email', required: false },
-    recipientPhone: { type: 'string', required: false, maxLength: 20 },
-    issueDescription: { type: 'string', required: true, maxLength: 2000 },
-    desiredOutcome: { type: 'string', required: true, maxLength: 1000 },
+  }),
+  'Legal Notice': createLetterSchema({
     incidentDate: { type: 'string', required: false, maxLength: 50 },
-    additionalDetails: { type: 'string', required: false, maxLength: 3000 },
-    attachments: { type: 'array', required: false }
-  },
-  'Warning Letter': {
-    senderName: { type: 'string', required: true, maxLength: 100 },
-    senderAddress: { type: 'string', required: true, maxLength: 500 },
-    senderEmail: { type: 'email', required: false },
-    senderPhone: { type: 'string', required: false, maxLength: 20 },
-    recipientName: { type: 'string', required: true, maxLength: 100 },
-    recipientAddress: { type: 'string', required: true, maxLength: 500 },
-    recipientEmail: { type: 'email', required: false },
-    recipientPhone: { type: 'string', required: false, maxLength: 20 },
-    issueDescription: { type: 'string', required: true, maxLength: 2000 },
-    desiredOutcome: { type: 'string', required: true, maxLength: 1000 },
-    additionalDetails: { type: 'string', required: false, maxLength: 3000 },
-    attachments: { type: 'array', required: false }
-  },
-  'Follow-up Letter': {
-    senderName: { type: 'string', required: true, maxLength: 100 },
-    senderAddress: { type: 'string', required: true, maxLength: 500 },
-    senderEmail: { type: 'email', required: false },
-    senderPhone: { type: 'string', required: false, maxLength: 20 },
-    recipientName: { type: 'string', required: true, maxLength: 100 },
-    recipientAddress: { type: 'string', required: true, maxLength: 500 },
-    recipientEmail: { type: 'email', required: false },
-    recipientPhone: { type: 'string', required: false, maxLength: 20 },
-    issueDescription: { type: 'string', required: true, maxLength: 2000 },
-    desiredOutcome: { type: 'string', required: true, maxLength: 1000 },
-    additionalDetails: { type: 'string', required: false, maxLength: 3000 },
-    attachments: { type: 'array', required: false }
-  }
+  }),
+  'Warning Letter': createLetterSchema(),
+  'Follow-up Letter': createLetterSchema()
 }
 
 // List of allowed letter types
@@ -198,39 +162,36 @@ export function validateIntakeData(letterType: string, intakeData: unknown): Val
     }
   }
 
+  // Helper function to validate field with regex
+  const validateFieldWithRegex = (
+    fieldName: keyof typeof data, 
+    regex: RegExp, 
+    errorMessage: string
+  ) => {
+    const value = data[fieldName]
+    if (typeof value === 'string' && !regex.test(value)) {
+      errors.push(errorMessage)
+      delete data[fieldName]
+    }
+  }
+
   // Validate email format consistency
-  if (typeof data.senderEmail === 'string' && !data.senderEmail.includes('@')) {
-    errors.push('Invalid sender email format')
-    delete data.senderEmail
-  }
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  validateFieldWithRegex('senderEmail', emailRegex, 'Invalid sender email format')
+  validateFieldWithRegex('recipientEmail', emailRegex, 'Invalid recipient email format')
 
-  if (typeof data.recipientEmail === 'string' && !data.recipientEmail.includes('@')) {
-    errors.push('Invalid recipient email format')
-    delete data.recipientEmail
-  }
-
-  // Validate phone number format (basic check)
+  // Validate phone number format
   const phoneRegex = /^[\d\s\-\+\(\)]{10,20}$/
-  if (typeof data.senderPhone === 'string' && !phoneRegex.test(data.senderPhone)) {
-    errors.push('Invalid sender phone number format')
-    delete data.senderPhone
-  }
+  validateFieldWithRegex('senderPhone', phoneRegex, 'Invalid sender phone number format')
+  validateFieldWithRegex('recipientPhone', phoneRegex, 'Invalid recipient phone number format')
 
-  if (typeof data.recipientPhone === 'string' && !phoneRegex.test(data.recipientPhone)) {
-    errors.push('Invalid recipient phone number format')
-    delete data.recipientPhone
-  }
-
-  // Validate date format (basic check)
+  // Validate date format
   const dateRegex = /^\d{4}-\d{2}-\d{2}$|^\d{1,2}\/\d{1,2}\/\d{4}$/
-  if (data.deadlineDate && !dateRegex.test(data.deadlineDate as string)) {
-    errors.push('Invalid deadline date format. Use YYYY-MM-DD or MM/DD/YYYY')
-    delete data.deadlineDate
+  if (data.deadlineDate) {
+    validateFieldWithRegex('deadlineDate', dateRegex, 'Invalid deadline date format. Use YYYY-MM-DD or MM/DD/YYYY')
   }
-
-  if (data.incidentDate && !dateRegex.test(data.incidentDate as string)) {
-    errors.push('Invalid incident date format. Use YYYY-MM-DD or MM/DD/YYYY')
-    delete data.incidentDate
+  if (data.incidentDate) {
+    validateFieldWithRegex('incidentDate', dateRegex, 'Invalid incident date format. Use YYYY-MM-DD or MM/DD/YYYY')
   }
 
   // Validate reasonable amount ranges

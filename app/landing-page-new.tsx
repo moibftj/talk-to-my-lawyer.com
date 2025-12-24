@@ -42,22 +42,7 @@ import {
 } from 'lucide-react'
 import jsPDF from 'jspdf'
 import Link from 'next/link'
-import { DEFAULT_LOGO_ALT, DEFAULT_LOGO_SRC } from '@/lib/constants'
-
-const LETTER_TYPES = [
-  { value: 'demand_letter', label: 'Demand Letter', price: 299 },
-  { value: 'cease_desist', label: 'Cease & Desist', price: 299 },
-  { value: 'contract_breach', label: 'Contract Breach Notice', price: 299 },
-  { value: 'eviction_notice', label: 'Eviction Notice', price: 299 },
-  { value: 'employment_dispute', label: 'Employment Dispute', price: 299 },
-  { value: 'consumer_complaint', label: 'Consumer Complaint', price: 299 },
-]
-
-const SUBSCRIPTION_PLANS = [
-  { letters: 1, price: 299, planType: 'one_time', popular: false, name: 'Single Letter' },
-  { letters: 4, price: 299, planType: 'standard_4_month', popular: true, name: 'Monthly Plan' },
-  { letters: 8, price: 599, planType: 'premium_8_month', popular: false, name: 'Yearly Plan' },
-]
+import { DEFAULT_LOGO_ALT, DEFAULT_LOGO_SRC, LETTER_TYPES, SUBSCRIPTION_PLANS } from '@/lib/constants'
 
 type Profile = {
   id: string

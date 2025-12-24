@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { authenticateUser } from '@/lib/auth/authenticate-user'
 
 // Valid status transitions
 const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -14,12 +15,15 @@ export async function POST(
 ) {
   try {
     const { id } = await params
-    const supabase = await createClient()
     
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    // Authenticate user
+    const authResult = await authenticateUser()
+    if (!authResult.authenticated || !authResult.user) {
+      return authResult.errorResponse!
     }
+    const user = authResult.user
+
+    const supabase = await createClient()
 
     // Fetch current letter to validate status transition
     const { data: letter, error: letterFetchError } = await supabase
