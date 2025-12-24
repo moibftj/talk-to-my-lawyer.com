@@ -289,22 +289,24 @@ export class CouponFraudDetector {
   private calculateTimeBetweenRequests(timestamps: number[]): number {
     if (timestamps.length < 2) return 0
 
-    const intervals = []
-    for (let i = 1; i < timestamps.length; i++) {
-      intervals.push(timestamps[i] - timestamps[i - 1])
+    const timeIntervals = []
+    for (let currentIndex = 1; currentIndex < timestamps.length; currentIndex++) {
+      const intervalMs = timestamps[currentIndex] - timestamps[currentIndex - 1]
+      timeIntervals.push(intervalMs)
     }
 
-    return intervals.reduce((sum, interval) => sum + interval, 0) / intervals.length
+    const totalIntervalTime = timeIntervals.reduce((sum, interval) => sum + interval, 0)
+    return totalIntervalTime / timeIntervals.length
   }
 
   /**
    * Calculate conversion rate from usage data
    */
-  private calculateConversionRate(usage: any[]): number {
-    if (usage.length === 0) return 0
+  private calculateConversionRate(usageRecords: any[]): number {
+    if (usageRecords.length === 0) return 0
 
-    const conversions = usage.filter(u => u.subscription_id).length
-    return conversions / usage.length
+    const successfulConversions = usageRecords.filter(record => record.subscription_id).length
+    return successfulConversions / usageRecords.length
   }
 
   /**

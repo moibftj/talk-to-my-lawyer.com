@@ -238,7 +238,7 @@ export class OpenAIRetryClient {
 
         // Calculate delay for next attempt
         if (attempt < this.config.maxRetries) {
-          delay = this.calculateDelay(attempt)
+          delay = this.calculateBackoffDelay(attempt)
           console.log(`[OpenAI] Waiting ${delay}ms before retry...`)
           await this.sleep(delay)
         }
@@ -287,27 +287,31 @@ export class OpenAIRetryClient {
 
   /**
    * Calculate exponential backoff delay with optional jitter
+   * @param attemptNumber - The current retry attempt number
+   * @returns Delay in milliseconds
    */
-  private calculateDelay(attempt: number): number {
-    let delay = this.config.baseDelayMs * Math.pow(this.config.backoffMultiplier, attempt)
+  private calculateBackoffDelay(attemptNumber: number): number {
+    let delayMs = this.config.baseDelayMs * Math.pow(this.config.backoffMultiplier, attemptNumber)
 
-    // Cap the delay
-    delay = Math.min(delay, this.config.maxDelayMs)
+    // Cap the delay to maximum
+    delayMs = Math.min(delayMs, this.config.maxDelayMs)
 
-    // Add jitter to prevent thundering herd
+    // Add jitter to prevent thundering herd problem
     if (this.config.jitter) {
-      const jitterRange = delay * 0.1 // 10% jitter
-      delay += Math.random() * jitterRange - jitterRange / 2
+      const jitterRangeMs = delayMs * 0.1 // 10% jitter
+      const jitterOffsetMs = Math.random() * jitterRangeMs - jitterRangeMs / 2
+      delayMs += jitterOffsetMs
     }
 
-    return Math.floor(delay)
+    return Math.floor(delayMs)
   }
 
   /**
-   * Sleep helper
+   * Sleep for specified milliseconds
+   * @param milliseconds - Time to sleep
    */
-  private sleep(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms))
+  private sleep(milliseconds: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, milliseconds))
   }
 
   /**
