@@ -32,7 +32,7 @@ This repository is a Next.js 16 (React 19, TypeScript, Tailwind) SaaS for AI-ass
   - Fraud detection: `fraud-detection/coupon-fraud.ts`.
   - Validation: `validation/letter-schema.ts` schemas.
 - **types/**: shared domain types (`types/index.ts`); Supabase types live at `lib/database.types.ts`.
-- **supabase/**: SQL migrations under `supabase/migrations`; configuration in `supabase` dir and scripts under `scripts/` (`run-migrations.js`, `validate-env.js`, `health-check.js`, etc.).
+- **supabase/**: SQL migrations under `supabase/migrations`; configuration in `supabase` dir and scripts under `scripts/` (e.g. `validate-env.js`, `health-check.js`, etc.).
 - **styles/**: Tailwind/global styles.
 - **public/**: static assets.
 - **config**: Next config (`next.config.mjs`), ESLint (`eslint.config.mjs`), PostCSS/Tailwind setup, Vercel config (`vercel.json`), instrumentation (`instrumentation.ts`), type config (`tsconfig.json`).
