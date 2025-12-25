@@ -36,7 +36,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
             alt={DEFAULT_LOGO_ALT}
             width={36}
             height={36}
-            className="h-9 w-9 rounded-full border border-blue-100 shadow-sm"
+            className="h-9 w-9 rounded-full logo-badge"
             priority
           />
           <div>

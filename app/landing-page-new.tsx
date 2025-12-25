@@ -146,7 +146,7 @@ export default function NewLandingPage() {
                   alt={DEFAULT_LOGO_ALT}
                   width={40}
                   height={40}
-                  className="h-10 w-10 rounded-full border border-blue-100 shadow-sm"
+                  className="h-10 w-10 rounded-full logo-badge"
                   priority
                 />
                 <span className="text-xl font-bold text-gradient-animated">Talk-To-My-Lawyer</span>
