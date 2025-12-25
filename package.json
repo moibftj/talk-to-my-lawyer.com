@@ -89,6 +89,7 @@
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "^2.1.7",
     "recharts": "2.15.4",
+    "resend": "^6.6.0",
     "sonner": "^1.7.4",
     "stripe": "^20.0.0",
     "tailwind-merge": "^2.5.5",
@@ -110,9 +111,10 @@
     "eslint": "9.39.1",
     "mcp-server-code-runner": "^0.1.8",
     "postcss": "^8.5",
-    "supabase": "^2.63.1",
+    "supabase": "^2.70.5",
     "tailwindcss": "^4.1.9",
     "tw-animate-css": "1.3.3",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vercel": "^50.1.3"
   }
 }
