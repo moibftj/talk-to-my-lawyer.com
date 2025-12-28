@@ -1,17 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import Stripe from 'stripe'
 import { createClient } from '@supabase/supabase-js'
+import { createStripeClient } from '@/lib/stripe/client'
 
 const STRIPE_API_VERSION: Stripe.LatestApiVersion = '2025-12-15.clover'
 
-function getStripeClient() {
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+function getStripeClient(): Stripe {
+  const stripe = createStripeClient()
 
-  if (!stripeSecretKey) {
-    throw new Error('Missing STRIPE_SECRET_KEY environment variable')
+  if (!stripe) {
+    throw new Error('Missing or invalid STRIPE_SECRET_KEY environment variable')
   }
 
-  return new Stripe(stripeSecretKey, { apiVersion: STRIPE_API_VERSION })
+  return stripe
 }
 
 function getSupabaseServiceClient() {

@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { sendTemplateEmail } from '@/lib/email/service'
+import { createStripeClient } from '@/lib/stripe/client'
 
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-12-15.clover',
-}) : null
+const stripe = createStripeClient()
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 

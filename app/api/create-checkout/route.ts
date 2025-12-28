@@ -5,10 +5,9 @@ import { subscriptionRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redi
 import { validateCouponWithFraudDetection } from '@/lib/fraud-detection/coupon-fraud'
 import { authenticateUser } from '@/lib/auth/authenticate-user'
 import { PLAN_CONFIG } from '@/lib/constants'
+import { createStripeClient } from '@/lib/stripe/client'
 
-const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-12-15.clover',
-}) : null
+const stripe = createStripeClient()
 
 const TEST_MODE = process.env.ENABLE_TEST_MODE === 'true'
 
