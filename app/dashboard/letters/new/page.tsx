@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { SubscriptionModal } from "@/components/subscription-modal"
 import { GenerateButton } from "@/components/generate-button"
 import { GenerationTrackerModal, type LetterStatus } from "@/components/generation-tracker-modal"
+import { FileUpload, type UploadedFile } from "@/components/ui/file-upload"
 import { createClient } from "@/lib/supabase/client"
 
 const LETTER_TYPES = [
@@ -102,6 +103,7 @@ export default function NewLetterPage() {
     incidentDate: "",
     supportingDocuments: "",
   })
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([])
 
   useEffect(() => {
     checkSubscription()
@@ -173,6 +175,16 @@ export default function NewLetterPage() {
     setTrackerStatus("generating")
 
     try {
+      // Prepare uploaded files data for the API
+      const attachedFiles = uploadedFiles
+        .filter(f => f.status === "success")
+        .map(f => ({
+          name: f.name,
+          type: f.type,
+          size: f.size,
+          url: f.url || undefined,
+        }))
+
       const intakeData = {
         senderName: formData.senderName,
         senderAddress: formData.senderAddress,
@@ -184,6 +196,7 @@ export default function NewLetterPage() {
         deadlineDate: formData.deadlineDate || undefined,
         incidentDate: formData.incidentDate || undefined,
         additionalDetails: formData.supportingDocuments || undefined,
+        attachedFiles: attachedFiles.length > 0 ? attachedFiles : undefined,
       }
 
       const requestBody = {
@@ -448,23 +461,37 @@ export default function NewLetterPage() {
               </div>
 
               <div>
-                <Label htmlFor="supportingDocuments" className="flex items-center gap-2">
+                <Label className="flex items-center gap-2 mb-3">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                   </svg>
                   Supporting Documents (Optional)
                 </Label>
-                <Textarea
-                  id="supportingDocuments"
-                  rows={2}
-                  placeholder="List any contracts, invoices, emails, or other documents that support your case"
-                  value={formData.supportingDocuments}
-                  onChange={(e) => setFormData({ ...formData, supportingDocuments: e.target.value })}
-                  className="mt-2"
+                <FileUpload
+                  files={uploadedFiles}
+                  onFilesChange={setUploadedFiles}
+                  maxFiles={5}
+                  maxSizeBytes={10 * 1024 * 1024}
+                  disabled={loading}
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  You can describe documents here or attach them after letter generation
+                <p className="text-xs text-muted-foreground mt-2">
+                  Upload contracts, invoices, emails, photos, or any documents that support your case. The AI will review these to create a more accurate draft.
                 </p>
+                
+                {/* Optional text field for additional document descriptions */}
+                <div className="mt-3">
+                  <Label htmlFor="supportingDocuments" className="text-xs text-muted-foreground">
+                    Additional notes about your documents (optional)
+                  </Label>
+                  <Textarea
+                    id="supportingDocuments"
+                    rows={2}
+                    placeholder="Describe any additional context about your documents..."
+                    value={formData.supportingDocuments}
+                    onChange={(e) => setFormData({ ...formData, supportingDocuments: e.target.value })}
+                    className="mt-1"
+                  />
+                </div>
               </div>
             </div>
 
