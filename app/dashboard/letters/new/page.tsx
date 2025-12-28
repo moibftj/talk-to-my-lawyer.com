@@ -98,6 +98,8 @@ export default function NewLetterPage() {
     issueDescription: "",
     desiredOutcome: "",
     amountDemanded: "",
+    deadlineDate: "",
+    incidentDate: "",
     supportingDocuments: "",
   })
 
@@ -179,6 +181,8 @@ export default function NewLetterPage() {
         issueDescription: formData.issueDescription,
         desiredOutcome: formData.desiredOutcome,
         amountDemanded: formData.amountDemanded ? Number(formData.amountDemanded) : undefined,
+        deadlineDate: formData.deadlineDate || undefined,
+        incidentDate: formData.incidentDate || undefined,
         additionalDetails: formData.supportingDocuments || undefined,
       }
 
