@@ -1,0 +1,25 @@
+#!/bin/bash
+# Pre-commit hook for Talk-To-My-Lawyer
+# Runs fast checks before allowing commit
+
+set -e
+
+echo "🔍 Running pre-commit checks..."
+
+# Run linter (fast)
+echo "  ▶ Running linter..."
+if ! pnpm lint --quiet; then
+  echo "❌ Linter failed. Please fix linting errors before committing."
+  echo "   Run 'pnpm lint:fix' to auto-fix many issues."
+  exit 1
+fi
+
+# Run security audit (fast)
+echo "  ▶ Running security audit..."
+if ! pnpm audit --audit-level=high --quiet; then
+  echo "⚠️  High-severity security vulnerabilities found."
+  echo "   Please review before committing."
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed!"

@@ -4,6 +4,8 @@
   "private": true,
   "packageManager": "pnpm@10.25.0",
   "scripts": {
+    "precommit": "pnpm lint && pnpm audit --audit-level=high",
+    "hooks:install": "./scripts/install-git-hooks.sh",
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
