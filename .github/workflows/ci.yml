@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test & Security Check
+    runs-on: ubuntu-latest
+
+    env:
+      NODE_VERSION: 20
+      PNPM_VERSION: 10.25.0
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Run linter
+        run: pnpm lint
+        continue-on-error: true
+
+      - name: Security audit (high severity only)
+        run: pnpm audit --audit-level=high
+
+      - name: Build project
+        run: pnpm build
+        continue-on-error: true
+
+      - name: Check environment setup
+        run: pnpm run validate-env
+        continue-on-error: true
