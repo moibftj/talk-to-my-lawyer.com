@@ -7,6 +7,7 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "start": "next start",
     "start:prod": "node scripts/validate-env.js && NODE_ENV=production next start -p ${PORT:-3000}",
     "health-check": "node scripts/health-check.js",
@@ -15,9 +16,10 @@
     "audit:security": "pnpm audit --audit-level=high",
     "audit:fix": "./scripts/fix-security.sh",
     "update:packages": "pnpm update --latest",
+    "autocommit": "git add -A && git diff --staged --quiet || (git commit -m \"Auto-commit: $(date)\" && git push origin main)",
     "commit": "git add -A && git commit -m",
     "push": "git push origin main",
-    "save": "npm run commit -- \"Auto-save: $(date)\" && npm run push"
+    "save": "pnpm run commit -- \"Auto-save: $(date)\" && pnpm run push"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
