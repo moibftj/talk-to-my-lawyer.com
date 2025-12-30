@@ -11,7 +11,7 @@ import { ZodError } from 'zod'
  */
 export class ApiError extends Error {
   constructor(
-    public override statusCode: number,
+    public statusCode: number,
     public override message: string,
     public code?: string,
     public details?: unknown
