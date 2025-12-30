@@ -14,6 +14,7 @@ import {
 } from '@/lib/admin/letter-actions'
 import { successResponse, errorResponses, ValidationError } from '@/lib/api/api-error-handler'
 import type { LetterStatus } from '@/lib/types/letter.types'
+import type { EmailTemplate } from '@/lib/email/types'
 
 /**
  * Configuration for letter status actions
@@ -23,7 +24,7 @@ export interface LetterActionConfig {
   requiredFields: string[]
   auditAction: string
   successMessage: string
-  templateName: 'letter-approved' | 'letter-rejected'
+  templateName: EmailTemplate
   additionalFields?: Record<string, unknown>
 }
 

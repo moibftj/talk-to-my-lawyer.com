@@ -8,6 +8,7 @@ import { requireAdminAuth, getAdminSession } from '@/lib/auth/admin-session'
 import { validateAdminRequest, generateAdminCSRF } from '@/lib/security/csrf'
 import { sanitizeString } from '@/lib/security/input-sanitizer'
 import { sendTemplateEmail } from '@/lib/email/service'
+import type { EmailTemplate } from '@/lib/email/types'
 
 /**
  * Common authentication and validation for admin routes
@@ -123,7 +124,7 @@ export async function getAdminEmails(): Promise<string[]> {
 export async function notifyLetterOwner(params: {
   userId: string
   letterId: string
-  templateName: string
+  templateName: EmailTemplate
   templateData: Record<string, unknown>
 }) {
   const supabase = await createClient()

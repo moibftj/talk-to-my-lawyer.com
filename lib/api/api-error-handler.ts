@@ -11,8 +11,8 @@ import { ZodError } from 'zod'
  */
 export class ApiError extends Error {
   constructor(
-    public statusCode: number,
-    public message: string,
+    public override statusCode: number,
+    public override message: string,
     public code?: string,
     public details?: unknown
   ) {
@@ -134,8 +134,8 @@ export function handleApiError(error: unknown, context?: string): NextResponse {
 /**
  * Type-safe async handler wrapper that catches and formats errors
  */
-export function withApiHandler<T>(
-  handler: () => Promise<NextResponse | T>,
+export function withApiHandler<T extends NextResponse>(
+  handler: () => Promise<T>,
   context?: string
 ): Promise<NextResponse> {
   return handler().catch((error) => handleApiError(error, context))
