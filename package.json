@@ -106,7 +106,7 @@
     "react-dom": "^19.2.3",
     "react-hook-form": "^7.60.0",
     "react-resizable-panels": "^2.1.7",
-    "recharts": "2.15.4",
+    "recharts": "3.6.0",
     "resend": "^6.6.0",
     "sonner": "^1.7.4",
     "stripe": "^20.1.0",
