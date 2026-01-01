@@ -53,7 +53,8 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
+      <title>Admin Login - Talk-To-My-Lawyer</title>
       <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
@@ -159,6 +160,6 @@ export default function AdminLoginPage() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </main>
   )
 }
