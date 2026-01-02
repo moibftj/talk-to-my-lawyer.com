@@ -4,6 +4,7 @@
   "private": true,
   "packageManager": "pnpm@10.27.0",
   "scripts": {
+    "predeploy:check": "node scripts/pre-deploy-check.js",
     "precommit": "pnpm lint && pnpm audit --audit-level=high",
     "hooks:install": "./scripts/install-git-hooks.sh",
     "build": "next build",
