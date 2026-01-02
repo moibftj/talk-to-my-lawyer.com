@@ -60,7 +60,7 @@ export async function handleCSRFTokenRequest(): Promise<NextResponse> {
  */
 export async function updateLetterStatus(params: {
   letterId: string
-  status: string
+  status?: string
   additionalFields?: Record<string, unknown>
   auditAction: string
   auditNotes: string
@@ -76,13 +76,16 @@ export async function updateLetterStatus(params: {
     .eq('id', letterId)
     .single()
 
-  // Update letter with new status
-  const updateData = {
-    status,
+  // Update letter with new status (only include status if provided)
+  const updateData: Record<string, unknown> = {
     reviewed_by: adminSession?.userId,
     reviewed_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...additionalFields
+  }
+
+  if (status !== undefined) {
+    updateData.status = status
   }
 
   const { error: updateError } = await supabase
@@ -92,12 +95,12 @@ export async function updateLetterStatus(params: {
 
   if (updateError) throw updateError
 
-  // Log audit trail
+  // Log audit trail (use provided status or current status if unchanged)
   await supabase.rpc('log_letter_audit', {
     p_letter_id: letterId,
     p_action: auditAction,
     p_old_status: letter?.status || 'unknown',
-    p_new_status: status,
+    p_new_status: status ?? letter?.status ?? 'unknown',
     p_notes: auditNotes
   })
 

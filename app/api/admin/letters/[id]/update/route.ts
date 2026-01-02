@@ -38,11 +38,11 @@ export async function POST(
 
     // Build additional fields and audit notes based on action
     let additionalFields: Record<string, unknown> = {}
-    let newStatus = ''
+    let newStatus: string | undefined = undefined
     let auditAction = ''
     let auditNotes = ''
     let shouldNotify = false
-    let emailTemplate = '' as const
+    let emailTemplate: 'letter-approved' | 'letter-rejected' | '' = ''
 
     switch (action) {
       case 'edit_content': {
@@ -54,7 +54,7 @@ export async function POST(
           )
         }
         additionalFields = { final_content: sanitizeResult.sanitized.finalContent }
-        newStatus = undefined // Keep current status
+        // newStatus remains undefined to keep current status
         auditAction = 'content_edited'
         auditNotes = 'Letter content edited by admin'
         break
