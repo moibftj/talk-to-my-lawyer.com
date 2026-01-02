@@ -43,7 +43,6 @@ export async function POST(request: NextRequest) {
 
     let discount = 0
     let employeeId = null
-    let isSuperUserCoupon = false
     let couponId = null
 
     if (couponCode) {
@@ -51,7 +50,6 @@ export async function POST(request: NextRequest) {
       if (couponCode.toUpperCase() === 'TALK3') {
         discount = 100
         employeeId = null // No commission for TALK3
-        isSuperUserCoupon = false // Not a super user coupon
         couponId = null
       } else {
         // Enhanced coupon validation with fraud detection
@@ -97,11 +95,6 @@ export async function POST(request: NextRequest) {
           discount = coupon.discount_percent
           employeeId = coupon.employee_id
           couponId = coupon.id
-
-          // If 100% discount, mark as super user
-          if (discount === 100) {
-            isSuperUserCoupon = true
-          }
 
           // Log coupon usage with fraud detection context
           await supabase
@@ -206,17 +199,6 @@ export async function POST(request: NextRequest) {
         throw new Error(`Failed to create subscription: ${subError.message}`)
       }
 
-      if (isSuperUserCoupon) {
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .update({ is_super_user: true })
-          .eq('id', user.id)
-
-        if (profileError) {
-          console.error('[Checkout] Profile update error:', profileError)
-        }
-      }
-
       if (couponCode) {
         const { error: usageError } = await supabase
           .from('coupon_usage')
@@ -235,7 +217,7 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      if (employeeId && subscription && !isSuperUserCoupon) {
+      if (employeeId && subscription) {
         const commissionAmount = finalPrice * 0.05
 
         const { error: commissionError } = await supabase
@@ -426,7 +408,6 @@ export async function POST(request: NextRequest) {
         final_price: finalPrice.toString(),
         coupon_code: couponCode || '',
         employee_id: employeeId || '',
-        is_super_user_coupon: isSuperUserCoupon.toString(),
         coupon_id: couponId || ''
       }
     })

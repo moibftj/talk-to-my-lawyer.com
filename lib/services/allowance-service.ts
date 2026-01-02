@@ -100,10 +100,6 @@ export async function checkGenerationEligibility(
     reason,
   }
 }
-    totalGenerated,
-    reason,
-  }
-}
 
 /**
  * Deduct letter allowance with proper error handling
