@@ -1,18 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyAdminCredentials, createAdminSession } from '@/lib/auth/admin-session'
+import { verifyAdminCredentials, createAdminSession, type AdminSubRole } from '@/lib/auth/admin-session'
 import { adminRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
 
 /**
- * Admin login endpoint - Role-based authentication
+ * Admin login endpoint - Role-based authentication with sub-role routing
  *
  * No shared secret required. Each admin uses their own credentials.
- * Access is determined solely by the `role = 'admin'` field in the profiles table.
+ * Access is determined by:
+ * 1. `role = 'admin'` in the profiles table
+ * 2. `admin_sub_role` determines which portal they access:
+ *    - 'system_admin' → /secure-admin-gateway (full access)
+ *    - 'attorney_admin' → /attorney-portal (review only)
  *
  * Security benefits:
  * - Individual accountability (each admin has unique credentials)
  * - No shared secret to leak or rotate
  * - Easy deactivation (just change the user's role)
  * - Full audit trail of which admin performed each action
+ * - Separation of duties between system and attorney admins
  */
 export async function POST(request: NextRequest) {
   try {
@@ -32,7 +37,7 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify credentials and check admin role
+    // Verify credentials and check admin role (returns subRole)
     const result = await verifyAdminCredentials(email, password)
 
     if (!result.success) {
@@ -49,12 +54,20 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create admin session
-    await createAdminSession(result.userId!, email)
+    // Create admin session with sub-role
+    const subRole: AdminSubRole = result.subRole || 'system_admin'
+    await createAdminSession(result.userId!, email, subRole)
+
+    // Determine redirect URL based on sub-role
+    const redirectUrl = subRole === 'attorney_admin'
+      ? '/attorney-portal/review'
+      : '/secure-admin-gateway/dashboard'
 
     return NextResponse.json({
       success: true,
-      message: 'Admin authentication successful'
+      message: 'Admin authentication successful',
+      redirectUrl,
+      subRole
     })
 
   } catch (error) {

@@ -5,9 +5,13 @@ import { NextRequest, NextResponse } from 'next/server'
 const ADMIN_SESSION_COOKIE = 'admin_session'
 const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes in milliseconds
 
+// Admin sub-role enum - matches database enum
+export type AdminSubRole = 'system_admin' | 'attorney_admin'
+
 export interface AdminSession {
   userId: string
   email: string
+  subRole: AdminSubRole
   loginTime: number
   lastActivity: number
 }
@@ -15,10 +19,15 @@ export interface AdminSession {
 /**
  * Create an admin session after successful authentication
  */
-export async function createAdminSession(userId: string, email: string): Promise<void> {
+export async function createAdminSession(
+  userId: string,
+  email: string,
+  subRole: AdminSubRole = 'system_admin'
+): Promise<void> {
   const session: AdminSession = {
     userId,
     email,
+    subRole,
     loginTime: Date.now(),
     lastActivity: Date.now(),
   }
@@ -36,6 +45,7 @@ export async function createAdminSession(userId: string, email: string): Promise
   console.log('[AdminAuth] Admin session created:', {
     userId,
     email,
+    subRole,
     timestamp: new Date().toISOString()
   })
 }
@@ -126,7 +136,7 @@ export async function destroyAdminSession(): Promise<void> {
 export async function verifyAdminCredentials(
   email: string,
   password: string
-): Promise<{ success: boolean; userId?: string; error?: string }> {
+): Promise<{ success: boolean; userId?: string; subRole?: AdminSubRole; error?: string }> {
   const supabase = await createClient()
 
   // Authenticate with Supabase Auth (each admin has their own account)
@@ -147,7 +157,7 @@ export async function verifyAdminCredentials(
   // This is the SINGLE source of truth for admin access
   const { data: profile, error: profileError } = await supabase
     .from('profiles')
-    .select('id, role, full_name')
+    .select('id, role, admin_sub_role, full_name')
     .eq('id', authData.user.id)
     .single()
 
@@ -171,15 +181,19 @@ export async function verifyAdminCredentials(
     }
   }
 
+  // Default to system_admin if admin_sub_role is not set (for backward compatibility)
+  const subRole: AdminSubRole = (profile.admin_sub_role as AdminSubRole) || 'system_admin'
+
   // Log successful authentication for audit trail
   console.log('[AdminAuth] Admin authenticated successfully:', {
     userId: profile.id,
     email,
     name: profile.full_name,
+    subRole,
     timestamp: new Date().toISOString()
   })
 
-  return { success: true, userId: profile.id }
+  return { success: true, userId: profile.id, subRole }
 }
 
 /**
@@ -231,3 +245,106 @@ export async function requireAdminAuth(): Promise<NextResponse | undefined> {
 
   return undefined
 }
+
+/**
+ * Get admin sub-role from database
+ */
+export async function getAdminSubRole(userId: string): Promise<AdminSubRole | null> {
+  const supabase = await createClient()
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('admin_sub_role')
+    .eq('id', userId)
+    .single()
+
+  // Default to system_admin for backward compatibility
+  return (profile?.admin_sub_role as AdminSubRole) || 'system_admin'
+}
+
+/**
+ * Get current admin's sub-role from session
+ */
+export async function getCurrentAdminSubRole(): Promise<AdminSubRole | null> {
+  const session = await verifyAdminSession()
+  if (!session) {
+    return null
+  }
+  return session.subRole
+}
+
+/**
+ * Require System Admin authentication for API routes
+ * Use this for endpoints that should only be accessible by system admins:
+ * - Analytics
+ * - User management
+ * - Coupon management
+ * - Commission payouts
+ * - Email queue management
+ */
+export async function requireSystemAdminAuth(): Promise<NextResponse | undefined> {
+  const session = await verifyAdminSession()
+  if (!session) {
+    return NextResponse.json(
+      { error: 'Admin authentication required' },
+      { status: 401 }
+    )
+  }
+
+  // Check if user is a system admin
+  if (session.subRole !== 'system_admin') {
+    console.warn('[AdminAuth] System admin access required:', {
+      userId: session.userId,
+      subRole: session.subRole
+    })
+    return NextResponse.json(
+      { error: 'System admin access required' },
+      { status: 403 }
+    )
+  }
+
+  return undefined
+}
+
+/**
+ * Require Attorney Admin or System Admin authentication for API routes
+ * Use this for endpoints that both admin types can access:
+ * - Letter review
+ * - Letter approval/rejection
+ */
+export async function requireAttorneyAdminAccess(): Promise<NextResponse | undefined> {
+  const session = await verifyAdminSession()
+  if (!session) {
+    return NextResponse.json(
+      { error: 'Admin authentication required' },
+      { status: 401 }
+    )
+  }
+
+  // Both attorney_admin and system_admin can access letter review
+  // The check is: session.subRole must be either 'attorney_admin' or 'system_admin'
+  // Since we only have these two types, all authenticated admins can access
+  return undefined
+}
+
+/**
+ * Check if current user is a System Admin
+ */
+export async function isSystemAdmin(): Promise<boolean> {
+  const session = await verifyAdminSession()
+  if (!session) {
+    return false
+  }
+  return session.subRole === 'system_admin'
+}
+
+/**
+ * Check if current user is an Attorney Admin
+ */
+export async function isAttorneyAdmin(): Promise<boolean> {
+  const session = await verifyAdminSession()
+  if (!session) {
+    return false
+  }
+  return session.subRole === 'attorney_admin'
+}
+

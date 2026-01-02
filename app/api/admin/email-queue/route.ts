@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdminAuth } from '@/lib/auth/admin-session'
+import { requireSystemAdminAuth } from '@/lib/auth/admin-session'
 import { adminRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
 import { processEmailQueue } from '@/lib/email/queue'
-import { validateAdminAction } from '@/lib/admin/letter-actions'
+import { validateSystemAdminAction } from '@/lib/admin/letter-actions'
 
 export const runtime = 'nodejs'
 
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     const rateLimitResponse = await safeApplyRateLimit(request, adminRateLimit, 30, '1 m')
     if (rateLimitResponse) return rateLimitResponse
 
-    const authError = await requireAdminAuth()
+    const authError = await requireSystemAdminAuth()
     if (authError) return authError
 
     const supabase = await createClient()
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     const rateLimitResponse = await safeApplyRateLimit(request, adminRateLimit, 5, '1 m')
     if (rateLimitResponse) return rateLimitResponse
 
-    const validationError = await validateAdminAction(request)
+    const validationError = await validateSystemAdminAction(request)
     if (validationError) return validationError
 
     const body = await request.json()

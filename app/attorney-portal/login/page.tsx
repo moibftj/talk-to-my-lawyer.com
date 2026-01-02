@@ -8,8 +8,9 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { DEFAULT_LOGO_ALT, DEFAULT_LOGO_SRC } from '@/lib/constants'
+import { Scale } from 'lucide-react'
 
-export default function AdminLoginPage() {
+export default function AttorneyLoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -39,13 +40,13 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Authentication failed')
       }
 
-      // Use redirectUrl from response (handles both system admin and attorney admin routing)
-      const redirectUrl = data.redirectUrl || '/secure-admin-gateway/dashboard'
+      // Use redirectUrl from response, default to attorney-portal review
+      const redirectUrl = data.redirectUrl || '/attorney-portal/review'
       router.push(redirectUrl)
       router.refresh()
 
     } catch (err: any) {
-      console.error('[AdminLogin] Error:', err)
+      console.error('[AttorneyLogin] Error:', err)
       setError(err.message || 'Failed to authenticate')
     } finally {
       setLoading(false)
@@ -54,24 +55,29 @@ export default function AdminLoginPage() {
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-      <title>Admin Login - Talk-To-My-Lawyer</title>
+      <title>Attorney Admin Login - Talk-To-My-Lawyer</title>
       <Card className="w-full max-w-md border-slate-700 bg-slate-800/50 backdrop-blur">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
-            <Image
-              src={DEFAULT_LOGO_SRC}
-              alt={DEFAULT_LOGO_ALT}
-              width={56}
-              height={56}
-              className="h-14 w-14 rounded-full logo-badge"
-              priority
-            />
+            <div className="relative">
+              <Image
+                src={DEFAULT_LOGO_SRC}
+                alt={DEFAULT_LOGO_ALT}
+                width={56}
+                height={56}
+                className="h-14 w-14 rounded-full logo-badge"
+                priority
+              />
+              <div className="absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-1.5">
+                <Scale className="w-4 h-4 text-white" />
+              </div>
+            </div>
           </div>
           <CardTitle className="text-2xl font-bold text-center text-white">
-            Admin Portal
+            Attorney Admin Portal
           </CardTitle>
           <CardDescription className="text-center text-slate-400">
-            Sign in with your admin account
+            Sign in to review and approve legal letters
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -81,7 +87,7 @@ export default function AdminLoginPage() {
               <Input
                 id="email"
                 type="email"
-                placeholder="admin@talk-to-my-lawyer.com"
+                placeholder="attorney@talk-to-my-lawyer.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -115,7 +121,7 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={loading}
-              className="w-full bg-red-600 hover:bg-red-700 text-white"
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white"
             >
               {loading ? (
                 <span className="flex items-center gap-2">
@@ -135,7 +141,7 @@ export default function AdminLoginPage() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
-                Secure admin access • All actions are logged
+                Secure attorney access • Letter review only
               </p>
             </div>
           </form>

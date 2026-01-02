@@ -4,19 +4,47 @@
  */
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
-import { requireAdminAuth, getAdminSession } from '@/lib/auth/admin-session'
+import {
+  requireAdminAuth,
+  requireSystemAdminAuth,
+  requireAttorneyAdminAccess,
+  getAdminSession
+} from '@/lib/auth/admin-session'
 import { validateAdminRequest, generateAdminCSRF } from '@/lib/security/csrf'
 import { sanitizeString } from '@/lib/security/input-sanitizer'
 import { sendTemplateEmail } from '@/lib/email/service'
 import type { EmailTemplate } from '@/lib/email/types'
 
 /**
- * Common authentication and validation for admin routes
+ * Common authentication and validation for admin letter review routes
+ * Accessible by both System Admin and Attorney Admin
  * Returns null if valid, or error response if invalid
  */
 export async function validateAdminAction(request: NextRequest): Promise<NextResponse | null> {
-  // Verify admin authentication
-  const authError = await requireAdminAuth()
+  // Verify admin authentication (both system and attorney admins can review letters)
+  const authError = await requireAttorneyAdminAccess()
+  if (authError) return authError
+
+  // CSRF Protection for admin actions
+  const csrfResult = await validateAdminRequest(request)
+  if (!csrfResult.valid) {
+    return NextResponse.json(
+      { error: 'CSRF validation failed', details: csrfResult.error },
+      { status: 403 }
+    )
+  }
+
+  return null
+}
+
+/**
+ * Authentication and validation for system admin only routes
+ * Accessible ONLY by System Admin
+ * Returns null if valid, or error response if invalid
+ */
+export async function validateSystemAdminAction(request: NextRequest): Promise<NextResponse | null> {
+  // Verify system admin authentication
+  const authError = await requireSystemAdminAuth()
   if (authError) return authError
 
   // CSRF Protection for admin actions
@@ -35,7 +63,7 @@ export async function validateAdminAction(request: NextRequest): Promise<NextRes
  * Generate CSRF token for GET requests
  */
 export async function handleCSRFTokenRequest(): Promise<NextResponse> {
-  const authError = await requireAdminAuth()
+  const authError = await requireAttorneyAdminAccess()
   if (authError) return authError
 
   try {
