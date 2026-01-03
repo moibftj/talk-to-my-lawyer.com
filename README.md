@@ -26,7 +26,33 @@ AI-powered legal letter generation platform with mandatory attorney review.
 - **Yearly Plan**: $599/year (52 letters per year)
 - **Free Trial**: First letter free for new users
 
-## Getting Started
+## 📚 Documentation
+
+Complete documentation is available in the `/docs` directory. See **[docs/README.md](./docs/README.md)** for a comprehensive documentation index.
+
+### Comprehensive Guides (Recommended Starting Point)
+
+- **[Setup & Configuration Guide](docs/SETUP_AND_CONFIGURATION.md)** - Environment setup, database, admin users, test mode
+- **[Architecture & Development Guide](docs/ARCHITECTURE_AND_DEVELOPMENT.md)** - System architecture, workflows, development guidelines
+- **[API & Integrations Guide](docs/API_AND_INTEGRATIONS.md)** - Stripe, email, GitHub secrets, payment testing
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Production deployment, CI/CD, monitoring, runbooks
+
+### Topic-Specific Guides
+
+| Guide | Description |
+|-------|-------------|
+| [**Setup Guide**](./docs/SETUP.md) | Complete installation and configuration |
+| [**Admin Guide**](./docs/ADMIN_GUIDE.md) | Admin user management and multi-admin system |
+| [**Development**](./docs/DEVELOPMENT.md) | Architecture, patterns, and development guide |
+| [**Deployment**](./docs/DEPLOYMENT.md) | CI/CD pipeline and Vercel deployment |
+| [**Operations**](./docs/OPERATIONS.md) | Production operations and monitoring |
+| [**Payments**](./docs/PAYMENTS.md) | Stripe integration and payment testing |
+| [**Testing**](./docs/TESTING.md) | Test mode, manual testing, and tracing |
+| [**Database**](./docs/DATABASE.md) | Database schema, migrations, and operations |
+| [**Security**](./docs/SECURITY.md) | Security audit, fixes, and best practices |
+| [**Tracing**](./docs/TRACING.md) | OpenTelemetry distributed tracing setup |
+
+## Quick Start
 
 ### Prerequisites
 
@@ -36,7 +62,32 @@ AI-powered legal letter generation platform with mandatory attorney review.
 - Stripe account
 - OpenAI API key
 
-### Environment Variables
+### Installation
+
+```bash
+# Clone repository
+git clone https://github.com/moizjmj-pk/talk-to-my-lawyer.git
+cd talk-to-my-lawyer
+
+# Install dependencies
+pnpm install
+
+# Copy environment file
+cp .env.example .env.local
+
+# Configure environment variables (see docs/SETUP_AND_CONFIGURATION.md or docs/SETUP.md)
+# Edit .env.local with your credentials
+
+# Run database migrations
+pnpm db:migrate
+
+# Start development server
+pnpm dev
+```
+
+Visit `http://localhost:3000` to see the application.
+
+### Environment Variables (Quick Reference)
 
 Copy `.env.example` to `.env.local` and fill in:
 
@@ -45,9 +96,8 @@ Copy `.env.example` to `.env.local` and fill in:
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
-DATABASE_URL=
 
-# OpenAI via Vercel AI Gateway
+# OpenAI
 OPENAI_API_KEY=
 
 # Stripe
@@ -55,85 +105,54 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
 
-# Admin Portal (for multi-admin access)
+# Admin Portal
 ADMIN_PORTAL_KEY=
 
-# Email Service (choose provider)
-EMAIL_PROVIDER=resend  # Options: resend, brevo, sendgrid, smtp, console
-EMAIL_FROM=noreply@talk-to-my-lawyer.com
-EMAIL_FROM_NAME=Talk-To-My-Lawyer
-
-# Resend (recommended)
+# Email Service
+EMAIL_PROVIDER=resend
 RESEND_API_KEY=
 
-# Or Brevo
-BREVO_API_KEY=
-
-# Or SendGrid
-SENDGRID_API_KEY=
-
-# Or SMTP
-SMTP_HOST=smtp-relay.brevo.com
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-
-# Rate Limiting (Upstash Redis)
+# Rate Limiting
 KV_REST_API_URL=
 KV_REST_API_TOKEN=
-
-# Application
-NEXT_PUBLIC_SITE_URL=
 ```
 
-### Development
+See **[docs/SETUP_AND_CONFIGURATION.md](./docs/SETUP_AND_CONFIGURATION.md)** or **[docs/SETUP.md](./docs/SETUP.md)** for complete environment variable documentation.
+
+## Essential Commands
 
 ```bash
-pnpm install
-pnpm dev
+pnpm install          # Install dependencies
+pnpm dev              # Start development server
+pnpm build            # Production build
+pnpm lint             # Lint code
+pnpm validate-env     # Validate environment variables
+pnpm db:migrate       # Run database migrations
 ```
 
-### Deploy to Vercel
-
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
-
-## Database Setup
-
-Run the SQL migrations in order:
-
-1. **Scripts**: Run `/scripts/*.sql` files in order (001-023) in Supabase SQL Editor
-2. **Migrations**: Run `/supabase/migrations/*.sql` files in order
-
 ## Creating Admin Users
-
-The platform supports **multiple admin users** who share the same admin dashboard.
-
-### Create an Admin User
 
 ```bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password>
 ```
 
-**Example:**
-```bash
-npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts admin@company.com SecurePass123!
-```
+See **[docs/ADMIN_GUIDE.md](./docs/ADMIN_GUIDE.md)** for complete admin management documentation.
 
-### Admin Login
+## Deployment
 
-1. Go to `/secure-admin-gateway/login`
-2. Enter email & password (their own credentials)
-3. Enter the Admin Portal Key (from `ADMIN_PORTAL_KEY` env var)
+The project uses GitHub Actions for CI/CD and deploys to Vercel:
 
-### How Multi-Admin Works
+- **Push to `main`** triggers automatic production deployment
+- **Pull requests** trigger preview deployments
+- **Dependabot** handles dependency updates weekly
 
-- Each admin has their own Supabase Auth account
-- All admins share the same dashboard at `/secure-admin-gateway`
-- Admin access is controlled by `role = 'admin'` in the `profiles` table
-- All admins can review, approve, and reject letters
+See **[docs/DEPLOYMENT_GUIDE.md](./docs/DEPLOYMENT_GUIDE.md)** or **[docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md)** for complete deployment documentation.
+
+## Support
+
+- **Documentation**: See [/docs](./docs) directory
+- **Issues**: https://github.com/moizjmj-pk/talk-to-my-lawyer/issues
+- **Production Site**: https://www.talk-to-my-lawyer.com
 
 ## License
 
