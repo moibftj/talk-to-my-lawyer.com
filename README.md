@@ -8,6 +8,15 @@ AI-powered legal letter generation platform with mandatory attorney review.
 ⚖️ **Admin Portal**: https://www.talk-to-my-lawyer.com/secure-admin-gateway  
 📊 **System Status**: https://www.talk-to-my-lawyer.com/api/health
 
+## 📚 Documentation
+
+Comprehensive documentation is available in the `/docs` directory:
+
+- **[Setup & Configuration Guide](docs/SETUP_AND_CONFIGURATION.md)** - Environment setup, database, admin users, test mode
+- **[Architecture & Development Guide](docs/ARCHITECTURE_AND_DEVELOPMENT.md)** - System architecture, workflows, development guidelines
+- **[API & Integrations Guide](docs/API_AND_INTEGRATIONS.md)** - Stripe, email, GitHub secrets, payment testing
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Production deployment, CI/CD, monitoring, runbooks
+
 ## 🎯 Production Features (LIVE)
 
 - ✅ **Real Payment Processing** - Stripe Live Mode with actual transactions
@@ -26,7 +35,7 @@ AI-powered legal letter generation platform with mandatory attorney review.
 - **Yearly Plan**: $599/year (52 letters per year)
 - **Free Trial**: First letter free for new users
 
-## Getting Started
+## Quick Start
 
 ### Prerequisites
 
@@ -36,104 +45,52 @@ AI-powered legal letter generation platform with mandatory attorney review.
 - Stripe account
 - OpenAI API key
 
-### Environment Variables
-
-Copy `.env.example` to `.env.local` and fill in:
-
-```env
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
-DATABASE_URL=
-
-# OpenAI via Vercel AI Gateway
-OPENAI_API_KEY=
-
-# Stripe
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
-
-# Admin Portal (for multi-admin access)
-ADMIN_PORTAL_KEY=
-
-# Email Service (choose provider)
-EMAIL_PROVIDER=resend  # Options: resend, brevo, sendgrid, smtp, console
-EMAIL_FROM=noreply@talk-to-my-lawyer.com
-EMAIL_FROM_NAME=Talk-To-My-Lawyer
-
-# Resend (recommended)
-RESEND_API_KEY=
-
-# Or Brevo
-BREVO_API_KEY=
-
-# Or SendGrid
-SENDGRID_API_KEY=
-
-# Or SMTP
-SMTP_HOST=smtp-relay.brevo.com
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
-
-# Rate Limiting (Upstash Redis)
-KV_REST_API_URL=
-KV_REST_API_TOKEN=
-
-# Application
-NEXT_PUBLIC_SITE_URL=
-```
-
-### Development
+### Installation
 
 ```bash
+# Clone the repository
+git clone https://github.com/moizjmj-pk/talk-to-my-lawyer.git
+cd talk-to-my-lawyer
+
+# Install dependencies
 pnpm install
+
+# Copy environment file
+cp .env.example .env.local
+
+# Fill in your environment variables
+# See docs/SETUP_AND_CONFIGURATION.md for details
+
+# Run database migrations
+pnpm db:migrate
+
+# Start development server
 pnpm dev
 ```
 
-### Deploy to Vercel
+Visit http://localhost:3000
 
-1. Push to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
-
-## Database Setup
-
-Run the SQL migrations in order:
-
-1. **Scripts**: Run `/scripts/*.sql` files in order (001-023) in Supabase SQL Editor
-2. **Migrations**: Run `/supabase/migrations/*.sql` files in order
-
-## Creating Admin Users
-
-The platform supports **multiple admin users** who share the same admin dashboard.
-
-### Create an Admin User
+### Essential Commands
 
 ```bash
-npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password>
+pnpm install          # Install dependencies
+pnpm dev              # Development server
+pnpm lint             # Linting (required before delivery)
+CI=1 pnpm build       # Production build with strict checks
+pnpm validate-env     # Validate environment variables
 ```
 
-**Example:**
-```bash
-npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts admin@company.com SecurePass123!
-```
+For detailed setup instructions, see **[Setup & Configuration Guide](docs/SETUP_AND_CONFIGURATION.md)**.
 
-### Admin Login
 
-1. Go to `/secure-admin-gateway/login`
-2. Enter email & password (their own credentials)
-3. Enter the Admin Portal Key (from `ADMIN_PORTAL_KEY` env var)
+## 📖 Additional Resources
 
-### How Multi-Admin Works
+For more detailed information, see:
 
-- Each admin has their own Supabase Auth account
-- All admins share the same dashboard at `/secure-admin-gateway`
-- Admin access is controlled by `role = 'admin'` in the `profiles` table
-- All admins can review, approve, and reject letters
+- **[Setup & Configuration](docs/SETUP_AND_CONFIGURATION.md)** - Complete setup guide
+- **[Architecture & Development](docs/ARCHITECTURE_AND_DEVELOPMENT.md)** - System design and development
+- **[API & Integrations](docs/API_AND_INTEGRATIONS.md)** - Third-party integrations
+- **[Deployment Guide](docs/DEPLOYMENT_GUIDE.md)** - Production deployment and operations
 
 ## License
 
