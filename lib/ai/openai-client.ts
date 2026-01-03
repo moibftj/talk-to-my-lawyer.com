@@ -11,7 +11,6 @@
  */
 
 import { openai, createOpenAI } from "@ai-sdk/openai"
-import type { OpenAIProvider } from "@ai-sdk/openai"
 
 /**
  * Get an OpenAI provider configured for Vercel AI Gateway (if available)
@@ -19,7 +18,7 @@ import type { OpenAIProvider } from "@ai-sdk/openai"
  *
  * @returns OpenAI provider function (call with model name to get a model)
  */
-export function getOpenAIProvider(): OpenAIProvider {
+export function getOpenAIProvider() {
   const gatewayApiKey = process.env.AI_GATEWAY_API_KEY
 
   if (gatewayApiKey) {
