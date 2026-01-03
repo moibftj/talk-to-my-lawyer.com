@@ -1,3 +1,4 @@
+import { EmailTemplate } from "@/lib/email/types"
 import { NextRequest, NextResponse } from 'next/server'
 import { validateAdminAction, updateLetterStatus, notifyLetterOwner } from '@/lib/admin/letter-actions'
 import { sanitizeReviewData } from '@/lib/admin/letter-actions'
@@ -42,7 +43,7 @@ export async function POST(
     let auditAction = ''
     let auditNotes = ''
     let shouldNotify = false
-    let emailTemplate: 'letter-approved' | 'letter-rejected' | '' = ''
+    let emailTemplate: EmailTemplate | null = null
 
     switch (action) {
       case 'edit_content': {
@@ -141,7 +142,7 @@ export async function POST(
       await notifyLetterOwner({
         userId: letter.user_id,
         letterId,
-        templateName: emailTemplate,
+        templateName: emailTemplate as EmailTemplate,
         templateData: {
           letterTitle: letter.title || 'Your letter',
           ...(rejectionReason && { rejectionReason })
