@@ -17,6 +17,11 @@ export default async function ReviewLayout({
     redirect('/secure-admin-gateway/login')
   }
 
+  // Enforce Super Admin only access to System Admin portal
+  if (session.subRole !== 'super_admin') {
+    redirect('/attorney-portal/review')
+  }
+
   const navigation = [
     {
       name: 'Dashboard',
@@ -105,7 +110,7 @@ export default async function ReviewLayout({
             </div>
             <div className="flex items-center gap-1 mt-1">
               <Shield className="h-3 w-3 text-amber-500" />
-              <span className="text-xs text-amber-500 font-semibold">Super Administrator</span>
+              <span className="text-xs text-amber-500 font-semibold">System Admin</span>
             </div>
             <p className="text-xs text-slate-500 mt-1">
               Session expires in {Math.round((1800000 - (Date.now() - session.lastActivity)) / 60000)} min
