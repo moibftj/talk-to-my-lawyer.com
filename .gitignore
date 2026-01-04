@@ -24,6 +24,8 @@ yarn.lock
 VERCEL_ENV_SETUP.md
 *_SECRETS.md
 *_CREDENTIALS.md
+*_SECRETS*
+*_CREDENTIALS*
 *.secrets
 *.credentials
 secrets.json

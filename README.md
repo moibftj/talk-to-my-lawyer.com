@@ -56,6 +56,7 @@ Complete documentation is available in the `/docs` directory. See **[docs/README
 | [**Testing**](./docs/TESTING.md) | Test mode, manual testing, and tracing |
 | [**Database**](./docs/DATABASE.md) | Database schema, migrations, and operations |
 | [**Security**](./docs/SECURITY.md) | Security audit, fixes, and best practices |
+| [**Security Scanner**](./docs/SECURITY_SCANNER.md) | Automated security scanning and secret detection |
 | [**Tracing**](./docs/TRACING.md) | OpenTelemetry distributed tracing setup |
 
 ---

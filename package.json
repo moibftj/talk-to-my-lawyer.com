@@ -23,6 +23,7 @@
     "db:migrate": "node scripts/run-migrations.js",
     "audit:security": "pnpm audit --audit-level=high",
     "audit:fix": "./scripts/fix-security.sh",
+    "security:scan": "node scripts/security-scan.js",
     "update:packages": "pnpm update --latest",
     "autocommit": "git add -A && git diff --staged --quiet || (git commit -m \"Auto-commit: $(date)\" && git push origin main)",
     "autocommit:script": "./scripts/autocommit.sh",
