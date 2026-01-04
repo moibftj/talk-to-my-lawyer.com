@@ -49,7 +49,7 @@ export const USER_ROLES = ['subscriber', 'employee', 'admin'] as const
 
 // API Route Handler Types
 export interface RouteContext<TParams = Record<string, string>> {
-  params: Promise<TParams>
+  params: TParams
 }
 
 // Letter Generation Types

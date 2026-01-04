@@ -45,13 +45,13 @@ function extractParties(letter: LetterRecord): {
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const rateLimitResponse = await safeApplyRateLimit(request, apiRateLimit, 100, '1 m')
     if (rateLimitResponse) return rateLimitResponse
 
-    const { id } = await params
+    const { id } = params
     const supabase = await createClient()
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()

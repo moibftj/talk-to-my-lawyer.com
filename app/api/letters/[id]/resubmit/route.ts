@@ -7,13 +7,13 @@ import { getOpenAIModel } from '@/lib/ai/openai-client'
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const rateLimitResponse = await safeApplyRateLimit(request, letterGenerationRateLimit, 5, '1 h')
     if (rateLimitResponse) return rateLimitResponse
 
-    const { id } = await params
+    const { id } = params
     const supabase = await createClient()
 
     // Authenticate user

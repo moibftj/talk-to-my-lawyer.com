@@ -13,7 +13,7 @@ import { adminRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
  */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     // Apply rate limiting
@@ -24,7 +24,7 @@ export async function POST(
     const validationError = await validateAdminAction(request)
     if (validationError) return validationError
 
-    const { id: letterId } = await params
+    const { id: letterId } = params
     const body = await request.json()
     const { action, finalContent, reviewNotes, rejectionReason } = body
 

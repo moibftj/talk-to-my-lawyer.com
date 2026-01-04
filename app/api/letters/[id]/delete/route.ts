@@ -7,13 +7,13 @@ export const runtime = 'nodejs'
 // DELETE - Delete a letter (only for subscriber's own letters, and only drafts/rejected)
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   try {
     const rateLimitResponse = await safeApplyRateLimit(request, apiRateLimit, 100, '1 m')
     if (rateLimitResponse) return rateLimitResponse
 
-    const { id } = await params
+    const { id } = params
     const supabase = await createClient()
 
     // Check authentication

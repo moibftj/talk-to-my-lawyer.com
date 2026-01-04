@@ -12,11 +12,11 @@ export default async function LetterDetailPage({
   params,
   searchParams,
 }: {
-  params: Promise<{ id: string }>
-  searchParams?: Promise<{ submitted?: string }>
+  params: { id: string }
+  searchParams?: { submitted?: string }
 }) {
-  const { id } = await params
-  const resolvedSearchParams = await searchParams
+  const { id } = params
+  const resolvedSearchParams = searchParams
   const { profile } = await getUser()
   const supabase = await createClient()
 

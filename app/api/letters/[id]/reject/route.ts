@@ -10,7 +10,7 @@ import { handleAdminLetterAction } from '@/lib/api/admin-action-handler'
 // POST endpoint to reject a letter
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: { id: string } }
 ) {
   return handleAdminLetterAction(request, params, 'reject')
 }

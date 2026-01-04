@@ -66,8 +66,8 @@ export async function getAdminCSRFToken(): Promise<NextResponse> {
 /**
  * Extract and validate letter ID from route params
  */
-export async function getLetterId(params: Promise<{ id: string }>): Promise<string> {
-  const { id: letterId } = await params
+export function getLetterId(params: { id: string }): string {
+  const { id: letterId } = params
   return letterId
 }
 
@@ -191,7 +191,7 @@ function buildAuditNotes(
  */
 export async function handleAdminLetterAction(
   request: NextRequest,
-  params: Promise<{ id: string }>,
+  params: { id: string },
   actionName: string
 ): Promise<NextResponse> {
   try {
@@ -206,7 +206,7 @@ export async function handleAdminLetterAction(
     if (validationError) return validationError
 
     // 3. Get letter ID
-    const letterId = await getLetterId(params)
+    const letterId = getLetterId(params)
 
     // 4. Parse request body
     const body = await request.json()
