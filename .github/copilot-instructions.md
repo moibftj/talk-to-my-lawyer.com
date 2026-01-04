@@ -1,145 +1,184 @@
 # Copilot Instructions for Talk-To-My-Lawyer
 
-AI-assisted legal letter generation platform with mandatory attorney review. Subscribers generate AI drafts → admins review/approve → subscribers receive finalized letters as PDFs.
+AI legal letter drafting with **mandatory attorney review**.
 
-## Non-Negotiable Rules
+## Non‑negotiables (security + roles)
 
-1. **Only subscribers can generate letters** - Employees and admins must never access letter generation APIs
-2. **Admin review is mandatory** - No "raw AI" letters reach subscribers; every letter requires approval
-3. **Employees never see letter content** - They only see coupon stats and commissions
-4. **Respect RLS** - Never disable Row Level Security; all DB access respects role scoping
-5. **Do not leak secrets** - Never log env var values; refer to names like `OPENAI_API_KEY` only
-6. **Use pnpm exclusively** - Never add npm/yarn lockfiles (`packageManager=pnpm@10.27.0`)
+1. **Only subscribers can generate letters.** Employees and admins must never access letter generation APIs.
+2. **Admin review is mandatory.** No “raw AI” letters reach subscribers.
+3. **Employees never see letter content.** They only see coupon stats + commissions.
+4. **Respect Supabase RLS.** Never disable Row Level Security.
+5. **Do not leak secrets.** Never log env var values (mention names like `OPENAI_API_KEY` only).
+6. **Use pnpm only.** Do not add npm/yarn lockfiles.
 
-## Essential Commands
+## Commands
 
 ```bash
-pnpm install          # Install dependencies
-pnpm dev              # Development server
-pnpm lint             # Required before delivery
-CI=1 pnpm build       # Production build (stricter checks)
-pnpm validate-env     # Check environment variables
+pnpm install
+pnpm dev
+pnpm lint
+CI=1 pnpm build
+pnpm validate-env
 ```
 
-## Architecture Patterns
+## Repo map
 
-### API Route Structure
-All routes under `app/api/` follow this pattern (see [generate-letter/route.ts](/app/api/generate-letter/route.ts)):
+- API routes: `app/api/**/route.ts`
+- Subscriber UI: `app/dashboard/**`
+- Admin portals: `app/secure-admin-gateway/**` and `app/attorney-portal/**`
+- Supabase clients: `lib/supabase/server.ts` (server) and `lib/supabase/client.ts` (client)
+- API error helpers: `lib/api/api-error-handler.ts`
+- Rate limiting: `lib/rate-limit-redis.ts`
+- Validation: `lib/validation/**`
 
-```typescript
+## API route pattern
+
+Order: 1) rate limit → 2) auth → 3) role check → 4) validate/sanitize → 5) business logic → 6) consistent response.
+
+```ts
+import { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
-import { safeApplyRateLimit, letterGenerationRateLimit } from '@/lib/rate-limit-redis'
-import { successResponse, errorResponses, handleApiError } from '@/lib/api/api-error-handler'
+import { safeApplyRateLimit, apiRateLimit } from "@/lib/rate-limit-redis"
+import { successResponse, errorResponses, handleApiError } from "@/lib/api/api-error-handler"
 
 export async function POST(request: NextRequest) {
-  // 1. Rate limit
-  const rateLimitResponse = await safeApplyRateLimit(request, letterGenerationRateLimit, 5, "1 h")
-  if (rateLimitResponse) return rateLimitResponse
+  try {
+    const rateLimitResponse = await safeApplyRateLimit(request, apiRateLimit, 100, "1 m")
+    if (rateLimitResponse) return rateLimitResponse
 
-  // 2. Auth check
-  const supabase = await createClient()
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  if (authError || !user) return errorResponses.unauthorized()
+    const supabase = await createClient()
+    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    if (authError || !user) return errorResponses.unauthorized()
 
-  // 3. Role check via profiles table
-  const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
-  if (profile?.role !== "subscriber") return errorResponses.forbidden("Only subscribers can...")
+    const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single()
+    // if (profile?.role !== "subscriber") return errorResponses.forbidden("Only subscribers can ...")
 
-  // 4. Business logic...
-  return successResponse(data)
+    return successResponse({ ok: true })
+  } catch (error) {
+    return handleApiError(error, "API")
+  }
 }
 ```
 
-### Admin Routes
-Use `requireAdminAuth()` from [lib/auth/admin-guard.ts](/lib/auth/admin-guard.ts):
+## Admin routes
 
-```typescript
-import { requireAdminAuth } from '@/lib/auth/admin-guard'
+- Use `requireAdminAuth()` from `lib/auth/admin-guard.ts` for admin-only routes.
+- Admin login requires the `ADMIN_PORTAL_KEY` factor (do not bypass).
 
-const authError = await requireAdminAuth()
-if (authError) return authError
+## Endpoints (objective only)
+
+### Auth
+
+- `POST /api/auth/reset-password` — Send a password reset email.
+- `POST /api/auth/update-password` — Update the user password after reset.
+
+### Admin auth
+
+- `POST /api/admin-auth/login` — Admin login (creates admin session; routes by sub-role).
+- `POST /api/admin-auth/logout` — Admin logout (clears admin session).
+
+### Profile
+
+- `POST /api/create-profile` — Create/update the user profile row after signup.
+
+### Checkout & billing
+
+- `POST /api/create-checkout` — Create a checkout flow (Stripe session or free flow) for a plan/coupon.
+- `POST /api/verify-payment` — Verify checkout and finalize subscription/credits.
+- `GET /api/subscriptions/check-allowance` — Return remaining letter credits/allowance.
+- `GET /api/subscriptions/billing-history` — Return billing history for the current user.
+- `POST /api/subscriptions/activate` — Activate the current user’s subscription and apply allowances.
+- `POST /api/subscriptions/reset-monthly` — Cron reset of monthly allowances.
+
+### Letters
+
+- `POST /api/generate-letter` — Generate an AI draft letter for a subscriber (for attorney review).
+- `POST /api/letters/drafts` — Create/update a draft letter (autosave).
+- `GET /api/letters/drafts` — List the user’s draft letters.
+
+- `POST /api/letters/[id]/submit` — Submit a letter for attorney review.
+- `POST /api/letters/[id]/start-review` — Mark a letter as under review (attorney/admin).
+
+- `GET /api/letters/[id]/approve` — Get CSRF token for the approve action.
+- `POST /api/letters/[id]/approve` — Approve a letter (attorney/admin action).
+- `POST /api/letters/[id]/reject` — Reject a letter with a reason (attorney/admin action).
+- `POST /api/letters/[id]/resubmit` — Resubmit a rejected letter.
+
+- `POST /api/letters/[id]/complete` — Mark a letter as completed.
+- `DELETE /api/letters/[id]/delete` — Delete a letter (draft/rejected/failed; user-owned).
+
+- `POST /api/letters/[id]/improve` — Improve a specific letter via AI.
+- `POST /api/letters/improve` — Improve provided letter content via AI (admin tool).
+
+- `GET /api/letters/[id]/pdf` — Generate/download a letter PDF.
+- `POST /api/letters/[id]/send-email` — Queue sending a letter by email.
+- `GET /api/letters/[id]/audit` — Fetch a letter’s audit trail.
+
+### Admin
+
+- `GET /api/admin/csrf` — Get a CSRF token for admin actions.
+- `GET /api/admin/letters` — List letters for admin review/management.
+- `POST /api/admin/letters/[id]/update` — Update a letter (admin edit).
+- `POST /api/admin/letters/batch` — Bulk update letters (admin).
+
+- `GET /api/admin/analytics` — Fetch admin analytics/stats.
+
+- `GET /api/admin/coupons` — List coupons and usage stats.
+- `POST /api/admin/coupons/create` — Create a promo coupon.
+- `PATCH /api/admin/coupons/create` — Toggle promo coupon active status.
+
+- `GET /api/admin/email-queue` — View email queue items + stats.
+- `POST /api/admin/email-queue` — Trigger queue processing or manage retries/cleanup.
+
+### Employee
+
+- `GET /api/employee/referral-link` — Get employee coupon + referral/share links.
+- `GET /api/employee/payouts` — Get employee commission/payout summary.
+- `POST /api/employee/payouts` — Request a commission payout.
+
+### GDPR
+
+- `POST /api/gdpr/accept-privacy-policy` — Record privacy policy acceptance/consents.
+- `GET /api/gdpr/accept-privacy-policy` — Check acceptance for a required version.
+
+- `POST /api/gdpr/export-data` — Create (and possibly immediately fulfill) a user data export request.
+- `GET /api/gdpr/export-data` — List recent export requests for the current user.
+
+- `POST /api/gdpr/delete-account` — Create an account deletion request.
+- `GET /api/gdpr/delete-account` — List deletion requests/status for the current user.
+- `DELETE /api/gdpr/delete-account` — Admin executes an approved deletion request.
+
+### Email queue cron
+
+- `POST /api/cron/process-email-queue` — Process queued emails (cron-secured).
+- `GET /api/cron/process-email-queue` — Health/status for the cron endpoint.
+
+### Stripe
+
+- `POST /api/stripe/webhook` — Handle Stripe webhook events.
+
+### Health
+
+- `GET /api/health` — Basic service health check.
+- `GET /api/health/detailed` — Detailed health diagnostics.
+
+## Email (Resend)
+
+- Templates: `lib/email/templates.ts` keyed by `EmailTemplate` in `lib/email/types.ts`.
+- Direct sends: `sendTemplateEmail()` / `sendEmail()` in `lib/email/service.ts`.
+- Reliable delivery: enqueue via `lib/email/queue.ts` and process via `POST /api/cron/process-email-queue` (or `/api/admin/email-queue`).
+
+```ts
+import { sendTemplateEmail } from "@/lib/email/service"
+
+await sendTemplateEmail("letter-approved", userEmail, {
+  userName: "…",
+  letterTitle: "…",
+  letterLink: "…",
+})
 ```
 
-### Supabase Client Usage
-- **Server/API routes**: `import { createClient } from "@/lib/supabase/server"` (async)
-- **Client components**: `import { createClient } from "@/lib/supabase/client"` (sync)
+## Admin creation
 
-### Error Handling
-Use helpers from [lib/api/api-error-handler.ts](/lib/api/api-error-handler.ts):
-- `errorResponses.unauthorized()`, `.forbidden()`, `.validation()`, `.notFound()`
-- `successResponse(data, status?)` for consistent JSON responses
-- `handleApiError(error, context)` in catch blocks
-
-### Validation
-Use schema-based validation from [lib/validation/letter-schema.ts](/lib/validation/letter-schema.ts):
-```typescript
-const validation = validateLetterGenerationRequest(letterType, intakeData)
-if (!validation.valid) return errorResponses.validation("Invalid input", validation.errors)
-```
-
-### Rate Limiting
-Predefined limiters in [lib/rate-limit-redis.ts](/lib/rate-limit-redis.ts):
-- `authRateLimit` - 5/15min
-- `apiRateLimit` - 100/1min
-- `letterGenerationRateLimit` - 5/1hr
-- `subscriptionRateLimit` - 3/1hr
-
-Falls back to in-memory when Upstash unavailable.
-
-## Key Domain Concepts
-
-### User Roles (`profiles.role`)
-- `subscriber` - Generate letters, view own letters, manage subscription
-- `employee` - Coupon code (20% off), commission tracking (5%), never sees letters
-- `admin` - Two sub-roles via `profiles.admin_sub_role`:
-  - `super_admin` - Full access: Analytics, all users, all letters, coupon tracking, commission management
-  - `attorney_admin` - Limited access: Letter review center, profile settings only
-
-### Admin Role Helper Functions
-- `is_super_admin()` - Returns true for `role='admin'` AND `admin_sub_role='super_admin'`
-- `is_attorney_admin()` - Returns true for `role='admin'` AND `admin_sub_role='attorney_admin'`
-- `get_admin_dashboard_stats()` - Comprehensive stats for Super Admin only
-
-### Elevating a User to Admin
-Admins are never created through normal signup. Use one of these methods:
-
-**CLI Script (recommended):**
-```bash
-npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password>
-```
-
-**Promote existing user via SQL:**
-```sql
-UPDATE profiles SET role = 'admin' WHERE email = 'user@example.com';
-```
-
-Admin login requires 3 factors: email + password + `ADMIN_PORTAL_KEY` environment variable.
-
-### Letter Status Flow
-`draft` → `generating` → `pending_review` → `under_review` → `approved`/`rejected`/`completed`/`failed`
-
-### Key Database RPCs (Supabase)
-- `check_letter_allowance(user_id)` - Check remaining credits
-- `deduct_letter_allowance(user_id)` - Atomic credit deduction
-- `log_letter_audit(letter_id, action, ...)` - Audit trail
-
-## Directory Reference
-
-| Path | Purpose |
-|------|---------|
-| `app/api/` | Route handlers (letters, auth, subscriptions, admin) |
-| `app/dashboard/` | Subscriber UI |
-| `app/secure-admin-gateway/` | Admin portal (requires portal key + role) |
-| `lib/auth/` | Auth guards, admin sessions, user helpers |
-| `lib/api/` | Shared error handlers and response helpers |
-| `lib/email/service.ts` | Provider-agnostic email with templates |
-| `lib/validation/` | Input validation schemas |
-| `lib/services/` | Business logic (allowance, subscriptions) |
-| `scripts/*.sql` | DB migrations (run in numeric order) |
-
-## Component Conventions
-
-- Functional React components with hooks
-- `'use client'` directive only when interactive
-- shadcn/ui primitives in `components/ui/`
-- Tailwind for styling; use existing design tokens from [lib/design-tokens.ts](/lib/design-tokens.ts)
+- Prefer the repo scripts and pnpm tooling (avoid `npx`).
+- If you need `.env.local` loaded for scripts, use `pnpm dlx dotenv-cli -e .env.local -- pnpm tsx ...`.
