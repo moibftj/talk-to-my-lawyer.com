@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
 - `POST /api/verify-payment` — Verify checkout and finalize subscription/credits.
 - `GET /api/subscriptions/check-allowance` — Return remaining letter credits/allowance.
 - `GET /api/subscriptions/billing-history` — Return billing history for the current user.
-- `POST /api/subscriptions/activate` — Admin/manual subscription activation.
+- `POST /api/subscriptions/activate` — Activate the current user’s subscription and apply allowances.
 - `POST /api/subscriptions/reset-monthly` — Cron reset of monthly allowances.
 
 ### Letters
@@ -183,6 +183,34 @@ export async function POST(request: NextRequest) {
 - Admin: `ADMIN_PORTAL_KEY`
 - Cron: `CRON_SECRET`
 - Email (at least one provider): `RESEND_API_KEY` + `EMAIL_FROM`
+
+## Email (Resend)
+
+- Templates live in `lib/email/templates.ts` and are keyed by `EmailTemplate` (see `lib/email/types.ts`).
+- Use `sendTemplateEmail()` / `sendEmail()` from `lib/email/service.ts` for direct sends.
+- For reliability (retries + persistence), enqueue via `lib/email/queue.ts` and process via `POST /api/cron/process-email-queue` (or the super-admin tools under `/api/admin/email-queue`).
+
+**Send a template (direct):**
+
+```ts
+import { sendTemplateEmail } from "@/lib/email/service"
+
+await sendTemplateEmail("letter-approved", userEmail, {
+  userName: "…",
+  letterTitle: "…",
+  letterLink: "…",
+})
+```
+
+**Add/modify a template:**
+
+1) Update `EmailTemplate` (if adding a new key) in `lib/email/types.ts`.
+2) Implement the template in `lib/email/templates.ts` (subject + `text` + `html`).
+
+**Config:**
+
+- Resend: `RESEND_API_KEY`
+- Sender: `EMAIL_FROM` (and optional `EMAIL_FROM_NAME`)
 
 ## Commands
 
