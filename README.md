@@ -46,7 +46,7 @@ Complete documentation is available in the `/docs` directory. See **[docs/README
 ### Topic-Specific Guides
 
 | Guide | Description |
-|-------|-------------|
+| ------- | ------------- |
 | [**Setup Guide**](./docs/SETUP.md) | Complete installation and configuration |
 | [**Admin Guide**](./docs/ADMIN_GUIDE.md) | Admin user management and multi-admin system |
 | [**Development**](./docs/DEVELOPMENT.md) | Architecture, patterns, and development guide |
