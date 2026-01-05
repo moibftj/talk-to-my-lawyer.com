@@ -4,9 +4,9 @@
 
 AI-powered legal letter generation platform with mandatory attorney review.
 
-🌐 **Live Site**: https://www.talk-to-my-lawyer.com  
-⚖️ **Admin Portal**: https://www.talk-to-my-lawyer.com/secure-admin-gateway  
-📊 **System Status**: https://www.talk-to-my-lawyer.com/api/health  
+🌐 **Live Site**: <https://www.talk-to-my-lawyer.com>
+⚖️ **Admin Portal**: <https://www.talk-to-my-lawyer.com/secure-admin-gateway>  
+📊 **System Status**: <https://www.talk-to-my-lawyer.com/api/health>  
 
 ---
 
