@@ -1,6 +1,6 @@
 /**
  * Email Provider Verification Script
- * Verifies that all email providers are properly configured and working
+ * Verifies that Resend email provider is properly configured and working
  */
 
 import { getEmailService } from './service'
@@ -14,19 +14,18 @@ type TestResult = {
   details?: string
 }
 
-async function testProvider(providerName: string): Promise<TestResult> {
+async function testResendProvider(): Promise<TestResult> {
   try {
     const emailService = getEmailService()
-    const provider = emailService.getProvider(providerName as any)
 
     const result: TestResult = {
-      provider: providerName,
-      configured: provider.isConfigured(),
+      provider: 'resend',
+      configured: emailService.isConfigured(),
       testSucceeded: false
     }
 
-    if (!provider.isConfigured()) {
-      result.details = `${providerName} is not configured`
+    if (!emailService.isConfigured()) {
+      result.details = 'Resend is not configured. Set RESEND_API_KEY environment variable.'
       return result
     }
 
@@ -42,33 +41,14 @@ async function testProvider(providerName: string): Promise<TestResult> {
     const { subject, text, html } = renderTemplate('welcome', templateData)
 
     result.details = `Template rendered successfully: ${subject}`
-
-    // If it's the console provider, we can actually test sending
-    if (providerName === 'console') {
-      const emailResult = await emailService.send({
-        to: 'test@example.com',
-        subject,
-        text,
-        html
-      }, providerName as any)
-
-      result.testSucceeded = emailResult.success
-      if (emailResult.success) {
-        result.details += ` | Test email sent successfully (ID: ${emailResult.messageId})`
-      } else {
-        result.error = emailResult.error
-      }
-    } else {
-      // For other providers, just check configuration
-      result.testSucceeded = true
-      result.details += ` | Configuration verified`
-    }
+    result.testSucceeded = true
+    result.details += ' | Configuration verified'
 
     return result
 
   } catch (error) {
     return {
-      provider: providerName,
+      provider: 'resend',
       configured: false,
       testSucceeded: false,
       error: error instanceof Error ? error.message : 'Unknown error'
@@ -79,27 +59,22 @@ async function testProvider(providerName: string): Promise<TestResult> {
 export async function verifyEmailProviders(): Promise<TestResult[]> {
   console.log('🔍 Verifying Email Provider Configuration...\n')
 
-  const providers = ['resend', 'console']
-  const results: TestResult[] = []
+  const result = await testResendProvider()
+  const results = [result]
 
-  for (const provider of providers) {
-    console.log(`Testing ${provider}...`)
-    const result = await testProvider(provider)
-    results.push(result)
+  const status = result.configured ? '✅' : '❌'
+  const testStatus = result.testSucceeded ? '✅' : '❌'
 
-    const status = result.configured ? '✅' : '❌'
-    const testStatus = result.testSucceeded ? '✅' : '❌'
-
-    console.log(`  ${status} Configured: ${result.configured}`)
-    console.log(`  ${testStatus} Test: ${result.testSucceeded}`)
-    if (result.details) {
-      console.log(`  ℹ️  Details: ${result.details}`)
-    }
-    if (result.error) {
-      console.log(`  ❌ Error: ${result.error}`)
-    }
-    console.log('')
+  console.log(`Testing resend...`)
+  console.log(`  ${status} Configured: ${result.configured}`)
+  console.log(`  ${testStatus} Test: ${result.testSucceeded}`)
+  if (result.details) {
+    console.log(`  ℹ️  Details: ${result.details}`)
   }
+  if (result.error) {
+    console.log(`  ❌ Error: ${result.error}`)
+  }
+  console.log('')
 
   const configuredCount = results.filter(r => r.configured).length
   const workingCount = results.filter(r => r.testSucceeded).length
@@ -190,4 +165,4 @@ export async function runEmailServiceVerification(): Promise<{
 }
 
 // Export for use in test scripts
-export { testProvider }
+export { testResendProvider }
