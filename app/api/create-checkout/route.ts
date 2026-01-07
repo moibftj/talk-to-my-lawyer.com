@@ -174,80 +174,32 @@ export async function POST(request: NextRequest) {
       })
     }
 
-    // If 100% discount (non-TALK3), create subscription directly without payment
+    // If 100% discount (non-TALK3), create subscription atomically
     if (finalPrice === 0) {
-      const { data: subscription, error: subError } = await supabase
-        .from('subscriptions')
-        .insert({
-          user_id: user.id,
-          plan: planType,
-          plan_type: planType,
-          status: 'active',
-          price: finalPrice,
-          discount: discountAmount,
-          coupon_code: couponCode || null,
-          credits_remaining: selectedPlan.letters,
-          remaining_letters: selectedPlan.letters,
-          current_period_start: new Date().toISOString(),
-          current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-        })
-        .select()
-        .single()
+      // Use atomic transaction function to create subscription with commission
+      const { data: atomicResult, error: atomicError } = await supabase.rpc('create_free_subscription', {
+        p_user_id: user.id,
+        p_plan_type: planType,
+        p_monthly_allowance: selectedPlan.letters,
+        p_total_letters: selectedPlan.letters,
+        p_final_price: finalPrice,
+        p_base_price: basePrice,
+        p_discount_amount: discountAmount,
+        p_coupon_code: couponCode || null,
+        p_employee_id: employeeId || null,
+        p_commission_rate: 0.05,
+      })
 
-      if (subError) {
-        console.error('[Checkout] Subscription creation error:', subError)
-        throw new Error(`Failed to create subscription: ${subError.message}`)
+      if (atomicError || !atomicResult || !atomicResult[0]?.success) {
+        console.error('[Checkout] Atomic subscription creation failed:', atomicError)
+        throw new Error(`Failed to create subscription: ${atomicError?.message || atomicResult?.[0]?.error_message || 'Unknown error'}`)
       }
 
-      if (couponCode) {
-        const { error: usageError } = await supabase
-          .from('coupon_usage')
-          .insert({
-            user_id: user.id,
-            coupon_code: couponCode,
-            employee_id: employeeId,
-            discount_percent: discount,
-            amount_before: basePrice,
-            amount_after: finalPrice
-          })
-
-        if (usageError) {
-          console.error('[Checkout] Coupon usage tracking error:', usageError)
-          // Don't fail the checkout if usage tracking fails
-        }
-      }
-
-      if (employeeId && subscription) {
-        const commissionAmount = finalPrice * 0.05
-
-        const { error: commissionError } = await supabase
-          .from('commissions')
-          .insert({
-            employee_id: employeeId,
-            subscription_id: subscription.id,
-            subscription_amount: finalPrice,
-            commission_rate: 0.05,
-            commission_amount: commissionAmount,
-            status: 'pending'
-          })
-
-        if (commissionError) {
-          console.error('[Checkout] Commission creation error:', commissionError)
-        }
-
-        // Update coupon usage count atomically (prevents race condition)
-        const { error: incrementError } = await supabase.rpc('increment_coupon_usage_by_code', {
-          coupon_code: couponCode,
-        })
-
-        if (incrementError) {
-          console.error('[Checkout] Coupon usage increment error:', incrementError)
-        }
-      }
+      const result = atomicResult[0]
 
       return NextResponse.json({
         success: true,
-        subscriptionId: subscription.id,
+        subscriptionId: result.subscription_id,
         letters: selectedPlan.letters,
         message: 'Subscription created successfully'
       })
