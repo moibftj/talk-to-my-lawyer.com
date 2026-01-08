@@ -34,7 +34,7 @@ jobs:
 
       - name: Upload Security Report
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: security-scan-report
           path: |
@@ -105,7 +105,7 @@ jobs:
 
       - name: Upload Audit Report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: dependency-audit-report
           path: audit-report.json
