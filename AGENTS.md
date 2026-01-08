@@ -8,6 +8,7 @@
 - `public/` stores static assets; `supabase/` contains migrations and SQL.
 - `scripts/` includes automation (health checks, migrations, security scans).
 - `docs/` is the source of truth for setup, architecture, testing, and operations.
+- `proxy.ts` is the Next.js request proxy.
 
 ## Build and Development Commands
 - `pnpm dev` starts the local development server.

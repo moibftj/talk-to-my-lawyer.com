@@ -74,12 +74,8 @@ pnpm dev
    - Experiments: optimizePackageImports
    ```
 
-3. **Middleware Notice**
-   ```
-   ⚠ The "middleware" file convention is deprecated.
-   Use "proxy" instead.
-   ```
-   **Note:** This is a Next.js 16 informational warning about future conventions. Current middleware.ts works correctly.
+3. **Proxy Convention**
+   Using `proxy.ts` for request handling (no file-convention warning expected).
 
 4. **OpenTelemetry Tracing**
    ```
@@ -203,7 +199,7 @@ pnpm db:verify
 ```
 
 ### Key Files Verified
-- ✅ middleware.ts (208 lines)
+- ✅ proxy.ts (request proxy)
 - ✅ instrumentation.ts (25 lines)
 - ✅ next.config.mjs (141 lines)
 - ✅ app/layout.tsx (root layout)
@@ -218,7 +214,7 @@ pnpm db:verify
 - ✅ Fast Refresh for React components
 - ✅ API routes accessible
 - ✅ Static file serving
-- ✅ Middleware execution
+- ✅ Proxy execution
 - ✅ Server-side rendering
 - ✅ Client-side hydration
 
@@ -238,21 +234,12 @@ pnpm db:verify
 
 ## 7. Known Notices (Non-Blocking)
 
-### Next.js Middleware Convention
-```
-⚠ The "middleware" file convention is deprecated.
-Use "proxy" instead.
-```
-
+### Next.js Proxy Convention
 **Explanation:**
-- Next.js 16 is transitioning from `middleware.ts` to `proxy.ts` convention
-- Current `middleware.ts` still works correctly
-- This is a future-facing informational notice
-- No action required for current deployment
+- `proxy.ts` is used for request handling
+- No file-convention warning is expected after this update
 
 **Impact:** None (informational only)
-
-**When to Update:** Future major version upgrade (Next.js 17+)
 
 ---
 
@@ -266,7 +253,7 @@ Use "proxy" instead.
 | Linting passes | ✅ | No warnings |
 | Database connected | ✅ | All tables accessible |
 | Environment variables | ✅ | All required vars set |
-| Middleware functional | ✅ | Auth routing works |
+| Proxy functional | ✅ | Auth routing works |
 | API routes accessible | ✅ | 42 routes defined |
 | Graceful shutdown | ✅ | Handlers execute properly |
 | OpenTelemetry | ✅ | Tracing initialized |

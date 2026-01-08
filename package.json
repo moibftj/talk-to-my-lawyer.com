@@ -38,7 +38,8 @@
       "esbuild",
       "protobufjs",
       "sharp",
-      "supabase"
+      "supabase",
+      "unrs-resolver"
     ],
     "overrides": {
       "qs": "^6.14.1",

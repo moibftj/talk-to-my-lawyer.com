@@ -90,7 +90,7 @@ export async function verifyAdminSession(): Promise<AdminSession | null> {
 }
 
 /**
- * Verify admin session from request (for middleware)
+ * Verify admin session from request (for proxy)
  */
 export function verifyAdminSessionFromRequest(request: NextRequest): AdminSession | null {
   const sessionCookie = request.cookies.get(ADMIN_SESSION_COOKIE)
@@ -347,4 +347,3 @@ export async function isAttorneyAdmin(): Promise<boolean> {
   }
   return session.subRole === 'attorney_admin'
 }
-

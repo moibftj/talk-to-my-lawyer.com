@@ -26,7 +26,7 @@ Status: Killed by system OOM killer
 - Experiments (use with caution):
   · optimizePackageImports
 
-⚠ The "middleware" file convention is deprecated.
+(No file-convention warning after switching to `proxy.ts`)
   Creating an optimized production build ...
 Killed
 ```
@@ -120,7 +120,7 @@ Server: http://localhost:3000
 - All modules load correctly
 - No runtime initialization errors
 - API routes accessible
-- Middleware executes properly
+- Proxy executes properly
 - Database connects successfully
 - OpenTelemetry initializes
 
@@ -252,7 +252,7 @@ When `npm run dev` works (as it does), this guarantees:
 3. **Environment variables valid**
 4. **Database connections work**
 5. **API routes functional**
-6. **Middleware executes properly**
+6. **Proxy executes properly**
 
 ---
 

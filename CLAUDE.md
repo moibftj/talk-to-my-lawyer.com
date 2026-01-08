@@ -39,6 +39,7 @@ Last updated: 2026-01-04
 - Shared API responses/errors: `lib/api/api-error-handler.ts`
 - Rate limiting: `lib/rate-limit-redis.ts`
 - Validation: `lib/validation/**`
+- Request proxy: `proxy.ts` (Next.js request proxy)
 
 ## API route pattern (copy/paste)
 

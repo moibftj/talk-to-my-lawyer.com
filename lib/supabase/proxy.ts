@@ -32,7 +32,7 @@ export async function updateSession(request: NextRequest) {
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error(
-        '[Middleware] Missing Supabase env. Create .env.local (cp .env.example .env.local), set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart the dev server.'
+        '[Proxy] Missing Supabase env. Create .env.local (cp .env.example .env.local), set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart the dev server.'
       )
       // Allow access to auth pages and home without Supabase
       if (request.nextUrl.pathname.startsWith('/auth') || request.nextUrl.pathname === '/') {
@@ -177,7 +177,7 @@ export async function updateSession(request: NextRequest) {
 
     return supabaseResponse
   } catch (error) {
-    console.error('[v0] Middleware error:', error)
+    console.error('[v0] Proxy error:', error)
     
     // Allow access to auth pages even on error
     if (request.nextUrl.pathname.startsWith('/auth') || request.nextUrl.pathname === '/') {

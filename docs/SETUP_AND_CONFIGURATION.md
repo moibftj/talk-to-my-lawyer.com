@@ -299,7 +299,7 @@ Admin login requires **3 factors**:
 - **Fix**: Check session cookies are enabled, verify `role = 'admin'` in database
 
 **Issue**: Admin can't access certain routes
-- **Fix**: Verify middleware.ts is running, check RLS policies on tables
+- **Fix**: Verify proxy.ts is running, check RLS policies on tables
 
 **Issue**: Admin session expires too quickly
 - **Fix**: Increase `ADMIN_SESSION_TIMEOUT` constant in `lib/auth/admin-session.ts`
