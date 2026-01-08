@@ -9,7 +9,7 @@
 - `scripts/` includes automation (health checks, migrations, security scans).
 - `docs/` is the source of truth for setup, architecture, testing, and operations.
 
-## Build, Test, and Development Commands
+## Build and Development Commands
 - `pnpm dev` starts the local development server.
 - `pnpm lint` (or `pnpm lint:fix`) runs ESLint; required before delivery.
 - `CI=1 pnpm build` runs a stricter production build.
@@ -24,9 +24,7 @@
 - Naming: components in PascalCase, hooks in `useX` form, route handlers as `route.ts`.
 
 ## Testing Guidelines
-- Automated tests live under `tests/` with Vitest + React Testing Library and Playwright.
-- `pnpm test` runs unit/component tests; `pnpm test:e2e` runs browser E2E checks; `pnpm test:all` runs both.
-- Manual testing is still required for full workflows (see `docs/TESTING.md`).
+- Manual testing is the primary validation method (see `docs/TESTING.md`).
 - Enable test mode via `ENABLE_TEST_MODE="true"` and `NEXT_PUBLIC_TEST_MODE="true"`.
 - Use Stripe test card `4242 4242 4242 4242` and emails like `test+{type}@example.com`.
 - Helpful scripts: `node test-email-send.js`, `node scripts/test-supabase-connection.js`.

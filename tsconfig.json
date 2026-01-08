@@ -42,9 +42,6 @@
   ],
   "exclude": [
     "node_modules",
-    "scripts/*.ts",
-    "tests/**",
-    "playwright.config.ts",
-    "vitest.config.ts"
+    "scripts/*.ts"
   ]
 }
