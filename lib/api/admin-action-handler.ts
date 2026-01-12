@@ -158,7 +158,7 @@ export async function processLetterAction(
       templateName: actionConfig.templateName,
       templateData: {
         letterTitle: letter.title || 'Your letter',
-        ...(bodyData.rejectionReason && { rejectionReason: bodyData.rejectionReason }),
+        ...(bodyData.rejectionReason && { alertMessage: bodyData.rejectionReason }),
       },
     }).catch((error) => {
       console.error(`[Admin] Failed to send notification:`, error)

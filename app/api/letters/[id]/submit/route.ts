@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { authenticateUser } from '@/lib/auth/authenticate-user'
 import { apiRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
+import { queueTemplateEmail } from '@/lib/email/service'
 
 // Valid status transitions
 const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -102,6 +103,30 @@ export async function POST(
       p_new_status: newStatus,
       p_notes: 'Letter submitted for review by user'
     })
+
+    // Send confirmation email to user
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('email, full_name')
+      .eq('id', user.id)
+      .single()
+
+    const { data: letterData } = await supabase
+      .from('letters')
+      .select('title')
+      .eq('id', id)
+      .single()
+
+    if (profile?.email) {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+      queueTemplateEmail('letter-generated', profile.email, {
+        userName: profile.full_name || 'there',
+        letterTitle: letterData?.title || 'Your letter',
+        actionUrl: `${siteUrl}/dashboard/letters/${id}`,
+      }).catch(error => {
+        console.error('[Submit] Failed to queue confirmation email:', error)
+      })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
