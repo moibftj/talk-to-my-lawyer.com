@@ -143,7 +143,7 @@ importers:
         version: 8.6.0
       '@supabase/supabase-js':
         specifier: latest
-        version: 2.89.0
+        version: 2.90.1
       '@tanstack/react-query':
         specifier: ^5.90.11
         version: 5.90.16(react@19.2.3)
@@ -173,7 +173,7 @@ importers:
         version: 1.6.1(next@16.1.1(@opentelemetry/api@1.9.0)(@playwright/test@1.57.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3))(react@19.2.3)
       ai:
         specifier: ^6.0.3
-        version: 6.0.5(zod@4.2.1)
+        version: 6.0.26(zod@4.2.1)
       autoprefixer:
         specifier: ^10.4.19
         version: 10.4.23(postcss@8.5.6)
@@ -215,7 +215,7 @@ importers:
         version: 7.0.12
       openai:
         specifier: ^6.15.0
-        version: 6.15.0(ws@8.18.3)(zod@4.2.1)
+        version: 6.15.0(ws@8.19.0)(zod@4.2.1)
       pg:
         specifier: ^8.16.3
         version: 8.16.3
@@ -264,7 +264,7 @@ importers:
         version: 2025.12.18(hono@4.11.3)(zod@4.2.1)
       '@supabase/ssr':
         specifier: ^0.8.0
-        version: 0.8.0(@supabase/supabase-js@2.89.0)
+        version: 0.8.0(@supabase/supabase-js@2.90.1)
       '@tailwindcss/postcss':
         specifier: ^4.1.9
         version: 4.1.18
@@ -322,8 +322,8 @@ importers:
 
 packages:
 
-  '@ai-sdk/gateway@3.0.4':
-    resolution: {integrity: sha512-OlccjNYZ5+4FaNyvs0kb3N5H6U/QCKlKPTGsgUo8IZkqfMQu8ALI1XD6l/BCuTKto+OO9xUPObT/W7JhbqJ5nA==}
+  '@ai-sdk/gateway@3.0.10':
+    resolution: {integrity: sha512-sRlPMKd38+fdp2y11USW44c0o8tsIsT6T/pgyY04VXC3URjIRnkxugxd9AkU2ogfpPDMz50cBAGPnMxj+6663Q==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -340,8 +340,18 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
+  '@ai-sdk/provider-utils@4.0.4':
+    resolution: {integrity: sha512-VxhX0B/dWGbpNHxrKCWUAJKXIXV015J4e7qYjdIU9lLWeptk0KMLGcqkB4wFxff5Njqur8dt8wRi1MN9lZtDqg==}
+    engines: {node: '>=18'}
+    peerDependencies:
+      zod: ^3.25.76 || ^4.1.8
+
   '@ai-sdk/provider@3.0.1':
     resolution: {integrity: sha512-2lR4w7mr9XrydzxBSjir4N6YMGdXD+Np1Sh0RXABh7tWdNFFwIeRI1Q+SaYZMbfL8Pg8RRLcrxQm51yxTLhokg==}
+    engines: {node: '>=18'}
+
+  '@ai-sdk/provider@3.0.2':
+    resolution: {integrity: sha512-HrEmNt/BH/hkQ7zpi2o6N3k1ZR1QTb7z85WYhYygiTxOQuaml4CMtHCWRbric5WPU+RNsYI7r1EpyVQMKO1pYw==}
     engines: {node: '>=18'}
 
   '@alloc/quick-lru@5.2.0':
@@ -2368,20 +2378,20 @@ packages:
     resolution: {integrity: sha512-EB0/GGgs4hfezzkiMkinlRgWtjz8fSdwVQhwYS7Sg/RQrSvuNOz+ssPjD+lAzqaYTCB0zlbrt0fcqVziLJrufQ==}
     engines: {node: '>=12.16'}
 
-  '@supabase/auth-js@2.89.0':
-    resolution: {integrity: sha512-wiWZdz8WMad8LQdJMWYDZ2SJtZP5MwMqzQq3ehtW2ngiI3UTgbKiFrvMUUS3KADiVlk4LiGfODB2mrYx7w2f8w==}
+  '@supabase/auth-js@2.90.1':
+    resolution: {integrity: sha512-vxb66dgo6h3yyPbR06735Ps+dK3hj0JwS8w9fdQPVZQmocSTlKUW5MfxSy99mN0XqCCuLMQ3jCEiIIUU23e9ng==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/functions-js@2.89.0':
-    resolution: {integrity: sha512-XEueaC5gMe5NufNYfBh9kPwJlP5M2f+Ogr8rvhmRDAZNHgY6mI35RCkYDijd92pMcNM7g8pUUJov93UGUnqfyw==}
+  '@supabase/functions-js@2.90.1':
+    resolution: {integrity: sha512-x9mV9dF1Lam9qL3zlpP6mSM5C9iqMPtF5B/tU1Jj/F0ufX5mjDf9ghVBaErVxmrQJRL4+iMKWKY2GnODkpS8tw==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/postgrest-js@2.89.0':
-    resolution: {integrity: sha512-/b0fKrxV9i7RNOEXMno/I1862RsYhuUo+Q6m6z3ar1f4ulTMXnDfv0y4YYxK2POcgrOXQOgKYQx1eArybyNvtg==}
+  '@supabase/postgrest-js@2.90.1':
+    resolution: {integrity: sha512-jh6vqzaYzoFn3raaC0hcFt9h+Bt+uxNRBSdc7PfToQeRGk7PDPoweHsbdiPWREtDVTGKfu+PyPW9e2jbK+BCgQ==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/realtime-js@2.89.0':
-    resolution: {integrity: sha512-aMOvfDb2a52u6PX6jrrjvACHXGV3zsOlWRzZsTIOAJa0hOVvRp01AwC1+nLTGUzxzezejrYeCX+KnnM1xHdl+w==}
+  '@supabase/realtime-js@2.90.1':
+    resolution: {integrity: sha512-PWbnEMkcQRuor8jhObp4+Snufkq8C6fBp+MchVp2qBPY1NXk/c3Iv3YyiFYVzo0Dzuw4nAlT4+ahuPggy4r32w==}
     engines: {node: '>=20.0.0'}
 
   '@supabase/ssr@0.8.0':
@@ -2389,12 +2399,12 @@ packages:
     peerDependencies:
       '@supabase/supabase-js': ^2.76.1
 
-  '@supabase/storage-js@2.89.0':
-    resolution: {integrity: sha512-6zKcXofk/M/4Eato7iqpRh+B+vnxeiTumCIP+Tz26xEqIiywzD9JxHq+udRrDuv6hXE+pmetvJd8n5wcf4MFRQ==}
+  '@supabase/storage-js@2.90.1':
+    resolution: {integrity: sha512-GHY+Ps/K/RBfRj7kwx+iVf2HIdqOS43rM2iDOIDpapyUnGA9CCBFzFV/XvfzznGykd//z2dkGZhlZZprsVFqGg==}
     engines: {node: '>=20.0.0'}
 
-  '@supabase/supabase-js@2.89.0':
-    resolution: {integrity: sha512-KlaRwSfFA0fD73PYVMHj5/iXFtQGCcX7PSx0FdQwYEEw9b2wqM7GxadY+5YwcmuEhalmjFB/YvqaoNVF+sWUlg==}
+  '@supabase/supabase-js@2.90.1':
+    resolution: {integrity: sha512-U8KaKGLUgTIFHtwEW1dgw1gK7XrdpvvYo7nzzqPx721GqPe8WZbAiLh/hmyKLGBYQ/mmQNr20vU9tWSDZpii3w==}
     engines: {node: '>=20.0.0'}
 
   '@swc/helpers@0.5.15':
@@ -3035,8 +3045,8 @@ packages:
   '@vercel/node@5.5.16':
     resolution: {integrity: sha512-OoW99cfID3u45wbfOsy/Aibw55s0pzl4b4Wy77Weh690JhECFaiKeHL1GW6w8WGrObhKYDtsvYyoRJeKCm8kqA==}
 
-  '@vercel/oidc@3.0.5':
-    resolution: {integrity: sha512-fnYhv671l+eTTp48gB4zEsTW/YtRgRPnkI2nT7x6qw5rkI1Lq2hTmQIpHPgyThI0znLK+vX2n9XxKdXZ7BUbbw==}
+  '@vercel/oidc@3.1.0':
+    resolution: {integrity: sha512-Fw28YZpRnA3cAHHDlkt7xQHiJ0fcL+NRcIqsocZQUSmbzeIKRpwttJjik5ZGanXP+vlA4SbTg+AbA3bP363l+w==}
     engines: {node: '>= 20'}
 
   '@vercel/python@6.1.5':
@@ -3091,8 +3101,8 @@ packages:
     resolution: {integrity: sha512-MnA+YT8fwfJPgBx3m60MNqakm30XOkyIoH1y6huTQvC0PwZG7ki8NacLBcrPbNoo8vEZy7Jpuk7+jMO+CUovTQ==}
     engines: {node: '>= 14'}
 
-  ai@6.0.5:
-    resolution: {integrity: sha512-CKL3dDHedWskC6EY67LrULonZBU9vL+Bwa+xQEcprBhJfxpogntG3utjiAkYuy5ZQatyWk+SmWG8HLvcnhvbRg==}
+  ai@6.0.26:
+    resolution: {integrity: sha512-zU3Nvx2uTYzCOiWjsXZbsIFqk8ovn9NvhqXaLGIGe9m7p+faC0bRjWoY3fghzswEwEI9krJn73sd07IPzpl4Qw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -5875,8 +5885,8 @@ packages:
     resolution: {integrity: sha512-YnlPC6JqnZl6aO4uRc+dx5PHguiR9S6WeoLtpxNT9wIG+BDya7ZNE1q7KOjVgaA73hKhKLpVPgJ5QA9THQ5BRg==}
     engines: {node: ^20.17.0 || >=22.9.0}
 
-  ws@8.18.3:
-    resolution: {integrity: sha512-PEIGCY5tSlUt50cqyMXfCzX+oOPqN0vuGqWzbcJ2xvnkzkq46oOpz7dQaTDBdfICb4N14+GARUDw2XV2N4tvzg==}
+  ws@8.19.0:
+    resolution: {integrity: sha512-blAT2mjOEIi0ZzruJfIhb3nps74PRWTCz1IjglWEEpQl5XS/UNama6u2/rjFkDDouqr4L67ry+1aGIALViWjDg==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1
@@ -5941,11 +5951,11 @@ packages:
 
 snapshots:
 
-  '@ai-sdk/gateway@3.0.4(zod@4.2.1)':
+  '@ai-sdk/gateway@3.0.10(zod@4.2.1)':
     dependencies:
-      '@ai-sdk/provider': 3.0.1
-      '@ai-sdk/provider-utils': 4.0.2(zod@4.2.1)
-      '@vercel/oidc': 3.0.5
+      '@ai-sdk/provider': 3.0.2
+      '@ai-sdk/provider-utils': 4.0.4(zod@4.2.1)
+      '@vercel/oidc': 3.1.0
       zod: 4.2.1
 
   '@ai-sdk/openai@3.0.2(zod@4.2.1)':
@@ -5961,7 +5971,18 @@ snapshots:
       eventsource-parser: 3.0.6
       zod: 4.2.1
 
+  '@ai-sdk/provider-utils@4.0.4(zod@4.2.1)':
+    dependencies:
+      '@ai-sdk/provider': 3.0.2
+      '@standard-schema/spec': 1.1.0
+      eventsource-parser: 3.0.6
+      zod: 4.2.1
+
   '@ai-sdk/provider@3.0.1':
+    dependencies:
+      json-schema: 0.4.0
+
+  '@ai-sdk/provider@3.0.2':
     dependencies:
       json-schema: 0.4.0
 
@@ -8208,45 +8229,45 @@ snapshots:
 
   '@stripe/stripe-js@8.6.0': {}
 
-  '@supabase/auth-js@2.89.0':
+  '@supabase/auth-js@2.90.1':
     dependencies:
       tslib: 2.8.1
 
-  '@supabase/functions-js@2.89.0':
+  '@supabase/functions-js@2.90.1':
     dependencies:
       tslib: 2.8.1
 
-  '@supabase/postgrest-js@2.89.0':
+  '@supabase/postgrest-js@2.90.1':
     dependencies:
       tslib: 2.8.1
 
-  '@supabase/realtime-js@2.89.0':
+  '@supabase/realtime-js@2.90.1':
     dependencies:
       '@types/phoenix': 1.6.7
       '@types/ws': 8.18.1
       tslib: 2.8.1
-      ws: 8.18.3
+      ws: 8.19.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
 
-  '@supabase/ssr@0.8.0(@supabase/supabase-js@2.89.0)':
+  '@supabase/ssr@0.8.0(@supabase/supabase-js@2.90.1)':
     dependencies:
-      '@supabase/supabase-js': 2.89.0
+      '@supabase/supabase-js': 2.90.1
       cookie: 1.1.1
 
-  '@supabase/storage-js@2.89.0':
+  '@supabase/storage-js@2.90.1':
     dependencies:
       iceberg-js: 0.8.1
       tslib: 2.8.1
 
-  '@supabase/supabase-js@2.89.0':
+  '@supabase/supabase-js@2.90.1':
     dependencies:
-      '@supabase/auth-js': 2.89.0
-      '@supabase/functions-js': 2.89.0
-      '@supabase/postgrest-js': 2.89.0
-      '@supabase/realtime-js': 2.89.0
-      '@supabase/storage-js': 2.89.0
+      '@supabase/auth-js': 2.90.1
+      '@supabase/functions-js': 2.90.1
+      '@supabase/postgrest-js': 2.90.1
+      '@supabase/realtime-js': 2.90.1
+      '@supabase/storage-js': 2.90.1
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -9022,7 +9043,7 @@ snapshots:
       - rollup
       - supports-color
 
-  '@vercel/oidc@3.0.5': {}
+  '@vercel/oidc@3.1.0': {}
 
   '@vercel/python@6.1.5': {}
 
@@ -9093,11 +9114,11 @@ snapshots:
 
   agent-base@7.1.4: {}
 
-  ai@6.0.5(zod@4.2.1):
+  ai@6.0.26(zod@4.2.1):
     dependencies:
-      '@ai-sdk/gateway': 3.0.4(zod@4.2.1)
-      '@ai-sdk/provider': 3.0.1
-      '@ai-sdk/provider-utils': 4.0.2(zod@4.2.1)
+      '@ai-sdk/gateway': 3.0.10(zod@4.2.1)
+      '@ai-sdk/provider': 3.0.2
+      '@ai-sdk/provider-utils': 4.0.4(zod@4.2.1)
       '@opentelemetry/api': 1.9.0
       zod: 4.2.1
 
@@ -9796,8 +9817,8 @@ snapshots:
       '@typescript-eslint/parser': 8.52.0(eslint@8.57.1)(typescript@5.9.3)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1)
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       eslint-plugin-jsx-a11y: 6.10.2(eslint@8.57.1)
       eslint-plugin-react: 7.37.5(eslint@8.57.1)
       eslint-plugin-react-hooks: 5.0.0-canary-7118f5dd7-20230705(eslint@8.57.1)
@@ -9816,7 +9837,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.4.3
@@ -9827,22 +9848,22 @@ snapshots:
       tinyglobby: 0.2.15
       unrs-resolver: 1.11.1
     optionalDependencies:
-      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-module-utils@2.12.1(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.52.0(eslint@8.57.1)(typescript@5.9.3)
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-import-resolver-typescript: 3.10.1(eslint-plugin-import@2.32.0)(eslint@8.57.1)
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1):
+  eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.9
@@ -9853,7 +9874,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 8.57.1
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1(eslint-plugin-import@2.32.0(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint@8.57.1))(eslint@8.57.1))(eslint@8.57.1)
+      eslint-module-utils: 2.12.1(@typescript-eslint/parser@8.52.0(eslint@8.57.1)(typescript@5.9.3))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.10.1)(eslint@8.57.1)
       hasown: 2.0.2
       is-core-module: 2.16.1
       is-glob: 4.0.3
@@ -10962,9 +10983,9 @@ snapshots:
     dependencies:
       mimic-fn: 2.1.0
 
-  openai@6.15.0(ws@8.18.3)(zod@4.2.1):
+  openai@6.15.0(ws@8.19.0)(zod@4.2.1):
     optionalDependencies:
-      ws: 8.18.3
+      ws: 8.19.0
       zod: 4.2.1
 
   optionator@0.9.4:
@@ -12266,7 +12287,7 @@ snapshots:
       imurmurhash: 0.1.4
       signal-exit: 4.1.0
 
-  ws@8.18.3: {}
+  ws@8.19.0: {}
 
   xdg-app-paths@5.1.0:
     dependencies:
