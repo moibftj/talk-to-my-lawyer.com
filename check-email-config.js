@@ -28,21 +28,21 @@ const supabasePublicKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || pr
 const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
 
 const checks = {
-  'RESEND_API_KEY': process.env.RESEND_API_KEY,
-  'EMAIL_FROM': process.env.EMAIL_FROM,
-  'NEXT_PUBLIC_SUPABASE_URL': process.env.NEXT_PUBLIC_SUPABASE_URL,
-  'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | NEXT_PUBLIC_SUPABASE_ANON_KEY': supabasePublicKey,
-  'SUPABASE_SECRET_KEY | SUPABASE_SERVICE_ROLE_KEY': supabaseServiceKey,
+  'RESEND_API_KEY': { value: process.env.RESEND_API_KEY, sensitive: true },
+  'EMAIL_FROM': { value: process.env.EMAIL_FROM, sensitive: false },
+  'NEXT_PUBLIC_SUPABASE_URL': { value: process.env.NEXT_PUBLIC_SUPABASE_URL, sensitive: false },
+  'NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | NEXT_PUBLIC_SUPABASE_ANON_KEY': { value: supabasePublicKey, sensitive: false },
+  'SUPABASE_SECRET_KEY | SUPABASE_SERVICE_ROLE_KEY': { value: supabaseServiceKey, sensitive: true },
 }
 
 let allGood = true
 
 console.log('Environment Variables Status:\n')
 
-for (const [key, value] of Object.entries(checks)) {
+for (const [key, { value, sensitive }] of Object.entries(checks)) {
   const status = value ? '✅' : '❌'
-  const displayValue = value 
-    ? (value.substring(0, 10) + '...' + value.substring(value.length - 4))
+  const displayValue = value
+    ? (sensitive ? 'SET' : (value.substring(0, 10) + '...' + value.substring(value.length - 4)))
     : 'NOT SET'
   
   console.log(`${status} ${key}: ${displayValue}`)
