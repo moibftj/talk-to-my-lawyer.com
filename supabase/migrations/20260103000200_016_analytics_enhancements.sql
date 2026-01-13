@@ -20,8 +20,8 @@ SECURITY DEFINER
 SET search_path = public, pg_catalog
 AS $$
 BEGIN
-    -- Only system admins can access this
-    IF NOT public.is_system_admin() THEN
+    -- Only System Admins can access this
+    IF NOT public.is_super_admin() THEN
         RAISE EXCEPTION 'Access denied: System Admin only';
     END IF;
 
@@ -60,8 +60,8 @@ SECURITY DEFINER
 SET search_path = public, pg_catalog
 AS $$
 BEGIN
-    -- Only system admins can access this
-    IF NOT public.is_system_admin() THEN
+    -- Only System Admins can access this
+    IF NOT public.is_super_admin() THEN
         RAISE EXCEPTION 'Access denied: System Admin only';
     END IF;
 
@@ -94,8 +94,8 @@ SECURITY DEFINER
 SET search_path = public, pg_catalog
 AS $$
 BEGIN
-    -- Only system admins can access this
-    IF NOT public.is_system_admin() THEN
+    -- Only System Admins can access this
+    IF NOT public.is_super_admin() THEN
         RAISE EXCEPTION 'Access denied: System Admin only';
     END IF;
 
@@ -127,8 +127,8 @@ SECURITY DEFINER
 SET search_path = public, pg_catalog
 AS $$
 BEGIN
-    -- Both system admins and attorney admins can access this
-    IF NOT (public.is_system_admin() OR public.is_attorney_admin()) THEN
+    -- Both System Admins and Attorney Admins can access this
+    IF NOT (public.is_super_admin() OR public.is_attorney_admin()) THEN
         RAISE EXCEPTION 'Access denied: Admin only';
     END IF;
 
@@ -166,8 +166,8 @@ DECLARE
     current_user_id UUID;
     old_status TEXT;
 BEGIN
-    -- Both system admins and attorney admins can update letters
-    IF NOT (public.is_system_admin() OR public.is_attorney_admin()) THEN
+    -- Both System Admins and Attorney Admins can update letters
+    IF NOT (public.is_super_admin() OR public.is_attorney_admin()) THEN
         RAISE EXCEPTION 'Access denied: Admin only';
     END IF;
 

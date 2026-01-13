@@ -39,6 +39,7 @@ DECLARE
     v_is_free_trial BOOLEAN := FALSE;
     v_is_super_admin BOOLEAN := FALSE;
     v_total_generated INTEGER := 0;
+    v_admin_sub_role TEXT;
     letters_to_deduct INTEGER := 1;
 BEGIN
     -- Lock the user's profile row to prevent concurrent modifications
@@ -55,11 +56,15 @@ BEGIN
 
     v_total_generated := COALESCE(user_record.total_letters_generated, 0);
 
-    -- Check if user is super admin (unlimited letters, no deduction needed)
-    IF user_record.role = 'super_admin' THEN
-        v_is_super_admin := TRUE;
-        RETURN QUERY SELECT TRUE, NULL::INTEGER, NULL::TEXT, FALSE, TRUE;
-        RETURN;
+    -- Check if user is System Admin (super_admin sub-role) - unlimited letters, no deduction needed
+    IF user_record.role = 'admin' THEN
+        -- Check if this admin has super_admin sub-role
+        SELECT admin_sub_role INTO v_admin_sub_role FROM profiles WHERE id = p_user_id;
+        IF v_admin_sub_role = 'super_admin' THEN
+            v_is_super_admin := TRUE;
+            RETURN QUERY SELECT TRUE, NULL::INTEGER, NULL::TEXT, FALSE, TRUE;
+            RETURN;
+        END IF;
     END IF;
 
     -- Lock and check the user's active subscription

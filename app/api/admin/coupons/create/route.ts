@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { adminRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
-import { validateSystemAdminAction } from '@/lib/admin/letter-actions'
+import { validateSuperAdminAction } from '@/lib/admin/letter-actions'
 
 export const runtime = 'nodejs'
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       return rateLimitResponse
     }
 
-    const validationError = await validateSystemAdminAction(request)
+    const validationError = await validateSuperAdminAction(request)
     if (validationError) return validationError
 
     const body: CreateCouponRequest = await request.json()
@@ -124,7 +124,7 @@ export async function PATCH(request: NextRequest) {
     const rateLimitResponse = await safeApplyRateLimit(request, adminRateLimit, 20, '1 m')
     if (rateLimitResponse) return rateLimitResponse
 
-    const validationError = await validateSystemAdminAction(request)
+    const validationError = await validateSuperAdminAction(request)
     if (validationError) return validationError
 
     const { couponId, isActive } = await request.json()

@@ -38,12 +38,12 @@ export async function validateAdminAction(request: NextRequest): Promise<NextRes
 }
 
 /**
- * Authentication and validation for super admin only routes
- * Accessible ONLY by Super Admin
+ * Authentication and validation for System Admin only routes
+ * Accessible ONLY by System Admin (super_admin sub-role)
  * Returns null if valid, or error response if invalid
  */
-export async function validateSystemAdminAction(request: NextRequest): Promise<NextResponse | null> {
-  // Verify super admin authentication
+export async function validateSuperAdminAction(request: NextRequest): Promise<NextResponse | null> {
+  // Verify System Admin authentication
   const authError = await requireSuperAdminAuth()
   if (authError) return authError
 
