@@ -6,11 +6,20 @@
 
 const { Client } = require('pg');
 const dns = require('dns');
+const dotenv = require('dotenv');
 
 // Force IPv4 to avoid ENETUNREACH on IPv6
 dns.setDefaultResultOrder('ipv4first');
 
-const DATABASE_URL = 'postgresql://postgres:fIYe2RoUEKxTsxff@db.nomiiqzxaxyxnxndvkbe.supabase.co:5432/postgres';
+dotenv.config({ path: '.env.local' });
+
+const DATABASE_URL = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+
+if (!DATABASE_URL) {
+  console.error('❌ Missing DATABASE_URL (or SUPABASE_DB_URL) in the environment.');
+  console.error('   Example: DATABASE_URL=postgresql://postgres:<password>@db.<project>.supabase.co:5432/postgres');
+  process.exit(1);
+}
 
 const migrationSQL = `
 -- Fix employee coupon auto-generation system

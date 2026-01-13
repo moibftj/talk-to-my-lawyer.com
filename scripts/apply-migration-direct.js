@@ -14,7 +14,13 @@ dns.setDefaultResultOrder('ipv4first');
 // Load environment variables
 require('dotenv').config({ path: '.env.local' });
 
-const connectionString = 'postgresql://postgres:fIYe2RoUEKxTsxff@db.nomiiqzxaxyxnxndvkbe.supabase.co:5432/postgres';
+const connectionString = process.env.DATABASE_URL || process.env.SUPABASE_DB_URL;
+
+if (!connectionString) {
+  console.error('❌ Missing DATABASE_URL (or SUPABASE_DB_URL) in the environment.');
+  console.error('   Example: DATABASE_URL=postgresql://postgres:<password>@db.<project>.supabase.co:5432/postgres');
+  process.exit(1);
+}
 
 async function runMigration() {
   const client = new Client({
@@ -43,8 +49,8 @@ async function runMigration() {
     }
 
     console.log('🎯 Next steps:');
-    console.log('   1. Create system admin: npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts system@test.com Pass123! --role=system');
-    console.log('   2. Create attorney admin: npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts attorney@test.com Pass123! --role=attorney');
+    console.log('   1. Create system admin: npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password> --role=system');
+    console.log('   2. Create attorney admin: npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password> --role=attorney');
 
   } catch (error) {
     console.error('❌ Migration failed:', error.message);

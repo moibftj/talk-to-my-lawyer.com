@@ -3,9 +3,21 @@
  */
 
 const { createClient } = require('@supabase/supabase-js')
+const dotenv = require('dotenv')
 
-const supabaseUrl = 'https://nomiiqzxaxyxnxndvkbe.supabase.co'
-const supabaseServiceKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vbWlpcXp4YXh5eG54bmR2a2JlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2NDA3OTYyNCwiZXhwIjoyMDc5NjU1NjI0fQ.xxzjUylj-eEO91fnugufUfk_X2tSlM_-wWapkhoYs5I'
+dotenv.config({ path: '.env.local' })
+
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+const passwordArg = process.argv.find(arg => arg.startsWith('--password='))
+const testPassword = process.env.TEST_ACCOUNT_PASSWORD || (passwordArg ? passwordArg.split('=')[1] : null)
+
+if (!supabaseUrl || !supabaseServiceKey || !testPassword) {
+  console.error('❌ Missing required environment variables.')
+  console.error('   Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, TEST_ACCOUNT_PASSWORD')
+  console.error('   Or pass --password=<password> for the test account password.')
+  process.exit(1)
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
@@ -17,26 +29,26 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 const testAccounts = [
   {
     email: 'test-subscriber@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'subscriber',
     fullName: 'Test Subscriber'
   },
   {
     email: 'test-employee@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'employee',
     fullName: 'Test Employee'
   },
   {
     email: 'test-superadmin@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'admin',
     adminSubRole: 'super_admin',
     fullName: 'Test System Admin'
   },
   {
     email: 'test-attorney@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'admin',
     adminSubRole: 'attorney_admin',
     fullName: 'Test Attorney Admin'

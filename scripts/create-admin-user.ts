@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SERVICE_ROLE_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+
+if (!supabaseUrl || !supabaseServiceKey) {
+  console.error('❌ Error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set')
+  process.exit(1)
+}
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
@@ -11,8 +16,13 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 })
 
 async function createAdminUser() {
-  const adminEmail = 'admin@talk-to-my-lawyer.com'
-  const adminPassword = '#$%432AAdgsreff!23'
+  const adminEmail = process.env.ADMIN_EMAIL || process.argv[2]
+  const adminPassword = process.env.ADMIN_PASSWORD || process.argv[3]
+
+  if (!adminEmail || !adminPassword) {
+    console.error('❌ Usage: ADMIN_EMAIL=... ADMIN_PASSWORD=... npx tsx scripts/create-admin-user.ts [email] [password]')
+    process.exit(1)
+  }
 
   console.log('Creating admin user...')
 

@@ -7,9 +7,16 @@ import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const passwordArg = process.argv.find(arg => arg.startsWith('--password='))
+const testPassword = process.env.TEST_ACCOUNT_PASSWORD || (passwordArg ? passwordArg.split('=')[1] : process.argv[2])
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error('❌ Error: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set')
+  process.exit(1)
+}
+
+if (!testPassword) {
+  console.error('❌ Error: TEST_ACCOUNT_PASSWORD is required (or pass --password=<password>)')
   process.exit(1)
 }
 
@@ -31,26 +38,26 @@ interface TestAccount {
 const testAccounts: TestAccount[] = [
   {
     email: 'test-subscriber@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'subscriber',
     fullName: 'Test Subscriber'
   },
   {
     email: 'test-employee@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'employee',
     fullName: 'Test Employee'
   },
   {
     email: 'test-superadmin@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'admin',
     adminSubRole: 'super_admin',
     fullName: 'Test System Admin'
   },
   {
     email: 'test-attorney@ttml-test.com',
-    password: 'TestPass123!',
+    password: testPassword,
     role: 'admin',
     adminSubRole: 'attorney_admin',
     fullName: 'Test Attorney Admin'
