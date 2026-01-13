@@ -33,7 +33,7 @@ These are the primary comprehensive guides that consolidate all essential inform
 **Topics**:
 - Stripe setup and payment processing
 - Stripe webhook configuration
-- Email service configuration (Resend, Brevo, SendGrid, SMTP)
+- Email service configuration (Resend)
 - GitHub secrets and CI setup
 - Testing payments with test cards
 

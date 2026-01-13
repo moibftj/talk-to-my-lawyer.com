@@ -15,7 +15,7 @@ async function checkProvider() {
   console.log('\n📋 Available Providers:\n')
 
   // Check each provider
-  const providers = ['resend', 'brevo', 'sendgrid', 'smtp', 'console']
+  const providers = ['resend', 'console']
 
   for (const providerName of providers) {
     try {
@@ -30,8 +30,7 @@ async function checkProvider() {
 
   console.log('\n🎯 The system will automatically use the first configured provider in this priority order:')
   console.log('   1. Resend (recommended)')
-  console.log('   2. Brevo')
-  console.log('   3. SendGrid')
+  console.log('   2. Console (development only)')
   console.log('   4. SMTP')
   console.log('   5. Console (development fallback)\n')
 }

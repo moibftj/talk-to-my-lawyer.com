@@ -64,7 +64,7 @@ Talk-To-My-Lawyer is an AI-powered legal letter generation platform with mandato
 - **Authentication**: Supabase Auth
 - **Payments**: Stripe integration
 - **AI**: Vercel AI SDK (`ai`, `@ai-sdk/openai`), model default `gpt-4-turbo`
-- **Email**: Resend (primary), with Brevo, SendGrid, SMTP fallback
+- **Email**: Resend
 - **Rate Limiting**: Upstash Redis (`@upstash/redis`, `@upstash/ratelimit`)
 - **Package Manager**: pnpm
 

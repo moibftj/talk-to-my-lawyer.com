@@ -43,7 +43,7 @@ Complete guide for deploying Talk-To-My-Lawyer to production, including CI/CD, V
 #### Third-Party Services
 - [ ] Stripe account verified and activated for live payments
 - [ ] Webhook endpoints updated to production URLs
-- [ ] Email provider domains verified (Resend/Brevo/SendGrid)
+- [ ] Email provider domain verified in Resend
 - [ ] Supabase project ready for production load
 - [ ] Redis/Upstash configured and tested
 
@@ -213,8 +213,7 @@ Before deploying to Vercel, ensure you have:
 | Variable | Description | Type |
 |----------|-------------|------|
 | `RESEND_API_KEY` | Resend API key (recommended) | Secret |
-| `SENDGRID_API_KEY` | SendGrid API key (alternative) | Secret |
-| `BREVO_API_KEY` | Brevo API key (alternative) | Secret |
+| `RESEND_API_KEY` | Resend API key (required) | Secret |
 | `EMAIL_FROM` | From email address | Plain |
 
 #### Rate Limiting

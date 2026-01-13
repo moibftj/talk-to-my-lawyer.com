@@ -174,8 +174,7 @@ Configure in **Vercel Dashboard → Settings → Environment Variables**
 
 | Variable | Type | Notes |
 |----------|------|-------|
-| `EMAIL_PROVIDER` | Plain | resend, brevo, sendgrid, smtp |
-| `RESEND_API_KEY` | Secret | Recommended provider |
+| `RESEND_API_KEY` | Secret | Required for email delivery |
 | `EMAIL_FROM` | Plain | noreply@talk-to-my-lawyer.com |
 | `EMAIL_FROM_NAME` | Plain | Talk-To-My-Lawyer |
 

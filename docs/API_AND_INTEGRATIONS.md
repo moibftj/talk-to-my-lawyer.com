@@ -249,75 +249,30 @@ stripe listen --forward-to http://localhost:3000/api/stripe/webhook --print-secr
 
 ## Email Service Configuration
 
-The platform supports multiple email providers with automatic failover.
-
-### Supported Providers
-
-- **Resend** (Recommended) - Production-grade email delivery
-- **Brevo** - Alternative provider
-- **SendGrid** - Alternative provider
-- **SMTP** - Custom SMTP server
-- **Console** - Development mode (logs emails to console)
+The platform uses Resend for production-grade email delivery.
 
 ### Environment Variables
 
 ```bash
 # Email Service Configuration
-EMAIL_PROVIDER=resend  # Options: resend, brevo, sendgrid, smtp, console
 EMAIL_FROM=noreply@talk-to-my-lawyer.com
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
 
-# Resend (recommended)
-RESEND_API_KEY=
-
-# Or Brevo
-BREVO_API_KEY=
-
-# Or SendGrid
-SENDGRID_API_KEY=
-
-# Or SMTP
-SMTP_HOST=smtp-relay.brevo.com
-SMTP_PORT=587
-SMTP_USER=
-SMTP_PASS=
+# Resend API Key (Required)
+RESEND_API_KEY=re_...
 ```
 
-### Provider Configuration
-
-#### Resend (Recommended)
+### Resend Configuration
 
 1. Sign up at https://resend.com
 2. Verify your domain
 3. Get API key from dashboard
-4. Set `EMAIL_PROVIDER=resend`
-5. Set `RESEND_API_KEY=re_...`
+4. Set `RESEND_API_KEY=re_...`
+5. Set `EMAIL_FROM` to a verified domain address
 
-#### Brevo
+### Development Mode
 
-1. Sign up at https://www.brevo.com
-2. Verify your domain
-3. Get API key from dashboard
-4. Set `EMAIL_PROVIDER=brevo`
-5. Set `BREVO_API_KEY=xkeysib-...`
-
-#### SendGrid
-
-1. Sign up at https://sendgrid.com
-2. Verify your domain
-3. Get API key from dashboard
-4. Set `EMAIL_PROVIDER=sendgrid`
-5. Set `SENDGRID_API_KEY=SG....`
-
-#### Console (Development)
-
-For local development without external email service:
-
-```bash
-EMAIL_PROVIDER=console
-```
-
-Emails will be logged to console instead of sent.
+For local development without external email service, emails will be logged to the console when `RESEND_API_KEY` is not configured.
 
 ### Email Templates
 

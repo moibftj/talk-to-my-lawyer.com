@@ -90,7 +90,6 @@ BREVO_API_KEY=xkeysib-...
 SENDGRID_API_KEY=SG....
 
 # Or SMTP
-SMTP_HOST=smtp-relay.brevo.com
 SMTP_PORT=587
 SMTP_USER=
 SMTP_PASS=

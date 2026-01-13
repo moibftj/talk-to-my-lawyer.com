@@ -14,7 +14,7 @@ AI-powered legal letter generation platform with mandatory attorney review. Subs
 - **Authentication**: Supabase Auth
 - **Payments**: Stripe
 - **AI**: OpenAI GPT-4 Turbo via Vercel AI SDK
-- **Email**: Resend (primary), with Brevo, SendGrid, and SMTP fallback
+- **Email**: Resend
 - **Rate Limiting**: Upstash Redis
 - **Package Manager**: pnpm (exclusive - never use npm/yarn)
 

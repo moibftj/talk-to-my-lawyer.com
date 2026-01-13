@@ -54,25 +54,14 @@ ADMIN_PORTAL_KEY=your_secure_portal_key
 CRON_SECRET=your_cron_secret
 ```
 
-#### Email Service (Choose One)
+#### Email Service
 ```env
-EMAIL_PROVIDER=resend  # Options: resend, brevo, sendgrid, smtp, console
 EMAIL_FROM=noreply@talk-to-my-lawyer.com
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
 
-# Resend (recommended)
+# Resend (https://resend.com)
 RESEND_API_KEY=your_resend_key
-
-# Or Brevo
-BREVO_API_KEY=your_brevo_key
-
-# Or SendGrid
-SENDGRID_API_KEY=your_sendgrid_key
-
-# Or SMTP
-SMTP_HOST=smtp-relay.brevo.com
-SMTP_PORT=587
-SMTP_USER=your_smtp_user
+```
 SMTP_PASS=your_smtp_password
 ```
 

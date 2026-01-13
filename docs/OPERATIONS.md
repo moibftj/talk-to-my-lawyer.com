@@ -109,10 +109,9 @@ curl -H "Authorization: Bearer $RESEND_API_KEY" \
 ```
 
 **Solutions**:
-- Check email provider API keys (Resend, Brevo, SendGrid)
-- Verify domain verification in provider dashboard
+- Check Resend API key is valid
+- Verify domain verification in Resend dashboard
 - Process email queue manually: `POST /api/cron/process-email-queue`
-- Switch to backup email provider if needed
 
 #### 5. Database Connection Issues
 

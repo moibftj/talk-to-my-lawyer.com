@@ -24,9 +24,7 @@ const requiredEnvVars = {
     { name: 'NEXT_PUBLIC_SITE_URL', description: 'Production site URL for email links' },
   ],
   email: [
-    { name: 'RESEND_API_KEY', description: 'Resend API key for email delivery (server-only)' },
-    { name: 'SENDGRID_API_KEY', description: 'SendGrid API key for emails (server-only, alternative)' },
-    { name: 'BREVO_API_KEY', description: 'Brevo API key for emails (server-only, alternative)' },
+    { name: 'RESEND_API_KEY', description: 'Resend API key for emails (server-only, required)' },
     { name: 'EMAIL_FROM', description: 'From email address for transactional emails' },
   ],
   rateLimit: [
@@ -136,7 +134,7 @@ function validateEnv() {
   // Email service configuration (at least one provider required in production)
   const hasEmailProvider = requiredEnvVars.email.some(({ name }) => process.env[name])
   if (isProduction && !testMode && !hasEmailProvider) {
-    console.log('\n[ERROR] Email Configuration: At least one email provider (RESEND_API_KEY, SENDGRID_API_KEY, or BREVO_API_KEY) is required in production')
+    console.log('\n[ERROR] Email Configuration: RESEND_API_KEY is required in production')
     hasErrors = true
   } else if (hasEmailProvider) {
     console.log('\nEmail Configuration:')
