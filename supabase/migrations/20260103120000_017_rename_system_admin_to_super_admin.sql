@@ -14,10 +14,21 @@
 -- Add the new enum value
 ALTER TYPE admin_sub_role ADD VALUE IF NOT EXISTS 'super_admin';
 
--- Update all existing rows using 'system_admin' to 'super_admin'
-UPDATE public.profiles
-SET admin_sub_role = 'super_admin'
-WHERE admin_sub_role = 'system_admin';
+-- Update rows only if the legacy enum value exists (fresh installs won't have it)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM pg_enum e
+    JOIN pg_type t ON t.oid = e.enumtypid
+    WHERE t.typname = 'admin_sub_role'
+      AND e.enumlabel = 'system_admin'
+  ) THEN
+    UPDATE public.profiles
+    SET admin_sub_role = 'super_admin'
+    WHERE admin_sub_role::text = 'system_admin';
+  END IF;
+END $$;
 
 -- Rename the function
 CREATE OR REPLACE FUNCTION public.is_super_admin()
