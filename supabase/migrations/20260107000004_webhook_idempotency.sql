@@ -38,12 +38,14 @@ CREATE INDEX IF NOT EXISTS idx_webhook_events_event_type
 ALTER TABLE public.webhook_events ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policy: Service role can insert and read
+DROP POLICY IF EXISTS webhook_events_service_insert ON public.webhook_events;
 CREATE POLICY webhook_events_service_insert
     ON public.webhook_events
     FOR INSERT
     TO service_role
     WITH CHECK (true);
 
+DROP POLICY IF EXISTS webhook_events_service_select ON public.webhook_events;
 CREATE POLICY webhook_events_service_select
     ON public.webhook_events
     FOR SELECT

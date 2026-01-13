@@ -8,9 +8,6 @@
 -- Removes is_super_user check and uses FOR UPDATE for race condition prevention
 CREATE OR REPLACE FUNCTION public.deduct_letter_allowance(u_id UUID)
 RETURNS BOOLEAN
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public, pg_catalog
 AS $$
 DECLARE
     sub_record RECORD;
@@ -47,19 +44,17 @@ BEGIN
 
     RETURN true;
 END;
-$$;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_catalog;
 
 -- 2. Secure Letter Allowance Check
 -- Standardizes the check to use remaining_letters/credits_remaining
+DROP FUNCTION IF EXISTS public.check_letter_allowance(UUID);
 CREATE OR REPLACE FUNCTION public.check_letter_allowance(u_id UUID)
 RETURNS TABLE(
     has_allowance BOOLEAN,
     remaining INTEGER,
     plan_name TEXT
 ) 
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public, pg_catalog
 AS $$
 DECLARE
     active_subscription RECORD;
@@ -85,14 +80,11 @@ BEGIN
         remaining_count,
         active_subscription.plan_type;
 END;
-$$;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_catalog;
 
 -- 3. Atomic Credit Decrement (from Script 020)
 CREATE OR REPLACE FUNCTION public.decrement_credits_atomic(p_user_id UUID, p_amount INT)
 RETURNS INT 
-LANGUAGE plpgsql
-SECURITY DEFINER
-SET search_path = public, pg_catalog
 AS $$
 DECLARE
   current_credits INT;
@@ -118,9 +110,4 @@ BEGIN
 
   RETURN current_credits;
 END;
-$$;
-
--- Grant permissions
-GRANT EXECUTE ON FUNCTION public.deduct_letter_allowance TO authenticated;
-GRANT EXECUTE ON FUNCTION public.check_letter_allowance TO authenticated;
-GRANT EXECUTE ON FUNCTION public.decrement_credits_atomic TO authenticated;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_catalog;
