@@ -9,15 +9,15 @@ import { adminRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
  * Access is determined by:
  * 1. `role = 'admin'` in the profiles table
  * 2. `admin_sub_role` determines which portal they access:
- *    - 'super_admin' → /secure-admin-gateway (full access)
- *    - 'attorney_admin' → /attorney-portal (review only)
+ *    - 'super_admin' → /secure-admin-gateway (System Admin - full access)
+ *    - 'attorney_admin' → /attorney-portal (Attorney Admin - review only)
  *
  * Security benefits:
  * - Individual accountability (each admin has unique credentials)
  * - No shared secret to leak or rotate
  * - Easy deactivation (just change the user's role)
  * - Full audit trail of which admin performed each action
- * - Separation of duties between system and attorney admins
+ * - Separation of duties between System Admin and Attorney Admin
  */
 export async function POST(request: NextRequest) {
   try {

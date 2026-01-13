@@ -135,7 +135,7 @@ export async function POST(request: NextRequest) {
     if (insertError) {
       console.error("[GenerateLetter] Database insert error:", insertError)
 
-      // Refund if we deducted (not free trial or super admin)
+      // Refund if we deducted (not free trial or System Admin)
       if (!isFreeTrial && !isSuperAdmin) {
         await refundLetterAllowance(user.id, 1)
       }
@@ -319,7 +319,7 @@ async function handleGenerationFailure(
     })
     .eq("id", letterId)
 
-  // Refund if we deducted (not free trial or super admin)
+  // Refund if we deducted (not free trial or System Admin)
   if (!isFreeTrial && !isSuperAdmin) {
     await refundLetterAllowance(userId, 1)
   }

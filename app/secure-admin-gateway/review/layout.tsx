@@ -17,7 +17,7 @@ export default async function ReviewLayout({
     redirect('/secure-admin-gateway/login')
   }
 
-  // Enforce Super Admin only access to System Admin portal
+  // Enforce System Admin only access to System Admin portal
   if (session.subRole !== 'super_admin') {
     redirect('/attorney-portal/review')
   }
