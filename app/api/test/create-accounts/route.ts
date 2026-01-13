@@ -5,12 +5,19 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { getSupabaseServiceKey, getSupabaseUrl } from '@/lib/supabase/keys'
 
 export async function POST(request: Request) {
   try {
     // Security check - only allow in development or with secret key
     const { searchParams } = new URL(request.url)
     const secret = searchParams.get('secret')
+    let requestBody: { password?: string } | null = null
+    try {
+      requestBody = await request.json()
+    } catch {
+      requestBody = null
+    }
     
     // Simple security - in production, you'd want a better approach
     if (process.env.NODE_ENV === 'production' && secret !== process.env.CRON_SECRET) {
@@ -21,40 +28,48 @@ export async function POST(request: Request) {
 
     // Get service role client for admin operations
     const { createClient: createServiceClient } = await import('@supabase/supabase-js')
-    const supabaseAdmin = createServiceClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
+    const supabaseUrl = getSupabaseUrl()
+    const serviceKey = getSupabaseServiceKey()
+
+    if (!supabaseUrl || !serviceKey) {
+      return NextResponse.json({ error: 'Missing Supabase service configuration' }, { status: 500 })
+    }
+
+    const testPassword = requestBody?.password || process.env.TEST_ACCOUNT_PASSWORD
+    if (!testPassword) {
+      return NextResponse.json({ error: 'Missing test account password' }, { status: 400 })
+    }
+
+    const supabaseAdmin = createServiceClient(supabaseUrl, serviceKey.key, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
       }
-    )
+    })
 
     const testAccounts = [
       {
         email: 'test-subscriber@ttml-test.com',
-        password: 'TestPass123!',
+        password: testPassword,
         role: 'subscriber' as const,
         fullName: 'Test Subscriber'
       },
       {
         email: 'test-employee@ttml-test.com',
-        password: 'TestPass123!',
+        password: testPassword,
         role: 'employee' as const,
         fullName: 'Test Employee'
       },
       {
         email: 'test-superadmin@ttml-test.com',
-        password: 'TestPass123!',
+        password: testPassword,
         role: 'admin' as const,
         adminSubRole: 'super_admin' as const,
         fullName: 'Test System Admin'
       },
       {
         email: 'test-attorney@ttml-test.com',
-        password: 'TestPass123!',
+        password: testPassword,
         role: 'admin' as const,
         adminSubRole: 'attorney_admin' as const,
         fullName: 'Test Attorney Admin'
@@ -162,22 +177,22 @@ export async function POST(request: Request) {
       credentials: {
         subscriber: {
           email: 'test-subscriber@ttml-test.com',
-          password: 'TestPass123!',
+          password: testPassword,
           loginUrl: '/auth/login'
         },
         employee: {
           email: 'test-employee@ttml-test.com',
-          password: 'TestPass123!',
+          password: testPassword,
           loginUrl: '/auth/login'
         },
         superAdmin: {
           email: 'test-superadmin@ttml-test.com',
-          password: 'TestPass123!',
+          password: testPassword,
           loginUrl: '/secure-admin-gateway/login'
         },
         attorneyAdmin: {
           email: 'test-attorney@ttml-test.com',
-          password: 'TestPass123!',
+          password: testPassword,
           loginUrl: '/attorney-portal/login'
         }
       }

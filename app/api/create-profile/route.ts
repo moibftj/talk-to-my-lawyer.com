@@ -3,6 +3,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server"
 import { NextRequest, NextResponse } from "next/server"
 import { createRateLimit } from "@/lib/rate-limit"
 import { sendTemplateEmail } from "@/lib/email"
+import { getSupabasePublicKey, getSupabaseServiceKey, getSupabaseUrl } from "@/lib/supabase/keys"
 
 // Rate limiting for profile creation
 const rateLimiter = createRateLimit({
@@ -38,23 +39,30 @@ export async function POST(request: NextRequest) {
       // Fallback: use access token for immediate post-signup profile creation
       // This handles the race condition where session cookie isn't set yet
       const { createClient } = await import("@supabase/supabase-js")
-      const tempClient = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        {
-          auth: {
-            persistSession: false
-          }
-        }
-      )
+      const supabaseUrl = getSupabaseUrl()
+      const publicKey = getSupabasePublicKey()
 
-      const { data: tokenData, error: tokenError } = await tempClient.auth.getUser(accessToken)
-
-      if (!tokenError && tokenData.user && tokenData.user.id === userId) {
-        user = tokenData.user
-        console.log('[CreateProfile] Authenticated via access token (post-signup flow)')
+      if (!supabaseUrl || !publicKey) {
+        authError = new Error('Missing Supabase public configuration')
       } else {
-        authError = tokenError || new Error('Token validation failed')
+        const tempClient = createClient(
+          supabaseUrl,
+          publicKey.key,
+          {
+            auth: {
+              persistSession: false
+            }
+          }
+        )
+
+        const { data: tokenData, error: tokenError } = await tempClient.auth.getUser(accessToken)
+
+        if (!tokenError && tokenData.user && tokenData.user.id === userId) {
+          user = tokenData.user
+          console.log('[CreateProfile] Authenticated via access token (post-signup flow)')
+        } else {
+          authError = tokenError || new Error('Token validation failed')
+        }
       }
     } else {
       authError = sessionError || new Error('No session or access token provided')
@@ -99,7 +107,10 @@ export async function POST(request: NextRequest) {
     }
 
     // Use service role client for profile creation (elevated permissions)
-    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    const supabaseUrl = getSupabaseUrl()
+    const serviceKey = getSupabaseServiceKey()
+
+    if (!supabaseUrl || !serviceKey) {
       return NextResponse.json(
         { error: "Server configuration error" },
         { status: 500 }
@@ -107,8 +118,8 @@ export async function POST(request: NextRequest) {
     }
 
     const serviceClient = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
+      supabaseUrl,
+      serviceKey.key
     )
 
     const { data: profileData, error: profileError } = await serviceClient
