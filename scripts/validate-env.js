@@ -3,11 +3,18 @@
 const requiredEnvVars = {
   critical: [
     { name: 'NEXT_PUBLIC_SUPABASE_URL', description: 'Supabase project URL' },
-    { name: 'NEXT_PUBLIC_SUPABASE_ANON_KEY', description: 'Supabase anonymous key' },
+    {
+      name: ['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'],
+      description: 'Supabase publishable key (preferred) or anon key'
+    },
     { name: 'OPENAI_API_KEY', description: 'OpenAI API key for letter generation' },
   ],
   production: [
-    { name: 'SUPABASE_SERVICE_ROLE_KEY', description: 'Supabase service role key (server-only)' },
+    {
+      name: ['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY'],
+      description: 'Supabase secret key (preferred) or service role key (server-only)',
+      sensitive: true
+    },
     { name: 'STRIPE_SECRET_KEY', description: 'Stripe secret key (server-only)' },
     { name: 'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY', description: 'Stripe publishable key' },
     { name: 'STRIPE_WEBHOOK_SECRET', description: 'Stripe webhook secret (server-only)' },
@@ -32,6 +39,29 @@ const requiredEnvVars = {
   ],
 }
 
+function formatEnvLabel(name) {
+  return Array.isArray(name) ? name.join(' | ') : name
+}
+
+function resolveEnvValue(name) {
+  const names = Array.isArray(name) ? name : [name]
+  for (const key of names) {
+    const value = process.env[key]
+    if (value) {
+      return { value, resolvedName: key }
+    }
+  }
+  return { value: null, resolvedName: names[0] }
+}
+
+function maskValue(value, prefixLength, sensitive) {
+  if (sensitive) {
+    return 'SET'
+  }
+  const prefix = value.substring(0, prefixLength)
+  return value.length > prefixLength ? `${prefix}...` : prefix
+}
+
 function validateEnv() {
   console.log('\n=== Environment Validation ===\n')
 
@@ -51,48 +81,54 @@ function validateEnv() {
   }
 
   console.log('Critical Variables:')
-  requiredEnvVars.critical.forEach(({ name, description }) => {
-    const value = process.env[name]
+  requiredEnvVars.critical.forEach(({ name, description, sensitive }) => {
+    const label = formatEnvLabel(name)
+    const { value, resolvedName } = resolveEnvValue(name)
     if (!value) {
       if (isCI && testMode) {
-        console.log(`  [WARN] ${name}: Missing (CI mode) - ${description}`)
+        console.log(`  [WARN] ${label}: Missing (CI mode) - ${description}`)
         hasWarnings = true
       } else {
-        console.log(`  [ERROR] ${name}: Missing - ${description}`)
+        console.log(`  [ERROR] ${label}: Missing - ${description}`)
         hasErrors = true
       }
     } else {
-      const masked = value.substring(0, 8) + '...'
+      const masked = maskValue(value, 8, sensitive)
+      const resolvedSuffix = label === resolvedName ? '' : ` (${resolvedName})`
       if (isCI && (value.includes('dummy') || value.includes('test'))) {
-        console.log(`  [INFO] ${name}: ${masked} (CI dummy value)`)
+        console.log(`  [INFO] ${label}: ${masked}${resolvedSuffix} (CI dummy value)`)
       } else {
-        console.log(`  [OK] ${name}: ${masked}`)
+        console.log(`  [OK] ${label}: ${masked}${resolvedSuffix}`)
       }
     }
   })
 
   if (isProduction && !testMode) {
     console.log('\nProduction Variables:')
-    requiredEnvVars.production.forEach(({ name, description }) => {
-      const value = process.env[name]
+    requiredEnvVars.production.forEach(({ name, description, sensitive }) => {
+      const label = formatEnvLabel(name)
+      const { value, resolvedName } = resolveEnvValue(name)
       if (!value) {
-        console.log(`  [ERROR] ${name}: Missing - ${description}`)
+        console.log(`  [ERROR] ${label}: Missing - ${description}`)
         hasErrors = true
       } else {
-        const masked = value.substring(0, 8) + '...'
-        console.log(`  [OK] ${name}: ${masked}`)
+        const masked = maskValue(value, 8, sensitive)
+        const resolvedSuffix = label === resolvedName ? '' : ` (${resolvedName})`
+        console.log(`  [OK] ${label}: ${masked}${resolvedSuffix}`)
       }
     })
   } else if (!isProduction) {
     console.log('\nProduction Variables (optional in development):')
-    requiredEnvVars.production.forEach(({ name, description }) => {
-      const value = process.env[name]
+    requiredEnvVars.production.forEach(({ name, description, sensitive }) => {
+      const label = formatEnvLabel(name)
+      const { value, resolvedName } = resolveEnvValue(name)
       if (!value) {
-        console.log(`  [WARN] ${name}: Not set - ${description}`)
+        console.log(`  [WARN] ${label}: Not set - ${description}`)
         hasWarnings = true
       } else {
-        const masked = value.substring(0, 8) + '...'
-        console.log(`  [OK] ${name}: ${masked}`)
+        const masked = maskValue(value, 8, sensitive)
+        const resolvedSuffix = label === resolvedName ? '' : ` (${resolvedName})`
+        console.log(`  [OK] ${label}: ${masked}${resolvedSuffix}`)
       }
     })
   }
@@ -104,13 +140,15 @@ function validateEnv() {
     hasErrors = true
   } else if (hasEmailProvider) {
     console.log('\nEmail Configuration:')
-    requiredEnvVars.email.forEach(({ name, description }) => {
-      const value = process.env[name]
+    requiredEnvVars.email.forEach(({ name, description, sensitive }) => {
+      const label = formatEnvLabel(name)
+      const { value, resolvedName } = resolveEnvValue(name)
       if (!value) {
-        console.log(`  [INFO] ${name}: Not configured - ${description}`)
+        console.log(`  [INFO] ${label}: Not configured - ${description}`)
       } else {
-        const masked = value.substring(0, 12) + '...'
-        console.log(`  [OK] ${name}: ${masked}`)
+        const masked = maskValue(value, 12, sensitive)
+        const resolvedSuffix = label === resolvedName ? '' : ` (${resolvedName})`
+        console.log(`  [OK] ${label}: ${masked}${resolvedSuffix}`)
       }
     })
   } else {
@@ -125,31 +163,35 @@ function validateEnv() {
     hasWarnings = true
   } else if (hasRateLimitConfig) {
     console.log('\nRate Limiting Configuration:')
-    requiredEnvVars.rateLimit.forEach(({ name, description }) => {
-      const value = process.env[name]
+    requiredEnvVars.rateLimit.forEach(({ name, description, sensitive }) => {
+      const label = formatEnvLabel(name)
+      const { value, resolvedName } = resolveEnvValue(name)
       if (!value) {
-        console.log(`  [WARN] ${name}: Not set - ${description}`)
+        console.log(`  [WARN] ${label}: Not set - ${description}`)
         hasWarnings = true
       } else {
-        const masked = value.substring(0, 15) + '...'
-        console.log(`  [OK] ${name}: ${masked}`)
+        const masked = maskValue(value, 15, sensitive)
+        const resolvedSuffix = label === resolvedName ? '' : ` (${resolvedName})`
+        console.log(`  [OK] ${label}: ${masked}${resolvedSuffix}`)
       }
     })
   }
 
   console.log('\nOptional Variables:')
-  requiredEnvVars.optional.forEach(({ name, description, default: defaultValue }) => {
-    const value = process.env[name]
+  requiredEnvVars.optional.forEach(({ name, description, default: defaultValue, sensitive }) => {
+    const label = formatEnvLabel(name)
+    const { value, resolvedName } = resolveEnvValue(name)
     if (!value) {
       if (defaultValue) {
-        console.log(`  [INFO] ${name}: Using default "${defaultValue}" - ${description}`)
+        console.log(`  [INFO] ${label}: Using default "${defaultValue}" - ${description}`)
       } else {
-        console.log(`  [WARN] ${name}: Not set - ${description}`)
+        console.log(`  [WARN] ${label}: Not set - ${description}`)
         hasWarnings = true
       }
     } else {
-      const masked = value.substring(0, 20) + (value.length > 20 ? '...' : '')
-      console.log(`  [OK] ${name}: ${masked}`)
+      const masked = maskValue(value, 20, sensitive)
+      const resolvedSuffix = label === resolvedName ? '' : ` (${resolvedName})`
+      console.log(`  [OK] ${label}: ${masked}${resolvedSuffix}`)
     }
   })
 

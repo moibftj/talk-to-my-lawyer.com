@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireSuperAdminAuth } from '@/lib/auth/admin-session'
+import { getSupabaseServiceKey, getSupabaseUrl } from '@/lib/supabase/keys'
 
 interface ServiceStatus {
   name: string
@@ -24,13 +25,21 @@ interface HealthCheckResponse {
 
 const startTime = Date.now()
 
+function getSupabaseServiceClient() {
+  const supabaseUrl = getSupabaseUrl()
+  const serviceKey = getSupabaseServiceKey()
+
+  if (!supabaseUrl || !serviceKey) {
+    throw new Error('Missing Supabase service configuration')
+  }
+
+  return createClient(supabaseUrl, serviceKey.key)
+}
+
 async function checkDatabase(): Promise<ServiceStatus> {
   const start = Date.now()
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getSupabaseServiceClient()
 
     // Simple query to check database connectivity
     const { error } = await supabase.from('profiles').select('id').limit(1)
@@ -96,10 +105,7 @@ async function checkEmail(): Promise<ServiceStatus> {
 async function checkStorage(): Promise<ServiceStatus> {
   const start = Date.now()
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getSupabaseServiceClient()
 
     // Check if we can access storage buckets
     const { data, error } = await supabase.storage.listBuckets()
@@ -133,10 +139,7 @@ async function checkStorage(): Promise<ServiceStatus> {
 async function checkAuth(): Promise<ServiceStatus> {
   const start = Date.now()
   try {
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabase = getSupabaseServiceClient()
 
     // Check if auth is accessible
     const { data, error } = await supabase.auth.admin.listUsers()

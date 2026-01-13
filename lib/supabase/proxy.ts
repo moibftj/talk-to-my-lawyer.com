@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { verifyAdminSessionFromRequest, type AdminSession } from '@/lib/auth/admin-session'
+import { getSupabasePublicKey, getSupabaseUrl } from '@/lib/supabase/keys'
 
 // Parse admin session cookie and get sub-role
 function getAdminSessionWithSubRole(request: NextRequest): AdminSession | null {
@@ -27,12 +28,12 @@ export async function updateSession(request: NextRequest) {
   })
 
   try {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    const supabaseUrl = getSupabaseUrl()
+    const supabasePublicKey = getSupabasePublicKey()
 
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!supabaseUrl || !supabasePublicKey) {
       console.error(
-        '[Proxy] Missing Supabase env. Create .env.local (cp .env.example .env.local), set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart the dev server.'
+        '[Proxy] Missing Supabase env. Create .env.local (cp .env.example .env.local), set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY (preferred) or NEXT_PUBLIC_SUPABASE_ANON_KEY, then restart the dev server.'
       )
       // Allow access to auth pages and home without Supabase
       if (request.nextUrl.pathname.startsWith('/auth') || request.nextUrl.pathname === '/') {
@@ -46,7 +47,7 @@ export async function updateSession(request: NextRequest) {
 
     const supabase = createServerClient(
       supabaseUrl,
-      supabaseAnonKey,
+      supabasePublicKey.key,
       {
         cookies: {
           getAll() {

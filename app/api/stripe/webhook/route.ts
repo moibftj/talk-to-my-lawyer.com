@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { queueTemplateEmail } from '@/lib/email/service'
 import { createStripeClient } from '@/lib/stripe/client'
+import { getSupabaseServiceKey, getSupabaseUrl } from '@/lib/supabase/keys'
 
 const stripe = createStripeClient()
 
@@ -10,14 +11,14 @@ const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET
 
 // Use service role client for webhooks (no user session context)
 function getSupabaseServiceClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = getSupabaseUrl()
+  const serviceKey = getSupabaseServiceKey()
 
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
+  if (!supabaseUrl || !serviceKey) {
     throw new Error('Missing Supabase service configuration')
   }
 
-  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+  return createClient(supabaseUrl, serviceKey.key, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,

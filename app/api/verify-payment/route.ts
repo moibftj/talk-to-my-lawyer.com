@@ -4,6 +4,7 @@ import { createClient } from '@supabase/supabase-js'
 import { createStripeClient } from '@/lib/stripe/client'
 import { authenticateUser } from '@/lib/auth/authenticate-user'
 import { subscriptionRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
+import { getSupabaseServiceKey, getSupabaseUrl } from '@/lib/supabase/keys'
 
 function getStripeClient(): Stripe {
   const stripe = createStripeClient()
@@ -16,14 +17,14 @@ function getStripeClient(): Stripe {
 }
 
 function getSupabaseServiceClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  const supabaseUrl = getSupabaseUrl()
+  const serviceKey = getSupabaseServiceKey()
 
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
+  if (!supabaseUrl || !serviceKey) {
     throw new Error('Missing Supabase service configuration')
   }
 
-  return createClient(supabaseUrl, supabaseServiceRoleKey, {
+  return createClient(supabaseUrl, serviceKey.key, {
     auth: {
       autoRefreshToken: false,
       persistSession: false,
