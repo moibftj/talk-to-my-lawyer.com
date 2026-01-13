@@ -89,19 +89,41 @@ jobs:
       - name: Check for known vulnerabilities
         run: |
           echo "Checking for critical vulnerabilities..."
-          pnpm audit --json > audit-report.json || true
+          pnpm audit --json > audit-report.json 2>&1 || true
           
-          # Count critical and high vulnerabilities
-          CRITICAL=$(cat audit-report.json | grep -o '"severity":"critical"' | wc -l || echo "0")
-          HIGH=$(cat audit-report.json | grep -o '"severity":"high"' | wc -l || echo "0")
+          # Display audit report for debugging
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "Audit Report Summary:"
+          cat audit-report.json
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           
-          echo "Critical vulnerabilities: $CRITICAL"
-          echo "High vulnerabilities: $HIGH"
+          # Check if audit-report.json is valid JSON
+          if ! jq empty audit-report.json 2>/dev/null; then
+            echo "⚠️  Audit report is not valid JSON, checking alternative format..."
+            # For pnpm v8+, the format might be different
+            CRITICAL=$(grep -i "critical" audit-report.json | wc -l || echo "0")
+            HIGH=$(grep -i "high" audit-report.json | wc -l || echo "0")
+          else
+            # Count critical and high vulnerabilities using jq
+            CRITICAL=$(jq -r '[.. | objects | select(.severity? == "critical")] | length' audit-report.json 2>/dev/null || echo "0")
+            HIGH=$(jq -r '[.. | objects | select(.severity? == "high")] | length' audit-report.json 2>/dev/null || echo "0")
+          fi
+          
+          echo "Critical vulnerabilities found: $CRITICAL"
+          echo "High vulnerabilities found: $HIGH"
           
           if [ "$CRITICAL" -gt "0" ]; then
-            echo "❌ Critical vulnerabilities found!"
+            echo "❌ Critical vulnerabilities detected!"
+            echo "Please run 'pnpm audit' locally and update vulnerable dependencies."
             exit 1
           fi
+          
+          if [ "$HIGH" -gt "0" ]; then
+            echo "⚠️  High severity vulnerabilities detected but not blocking."
+            echo "Consider running 'pnpm update' to resolve them."
+          fi
+          
+          echo "✅ No critical vulnerabilities found"
 
       - name: Upload Audit Report
         if: always()
@@ -239,6 +261,14 @@ jobs:
              [ "${{ needs.secret-scanning.result }}" == "failure" ] || \
              [ "${{ needs.env-validation.result }}" == "failure" ]; then
             echo "❌ Critical security checks failed!"
+            exit 1
+          fi
+          
+          # Warn on dependency scan failure but provide context
+          if [ "${{ needs.dependency-scan.result }}" == "failure" ]; then
+            echo "⚠️  Dependency scan detected critical vulnerabilities!"
+            echo "Check the 'dependency-audit-report' artifact for details."
+            echo "Run 'pnpm audit' locally and update dependencies."
             exit 1
           fi
           
