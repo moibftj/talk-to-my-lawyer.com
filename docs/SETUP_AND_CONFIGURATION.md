@@ -58,8 +58,10 @@ Visit http://localhost:3000
 ```bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key  # Legacy fallback
+SUPABASE_SECRET_KEY=your-secret-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key  # Legacy fallback
 DATABASE_URL=postgresql://postgres:password@host:port/database
 
 # OpenAI via Vercel AI Gateway
@@ -489,6 +491,7 @@ OPENAI_API_KEY
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
 RESEND_API_KEY
+SUPABASE_SECRET_KEY
 SUPABASE_SERVICE_ROLE_KEY
 ```
 

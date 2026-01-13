@@ -38,13 +38,15 @@ cp .env.example .env.local
 #### Critical (Always Required)
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key  # Legacy fallback
 OPENAI_API_KEY=your_openai_key
 ```
 
 #### Production Required
 ```env
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+SUPABASE_SECRET_KEY=your_secret_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key  # Legacy fallback
 STRIPE_SECRET_KEY=sk_live_or_test_key
 STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_or_test_key
@@ -123,8 +125,10 @@ For CI/CD pipeline, add these secrets to GitHub repository:
 ### Required Secrets
 ```
 NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 OPENAI_API_KEY
+SUPABASE_SECRET_KEY
 SUPABASE_SERVICE_ROLE_KEY
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
@@ -251,7 +255,7 @@ ls -la .env.local
 
 ### Database Connection Issues
 - Verify `NEXT_PUBLIC_SUPABASE_URL` is correct
-- Check `SUPABASE_SERVICE_ROLE_KEY` has proper permissions
+- Check `SUPABASE_SECRET_KEY` (preferred) or `SUPABASE_SERVICE_ROLE_KEY` has proper permissions
 - Ensure database migrations are applied
 
 ### Stripe Webhook Issues

@@ -13,12 +13,23 @@ const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseKey =
+  process.env.SUPABASE_SECRET_KEY ||
+  process.env.SUPABASE_SERVICE_ROLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const supabaseKeyType = process.env.SUPABASE_SECRET_KEY
+  ? 'Secret (Full Access)'
+  : process.env.SUPABASE_SERVICE_ROLE_KEY
+    ? 'Service Role (Full Access)'
+    : process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+      ? 'Publishable (RLS Enforced)'
+      : 'Anon (RLS Enforced)';
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('❌ Missing Supabase credentials in .env file');
   console.error('   Required: NEXT_PUBLIC_SUPABASE_URL');
-  console.error('   Required: SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY');
+  console.error('   Required: SUPABASE_SECRET_KEY (preferred) or SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY');
   process.exit(1);
 }
 
@@ -112,7 +123,7 @@ async function verifyDatabase() {
   // 4. Database info
   console.log('\n🔗 Connection Details:');
   console.log(`   URL: ${supabaseUrl}`);
-  console.log(`   Key Type: ${supabaseKey.includes('service_role') ? 'Service Role (Full Access)' : 'Anon Key (RLS Enforced)'}`);
+  console.log(`   Key Type: ${supabaseKeyType}`);
 
   // Final summary
   console.log('\n' + '━'.repeat(60));

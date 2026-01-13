@@ -190,7 +190,8 @@ Before deploying to Vercel, ensure you have:
 | Variable | Description | Type |
 |----------|-------------|------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Public |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key | Public |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key | Public |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key (legacy) | Public |
 | `OPENAI_API_KEY` | OpenAI API key | Secret |
 | `NEXT_PUBLIC_SITE_URL` | Production site URL | Public |
 
@@ -198,7 +199,8 @@ Before deploying to Vercel, ensure you have:
 
 | Variable | Description | Type |
 |----------|-------------|------|
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | **Secret** |
+| `SUPABASE_SECRET_KEY` | Supabase secret key (preferred) | **Secret** |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key (legacy) | **Secret** |
 | `STRIPE_SECRET_KEY` | Stripe secret key | **Secret** |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | Public |
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret | **Secret** |

@@ -111,9 +111,9 @@ if (!foundSecrets) {
 console.log('\n5. Checking production environment variables...')
 const requiredProductionVars = [
   'NEXT_PUBLIC_SUPABASE_URL',
-  'NEXT_PUBLIC_SUPABASE_ANON_KEY',
+  ['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', 'NEXT_PUBLIC_SUPABASE_ANON_KEY'],
   'OPENAI_API_KEY',
-  'SUPABASE_SERVICE_ROLE_KEY',
+  ['SUPABASE_SECRET_KEY', 'SUPABASE_SERVICE_ROLE_KEY'],
   'STRIPE_SECRET_KEY',
   'NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY',
   'STRIPE_WEBHOOK_SECRET',
@@ -123,11 +123,25 @@ const requiredProductionVars = [
   'NEXT_PUBLIC_SITE_URL',
 ]
 
+function resolveEnvValue(name) {
+  const names = Array.isArray(name) ? name : [name]
+  for (const key of names) {
+    if (process.env[key]) {
+      return { value: process.env[key], resolvedName: key }
+    }
+  }
+  return { value: null, resolvedName: names[0] }
+}
+
+function formatEnvLabel(name) {
+  return Array.isArray(name) ? name.join(' | ') : name
+}
+
 if (isProduction) {
-  const missing = requiredProductionVars.filter(varName => !process.env[varName])
+  const missing = requiredProductionVars.filter((varName) => !resolveEnvValue(varName).value)
   if (missing.length > 0) {
     console.error('  [ERROR] Missing required production variables:')
-    missing.forEach(varName => console.error(`    - ${varName}`))
+    missing.forEach(varName => console.error(`    - ${formatEnvLabel(varName)}`))
     hasErrors = true
   } else {
     console.log('  [OK] All required production variables are set')

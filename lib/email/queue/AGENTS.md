@@ -509,7 +509,8 @@ const stats = await processEmailQueue()
 
 ```bash
 # Required for queue
-SUPABASE_SERVICE_ROLE_KEY=xxxxx  # For database access
+SUPABASE_SECRET_KEY=xxxxx        # For database access (preferred)
+SUPABASE_SERVICE_ROLE_KEY=xxxxx  # Legacy fallback
 CRON_SECRET=xxxxx                # For cron security
 
 # Required for sending

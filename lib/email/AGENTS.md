@@ -317,6 +317,7 @@ EMAIL_FROM=noreply@yourdomain.com
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
 
 # Required for queue
+SUPABASE_SECRET_KEY=xxxxx
 SUPABASE_SERVICE_ROLE_KEY=xxxxx
 CRON_SECRET=xxxxx
 ```

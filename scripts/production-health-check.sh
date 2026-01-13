@@ -26,8 +26,6 @@ fi
 echo "🔧 Environment Variables:"
 required_vars=(
     "NEXT_PUBLIC_SUPABASE_URL"
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY" 
-    "SUPABASE_SERVICE_ROLE_KEY"
     "OPENAI_API_KEY"
     "STRIPE_SECRET_KEY"
     "NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY"
@@ -43,6 +41,18 @@ for var in "${required_vars[@]}"; do
         echo "❌ $var: missing"
     fi
 done
+
+if [ -n "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ] || [ -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+    echo "✅ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | NEXT_PUBLIC_SUPABASE_ANON_KEY: configured"
+else
+    echo "❌ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY | NEXT_PUBLIC_SUPABASE_ANON_KEY: missing"
+fi
+
+if [ -n "$SUPABASE_SECRET_KEY" ] || [ -n "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+    echo "✅ SUPABASE_SECRET_KEY | SUPABASE_SERVICE_ROLE_KEY: configured"
+else
+    echo "❌ SUPABASE_SECRET_KEY | SUPABASE_SERVICE_ROLE_KEY: missing"
+fi
 
 # Check API endpoints
 echo "🌐 API Health Check:"

@@ -3,7 +3,6 @@
  * Call with POST to create all test accounts at once
  */
 
-import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 import { getSupabaseServiceKey, getSupabaseUrl } from '@/lib/supabase/keys'
 

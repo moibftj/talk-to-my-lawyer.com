@@ -48,7 +48,8 @@ NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 # Cron secret for queue processing (Required)
 CRON_SECRET=your-random-cron-secret-key
 
-# Supabase service role key (Required for queue)
+# Supabase secret key (Required for queue; service role key legacy supported)
+SUPABASE_SECRET_KEY=your-secret-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 ```
 

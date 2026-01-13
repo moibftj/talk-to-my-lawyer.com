@@ -15,7 +15,7 @@ require('dotenv').config({ path: '.env.local' })
 
 // Configuration
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL
-const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
 const ADMIN_PORTAL_KEY = process.env.ADMIN_PORTAL_KEY
 
 async function main() {
@@ -33,10 +33,10 @@ async function main() {
   }
 
   if (!SUPABASE_SERVICE_KEY) {
-    console.log('❌ SUPABASE_SERVICE_ROLE_KEY is missing')
+    console.log('❌ SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is missing')
     return
   } else {
-    console.log('✅ SUPABASE_SERVICE_ROLE_KEY configured')
+    console.log('✅ Supabase service key configured')
   }
 
   if (!ADMIN_PORTAL_KEY) {

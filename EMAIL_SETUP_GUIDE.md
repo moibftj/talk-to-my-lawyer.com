@@ -64,8 +64,10 @@ Make sure you also have these configured in `.env.local`:
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key  # Legacy fallback
+SUPABASE_SECRET_KEY=your-supabase-secret-key
+SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key  # Legacy fallback
 OPENAI_API_KEY=sk-your-openai-key
 ```
 
@@ -163,4 +165,3 @@ Resend free plan:
 - 3,000 emails/month
 
 Upgrade if you need more.
-

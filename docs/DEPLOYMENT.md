@@ -56,8 +56,10 @@ Add these in **Settings → Secrets and variables → Actions**:
 #### Application Secrets
 ```
 NEXT_PUBLIC_SUPABASE_URL
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SUPABASE_ANON_KEY
 OPENAI_API_KEY
+SUPABASE_SECRET_KEY
 SUPABASE_SERVICE_ROLE_KEY
 STRIPE_SECRET_KEY
 STRIPE_WEBHOOK_SECRET
@@ -151,6 +153,7 @@ Configure in **Vercel Dashboard → Settings → Environment Variables**
 | Variable | Type | Example |
 |----------|------|---------|
 | `NEXT_PUBLIC_SUPABASE_URL` | Public | https://xxx.supabase.co |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Public | sb_publishable_... |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public | eyJhbGc... |
 | `OPENAI_API_KEY` | Secret | sk-proj-... |
 | `NEXT_PUBLIC_SITE_URL` | Public | https://www.talk-to-my-lawyer.com |
@@ -159,7 +162,8 @@ Configure in **Vercel Dashboard → Settings → Environment Variables**
 
 | Variable | Type | Notes |
 |----------|------|-------|
-| `SUPABASE_SERVICE_ROLE_KEY` | **Secret** | Full database access |
+| `SUPABASE_SECRET_KEY` | **Secret** | Full database access (preferred) |
+| `SUPABASE_SERVICE_ROLE_KEY` | **Secret** | Full database access (legacy) |
 | `STRIPE_SECRET_KEY` | **Secret** | Must start with `sk_live_` |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Public | pk_live_... |
 | `STRIPE_WEBHOOK_SECRET` | **Secret** | From Stripe Dashboard |
