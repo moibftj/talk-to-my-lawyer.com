@@ -4,15 +4,17 @@ Complete guide for admin user management in the Talk-To-My-Lawyer platform, incl
 
 ## Overview
 
-The platform uses a **multi-admin system** that allows multiple administrators to share the same admin dashboard for reviewing and approving letters.
+The platform uses a **dual-admin system** that allows multiple administrators with different access levels for reviewing and approving letters.
 
 ### Key Features
 
 - **Multiple Admins**: Unlimited admin users can be created
-- **Shared Dashboard**: All admins access `/secure-admin-gateway`
+- **Dual Access Levels**: System Admin (full access) and Attorney Admin (review only)
+- **Shared Dashboard**: System Admins access `/secure-admin-gateway`
+- **Attorney Portal**: Attorney Admins access `/attorney-portal`
 - **Individual Credentials**: Each admin has their own email/password
 - **Portal Key**: Shared secret for additional security layer
-- **Sub-Roles**: Super Admin (full access) and Attorney Admin (letter review only)
+- **Sub-Roles**: System Admin (full access) and Attorney Admin (letter review only)
 
 ## Admin Role Structure
 
@@ -27,7 +29,7 @@ The platform uses a **multi-admin system** that allows multiple administrators t
 
 - `is_super_admin()` - Returns true for `role='admin'` AND `admin_sub_role='super_admin'`
 - `is_attorney_admin()` - Returns true for `role='admin'` AND `admin_sub_role='attorney_admin'`
-- `get_admin_dashboard_stats()` - Comprehensive stats for Super Admin only
+- `get_admin_dashboard_stats()` - Comprehensive stats for System Admin only
 
 ## Authentication Flow
 
@@ -77,7 +79,7 @@ npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts john@
 1. Creates a Supabase Auth user (or updates if exists)
 2. Sets `role = 'admin'` in the profiles table
 3. Auto-confirms email (no verification required)
-4. Optionally sets `admin_sub_role`
+4. Optionally sets `admin_sub_role` (defaults to `super_admin` for System Admin)
 
 ### Method 2: Manual Database Update
 
@@ -94,7 +96,7 @@ WHERE email = 'admin@example.com';
 
 ## Environment Variables
 
-### Required for Multi-Admin System
+### Required for Dual-Admin System
 
 ```env
 # Admin Portal Key (shared secret for all admins)
@@ -134,7 +136,7 @@ Admins require three credentials to login:
 
 ## Admin Permissions
 
-### Super Admin Permissions
+### System Admin Permissions
 
 | Permission | Description |
 |------------|-------------|
@@ -163,10 +165,16 @@ Admins require three credentials to login:
 
 ## Dashboard Access
 
-All admins access the same dashboard at:
+System Admins and Attorney Admins access different portals:
+
+**System Admin**:
 - **Login**: `/secure-admin-gateway/login`
 - **Dashboard**: `/secure-admin-gateway/dashboard`
 - **Review Center**: `/secure-admin-gateway/review`
+
+**Attorney Admin**:
+- **Login**: `/attorney-portal/login`
+- **Review Center**: `/attorney-portal/review`
 
 ## Managing Admin Users
 
@@ -205,7 +213,7 @@ Since passwords are managed by Supabase Auth:
 
 ```sql
 UPDATE profiles
-SET admin_sub_role = 'attorney_admin',  -- or 'super_admin'
+SET admin_sub_role = 'attorney_admin',  -- or 'super_admin' for System Admin
     updated_at = NOW()
 WHERE email = 'admin@example.com';
 ```
@@ -322,15 +330,9 @@ const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
 
 ### Multiple Admins Seeing Same Data
 
-This is **intentional**. All admins share the same dashboard and see the same letters. They can collaborate on reviews, but only one admin should approve/reject each letter.
+For **System Admins**, this is intentional. All System Admins share the same dashboard and see the same letters. They can collaborate on reviews, but only one admin should approve/reject each letter.
 
-## Migration from Single-Admin
-
-If upgrading from the old single-admin system:
-
-1. **Run migrations**: Migrations automatically update schema
-2. **Remove deprecated env vars**: Remove `ADMIN_EMAIL` and `ADMIN_PASSWORD`
-3. **Create additional admins**: Use the script to add more admins
+**Attorney Admins** see only the review center with pending letters.
 
 ## Summary
 
@@ -339,7 +341,8 @@ If upgrading from the old single-admin system:
 | **Admin Creation** | `scripts/create-additional-admin.ts` |
 | **Auth Method** | Supabase Auth + Portal Key |
 | **Session Timeout** | 30 minutes |
-| **Dashboard Location** | `/secure-admin-gateway` |
+| **System Admin Portal** | `/secure-admin-gateway` |
+| **Attorney Admin Portal** | `/attorney-portal` |
 | **Max Admins** | Unlimited |
 | **Role Field** | `profiles.role = 'admin'` |
 | **Sub-Roles** | `super_admin`, `attorney_admin` |
@@ -347,4 +350,4 @@ If upgrading from the old single-admin system:
 ---
 
 **Last Updated**: January 2026  
-**Version**: Multi-Admin System v2.0
+**Version**: Dual-Admin System v2.0

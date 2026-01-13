@@ -24,7 +24,7 @@ Talk-To-My-Lawyer is an AI-powered legal letter generation platform with mandato
 ### Key Features
 
 - **AI Letter Generation**: OpenAI GPT-4 Turbo via Vercel AI SDK
-- **Attorney Review Workflow**: Multi-admin letter approval system
+- **Attorney Review Workflow**: Dual-admin letter approval system
 - **Subscription Management**: Monthly/Yearly plans with credit system
 - **Employee Referrals**: 5% commission system with payout requests
 - **Production Email System**: Professional templates via Resend

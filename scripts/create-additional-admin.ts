@@ -53,7 +53,7 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 
 async function createAdminUser() {
   console.log(`\n🔐 Creating admin user: ${email}`)
-  console.log(`   Sub-role: ${adminSubRole === 'super_admin' ? 'Super Admin (full access)' : 'Attorney Admin (letter review only)'}`)
+  console.log(`   Sub-role: ${adminSubRole === 'super_admin' ? 'System Admin (full access)' : 'Attorney Admin (letter review only)'}`)
 
   // Check if user already exists
   const { data: existingProfile } = await supabase

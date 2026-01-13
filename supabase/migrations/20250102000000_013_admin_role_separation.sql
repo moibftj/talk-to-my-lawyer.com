@@ -143,6 +143,6 @@ GRANT EXECUTE ON FUNCTION public.can_review_letters TO authenticated;
 -- Add comments
 COMMENT ON FUNCTION public.get_admin_sub_role IS 'Returns the current admin user''s sub-role (super_admin or attorney_admin)';
 COMMENT ON FUNCTION public.get_admin_sub_role_by_id IS 'Returns the admin sub-role for a specific user ID';
-COMMENT ON FUNCTION public.is_super_admin IS 'Returns true if current user is a system admin with full access';
-COMMENT ON FUNCTION public.is_attorney_admin IS 'Returns true if current user is an attorney admin with letter review access only';
+COMMENT ON FUNCTION public.is_super_admin IS 'Returns true if current user is a System Admin with full access';
+COMMENT ON FUNCTION public.is_attorney_admin IS 'Returns true if current user is an Attorney Admin with letter review access only';
 COMMENT ON FUNCTION public.can_review_letters IS 'Returns true if current user is any type of admin (can access letter review)';

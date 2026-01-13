@@ -14,7 +14,7 @@ AI-powered legal letter generation platform with mandatory attorney review.
 
 - ✅ **Real Payment Processing** - Stripe Live Mode with actual transactions
 - ✅ **AI Letter Generation** - OpenAI GPT-4 Turbo integration
-- ✅ **Attorney Review Workflow** - Multi-admin letter approval system
+- ✅ **Attorney Review Workflow** - Dual-admin letter approval system
 - ✅ **Subscription Management** - Monthly/Yearly plans with credit system
 - ✅ **Employee Referrals** - 5% commission system with payout requests
 - ✅ **Production Email System** - Professional templates via Resend
@@ -48,7 +48,7 @@ Complete documentation is available in the `/docs` directory. See **[docs/README
 | Guide | Description |
 | ------- | ------------- |
 | [**Setup Guide**](./docs/SETUP.md) | Complete installation and configuration |
-| [**Admin Guide**](./docs/ADMIN_GUIDE.md) | Admin user management and multi-admin system |
+| [**Admin Guide**](./docs/ADMIN_GUIDE.md) | Admin user management and dual-admin system |
 | [**Development**](./docs/DEVELOPMENT.md) | Architecture, patterns, and development guide |
 | [**Deployment**](./docs/DEPLOYMENT.md) | CI/CD pipeline and Vercel deployment |
 | [**Operations**](./docs/OPERATIONS.md) | Production operations and monitoring |
@@ -92,3 +92,85 @@ pnpm db:migrate
 
 # Start development server
 pnpm dev
+```
+
+---
+
+## 👥 Admin Model (Source of Truth)
+
+The platform uses a **dual-admin system** with two distinct administrative roles:
+
+### Admin Roles
+
+| Role | TypeScript Type | Database Value | Access Level |
+|------|----------------|----------------|--------------|
+| **System Admin** | `'super_admin'` | `admin_sub_role = 'super_admin'` | Full platform access |
+| **Attorney Admin** | `'attorney_admin'` | `admin_sub_role = 'attorney_admin'` | Letter review only |
+
+### Canonical Role Strings
+
+**In Code (TypeScript/SQL)**:
+- `'super_admin'` - System Admin role identifier
+- `'attorney_admin'` - Attorney Admin role identifier
+
+**In Documentation/UI**:
+- "System Admin" - Full access administrator
+- "Attorney Admin" - Legal review administrator
+
+### Permission Matrix
+
+| Feature | System Admin | Attorney Admin | Subscriber | Employee |
+|---------|--------------|----------------|------------|----------|
+| Platform Analytics | ✅ | ❌ | ❌ | ❌ |
+| User Management | ✅ | ❌ | ❌ | ❌ |
+| Review Letters | ✅ | ✅ | ❌ | ❌ |
+| Approve/Reject Letters | ✅ | ✅ | ❌ | ❌ |
+| Coupon Management | ✅ | ❌ | ❌ | ❌ |
+| Commission Management | ✅ | ❌ | ❌ | ❌ |
+| Email Queue Management | ✅ | ❌ | ❌ | ❌ |
+| Generate Letters | ❌ | ❌ | ✅ | ❌ |
+| View Referrals | ❌ | ❌ | ❌ | ✅ |
+
+### Access Areas
+
+**System Admin** (`/secure-admin-gateway`):
+- Dashboard with analytics
+- User management
+- All letters view
+- Review center
+- Coupon management
+- Commission management
+- Email queue management
+
+**Attorney Admin** (`/attorney-portal`):
+- Review center only
+- Letter approval/rejection
+- Profile settings
+
+### Authentication Functions
+
+**TypeScript** (`lib/auth/admin-session.ts`):
+```typescript
+requireSuperAdminAuth()      // System Admin only
+requireAttorneyAdminAccess() // Both admin types
+isSuperAdmin()              // Check if System Admin
+isAttorneyAdmin()           // Check if Attorney Admin
+```
+
+**SQL** (Database functions):
+```sql
+is_super_admin()      -- Returns true for System Admin
+is_attorney_admin()   -- Returns true for Attorney Admin
+```
+
+### Creating Admin Users
+
+See [Admin Guide](./docs/ADMIN_GUIDE.md) for detailed instructions.
+
+```bash
+# Create System Admin
+pnpm dlx dotenv-cli -e .env.local -- pnpm tsx scripts/create-additional-admin.ts admin@example.com password123
+
+# Create Attorney Admin
+pnpm dlx dotenv-cli -e .env.local -- pnpm tsx scripts/create-additional-admin.ts attorney@example.com password123 attorney
+```

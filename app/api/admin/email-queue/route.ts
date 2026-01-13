@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { requireSuperAdminAuth } from '@/lib/auth/admin-session'
 import { adminRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
 import { processEmailQueue } from '@/lib/email/queue'
-import { validateSystemAdminAction } from '@/lib/admin/letter-actions'
+import { validateSuperAdminAction } from '@/lib/admin/letter-actions'
 
 export const runtime = 'nodejs'
 
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest) {
     const rateLimitResponse = await safeApplyRateLimit(request, adminRateLimit, 5, '1 m')
     if (rateLimitResponse) return rateLimitResponse
 
-    const validationError = await validateSystemAdminAction(request)
+    const validationError = await validateSuperAdminAction(request)
     if (validationError) return validationError
 
     const body = await request.json()

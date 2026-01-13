@@ -181,7 +181,7 @@ pnpm validate-env     # Check environment variables
 This project uses manual testing:
 
 1. **Authentication Flow** - Test user registration, login, password reset
-2. **Admin Access** - Test multi-admin login and actions
+2. **Admin Access** - Test dual-admin login and actions
 3. **Letter Generation** - Test each letter type with various inputs
 4. **Payment Processing** - Test subscriptions with Stripe test cards
 5. **Email Services** - Test delivery with configured provider
