@@ -8,13 +8,13 @@ const dotenv = require('dotenv')
 dotenv.config({ path: '.env.local' })
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
+const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SERVICE_ROLE_KEY
 const passwordArg = process.argv.find(arg => arg.startsWith('--password='))
 const testPassword = process.env.TEST_ACCOUNT_PASSWORD || (passwordArg ? passwordArg.split('=')[1] : null)
 
 if (!supabaseUrl || !supabaseServiceKey || !testPassword) {
   console.error('❌ Missing required environment variables.')
-  console.error('   Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, TEST_ACCOUNT_PASSWORD')
+  console.error('   Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SECRET_KEY (preferred) or SUPABASE_SERVICE_ROLE_KEY, TEST_ACCOUNT_PASSWORD')
   console.error('   Or pass --password=<password> for the test account password.')
   process.exit(1)
 }

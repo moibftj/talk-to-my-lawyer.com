@@ -10,19 +10,19 @@ dotenv.config({ path: '.env.local' })
 
 // Load environment from the app (should be available at runtime)
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseServiceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY
 const passwordArg = process.argv.find(arg => arg.startsWith('--password='))
 const testPassword = process.env.TEST_ACCOUNT_PASSWORD || (passwordArg ? passwordArg.split('=')[1] : null)
 
 console.log('🔍 Checking environment variables...')
 console.log('SUPABASE_URL:', supabaseUrl ? '✓ Set' : '✗ Missing')
-console.log('SERVICE_ROLE_KEY:', supabaseServiceKey ? '✓ Set' : '✗ Missing')
+console.log('SERVICE_KEY:', supabaseServiceKey ? '✓ Set' : '✗ Missing')
 
 if (!supabaseUrl || !supabaseServiceKey || !testPassword) {
   console.error('\n❌ Error: Required environment variables are missing')
   console.log('\nPlease ensure these are set:')
   console.log('  - NEXT_PUBLIC_SUPABASE_URL')
-  console.log('  - SUPABASE_SERVICE_ROLE_KEY')
+  console.log('  - SUPABASE_SECRET_KEY (preferred) or SUPABASE_SERVICE_ROLE_KEY')
   console.log('  - TEST_ACCOUNT_PASSWORD')
   console.log('  - Or pass --password=<password>')
   process.exit(1)
