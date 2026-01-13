@@ -98,7 +98,7 @@ Employees receive a unique coupon code stored in `employee_coupons` table. The r
 
 Platform administrators with two sub-roles defined by `admin_sub_role`.
 
-### 3a. Super Admin (`admin_sub_role = 'super_admin'`)
+### 3a. System Admin (`admin_sub_role = 'super_admin'`)
 
 Full platform access and management capabilities.
 
@@ -175,11 +175,11 @@ const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
 ### SQL Helper Functions
 
 ```sql
--- Check if current user is super admin
+-- Check if current user is System Admin
 is_super_admin()
 -- Returns: true if role='admin' AND admin_sub_role='super_admin'
 
--- Check if current user is attorney admin
+-- Check if current user is Attorney Admin
 is_attorney_admin()
 -- Returns: true if role='admin' AND admin_sub_role='attorney_admin'
 
@@ -198,7 +198,7 @@ isAttorneyAdmin(): Promise<boolean>
 
 // API route guards
 requireAdminAuth(): Promise<NextResponse | undefined>      // Any admin
-requireSuperAdminAuth(): Promise<NextResponse | undefined> // Super admin only
+requireSuperAdminAuth(): Promise<NextResponse | undefined> // System Admin only
 requireAttorneyAdminAccess(): Promise<NextResponse | undefined> // Both admin types
 
 // Session management
@@ -290,4 +290,4 @@ All letter-related endpoints under `/api/letters/[id]/`:
 4. **CSRF protection** - Admin routes use CSRF tokens via `/api/admin/csrf`
 5. **Rate limiting** - Redis-backed with in-memory fallback
 6. **Session security** - HTTP-only cookies, 30-minute timeout
-7. **Individual admin accounts** - No shared secrets; each admin uses own credential
+7. **Individual admin accounts** - Each admin uses their own credentials

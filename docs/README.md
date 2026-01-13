@@ -14,7 +14,7 @@ These are the primary comprehensive guides that consolidate all essential inform
 - Getting started and prerequisites
 - Environment variables (complete reference)
 - Database setup and migrations
-- Admin user management (multi-admin system)
+- Admin user management (dual-admin system)
 - Test mode configuration
 - Security configuration
 
@@ -54,10 +54,10 @@ These documents provide focused, deeper dives into individual areas.
 They **complement** the main guides and are referenced from them.
 
 ### [ADMIN_GUIDE.md](ADMIN_GUIDE.md)
-**Purpose**: Admin user management and multi-admin system  
+**Purpose**: Admin user management and dual-admin system  
 **Topics**:
-- Multi-admin system overview
-- Admin role structure (Super Admin, Attorney Admin)
+- Dual-admin system overview
+- Admin role structure (System Admin, Attorney Admin)
 - Creating and managing admin users
 - Permissions matrix
 - Troubleshooting

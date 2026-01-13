@@ -2,7 +2,7 @@
 
 **Status**: ✅ **FULLY FUNCTIONAL & SECURE**  
 **Last Reviewed**: January 2026  
-**System Admin**: Super Admin (`super_admin`)  
+**System Admin**: System Admin (`super_admin`)  
 **Attorney Admin**: Attorney Admin (`attorney_admin`)
 
 ---
@@ -40,12 +40,12 @@ Session Management
 
 ---
 
-## 1. SYSTEM ADMIN (Super Admin) - Complete Feature Set
+## 1. SYSTEM ADMIN (System Admin) - Complete Feature Set
 
 ### 1.1 System Admin Dashboard
 **Location**: `/secure-admin-gateway/dashboard`  
 **Access Control**: Only `super_admin` sub-role  
-**Authentication**: Admin session + super admin verification  
+**Authentication**: Admin session + System Admin verification  
 
 **Features Available**:
 - ✅ Dashboard Overview - Key metrics and summary
@@ -105,7 +105,7 @@ if (session.subRole !== 'super_admin') redirect('/attorney-portal/review')
 
 **Functionality**:
 ```typescript
-// Fetches pending_review and under_review letters (same as super admin)
+// Fetches pending_review and under_review letters (same as System Admin)
 .in('status', ['pending_review', 'under_review'])
 
 // Display stats
@@ -437,7 +437,7 @@ await supabase.rpc('log_letter_audit', {
   - No access to other admin areas
 - [x] API endpoints enforce role-based access
   - `requireAttorneyAdminAccess()` for letter review (both admin types)
-  - `requireSuperAdminAuth()` for system admin endpoints (super admin only)
+  - `requireSuperAdminAuth()` for System Admin endpoints (System Admin only)
 - [x] RLS policies at database layer
 - [x] No privilege escalation possible
 
@@ -532,10 +532,10 @@ await supabase.rpc('log_letter_audit', {
 
 ### Manual Testing Steps
 
-#### 1. Test Super Admin Access
+#### 1. Test System Admin Access
 ```
 1. Navigate to /secure-admin-gateway/login
-2. Login with super admin credentials
+2. Login with System Admin credentials
 3. Verify: Redirected to /secure-admin-gateway/dashboard
 4. Verify: Can access all dashboard pages
 5. Verify: Can access /secure-admin-gateway/review
@@ -712,8 +712,8 @@ WHERE id = '...'
 Before going to production:
 
 - [ ] Verify both admin accounts are created in database
-- [ ] Test super admin login and dashboard access
-- [ ] Test attorney admin login and review center access
+- [ ] Test System Admin login and dashboard access
+- [ ] Test Attorney Admin login and review center access
 - [ ] Test CSRF protection
 - [ ] Test session timeout
 - [ ] Verify audit trail logging
