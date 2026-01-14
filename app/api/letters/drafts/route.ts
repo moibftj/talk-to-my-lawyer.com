@@ -1,17 +1,23 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { safeApplyRateLimit, apiRateLimit } from '@/lib/rate-limit-redis'
+import { errorResponses, handleApiError } from '@/lib/api/api-error-handler'
 
 export const runtime = 'nodejs'
 
 // POST - Save draft letter content (auto-save)
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting - generous for auto-save (200 per minute)
+    const rateLimitResponse = await safeApplyRateLimit(request, apiRateLimit, 200, "1 m");
+    if (rateLimitResponse) return rateLimitResponse;
+
     const supabase = await createClient()
 
     // Check authentication
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return errorResponses.unauthorized()
     }
 
     const body = await request.json()
@@ -27,19 +33,16 @@ export async function POST(request: NextRequest) {
         .single()
 
       if (fetchError || !existingLetter) {
-        return NextResponse.json({ error: 'Draft not found' }, { status: 404 })
+        return errorResponses.notFound('Draft not found')
       }
 
       if (existingLetter.user_id !== user.id) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
+        return errorResponses.forbidden('Unauthorized')
       }
 
       // Only allow updating drafts
       if (existingLetter.status !== 'draft') {
-        return NextResponse.json(
-          { error: 'Can only auto-save draft letters' },
-          { status: 400 }
-        )
+        return errorResponses.badRequest('Can only auto-save draft letters')
       }
 
       // Update the draft
@@ -64,7 +67,7 @@ export async function POST(request: NextRequest) {
 
       if (updateError) {
         console.error('[AutoSave] Update error:', updateError)
-        return NextResponse.json({ error: 'Failed to save draft' }, { status: 500 })
+        return errorResponses.internalError('Failed to save draft')
       }
 
       return NextResponse.json({
@@ -97,7 +100,7 @@ export async function POST(request: NextRequest) {
 
     if (createError) {
       console.error('[AutoSave] Create error:', createError)
-      return NextResponse.json({ error: 'Failed to create draft' }, { status: 500 })
+      return errorResponses.internalError('Failed to create draft')
     }
 
     return NextResponse.json({
@@ -107,20 +110,23 @@ export async function POST(request: NextRequest) {
       savedAt: newDraft.created_at,
       isNew: true
     })
-  } catch (error: any) {
-    console.error('[AutoSave] Error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error) {
+    return handleApiError(error, "AutoSave")
   }
 }
 
 // GET - Get list of drafts
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResponse = await safeApplyRateLimit(request, apiRateLimit, 100, "1 m");
+    if (rateLimitResponse) return rateLimitResponse;
+
     const supabase = await createClient()
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return errorResponses.unauthorized()
     }
 
     const { data: drafts, error } = await supabase
@@ -132,14 +138,14 @@ export async function GET(request: NextRequest) {
       .limit(10)
 
     if (error) {
-      return NextResponse.json({ error: 'Failed to fetch drafts' }, { status: 500 })
+      return errorResponses.internalError('Failed to fetch drafts')
     }
 
     return NextResponse.json({
       success: true,
       drafts: drafts || []
     })
-  } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error) {
+    return handleApiError(error, "GetDrafts")
   }
 }

@@ -1,17 +1,23 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { randomBytes } from 'crypto'
+import { safeApplyRateLimit, apiRateLimit } from '@/lib/rate-limit-redis'
+import { errorResponses, handleApiError } from '@/lib/api/api-error-handler'
 
 export const runtime = 'nodejs'
 
 // GET - Get referral link for current employee
 export async function GET(request: NextRequest) {
   try {
+    // Rate limiting
+    const rateLimitResponse = await safeApplyRateLimit(request, apiRateLimit, 100, "1 m");
+    if (rateLimitResponse) return rateLimitResponse;
+
     const supabase = await createClient()
 
     const { data: { user }, error: authError } = await supabase.auth.getUser()
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      return errorResponses.unauthorized()
     }
 
     // Verify user is an employee
@@ -22,7 +28,7 @@ export async function GET(request: NextRequest) {
       .single()
 
     if (profileError || !profile || profile.role !== 'employee') {
-      return NextResponse.json({ error: 'Only employees can access referral links' }, { status: 403 })
+      return errorResponses.forbidden('Only employees can access referral links')
     }
 
     // Get existing coupon for this employee
@@ -69,8 +75,7 @@ export async function GET(request: NextRequest) {
         }
       }
     })
-  } catch (error: any) {
-    console.error('[ReferralLink] Error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  } catch (error) {
+    return handleApiError(error, "ReferralLink")
   }
 }

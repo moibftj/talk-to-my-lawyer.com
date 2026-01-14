@@ -2,7 +2,7 @@
 
 Talk-To-My-Lawyer: AI legal letter drafts with **mandatory attorney review**.
 
-Last updated: 2026-01-04
+Last updated: 2026-01-14
 
 ## Non‑negotiables (security + roles)
 
@@ -25,7 +25,9 @@ Last updated: 2026-01-04
 
 ## Key flows (mental model)
 
-- **Letter lifecycle**: `draft` → `generating` → `pending_review` → `under_review` → `approved|rejected` → `completed|failed`
+- **Letter lifecycle**: `draft` → `generating` → `pending_review` → `under_review` → `approved|rejected` → `completed|failed|sent`
+  - After approval, letters can be marked as `completed` (downloaded) or `sent` (emailed)
+- **Subscription lifecycle**: `pending` (created) → payment verification → `active|past_due|canceled`
 - **Allowance**: check/deduct via DB RPCs (atomic), refund on failures where applicable.
 - **Review**: attorneys approve/reject with CSRF protection; audit trail tracks state changes.
 
@@ -174,7 +176,11 @@ export async function POST(request: NextRequest) {
 ## Admin auth
 
 - Prefer `requireAdminAuth()` from `lib/auth/admin-guard.ts` for admin-only routes.
-- “Admin portal key” is a **3rd factor** for admin login (do not bypass).
+- "Admin portal key" is a **3rd factor** for admin login (do not bypass).
+- **Admin sub-roles**:
+  - `super_admin` - Full system access (super admin gateway)
+  - `attorney_admin` - Letter review and approval only (attorney portal)
+  - `system_admin` - Legacy/deprecated (use super_admin instead)
 
 ## Environment variables (minimum)
 
@@ -183,7 +189,9 @@ export async function POST(request: NextRequest) {
 - Stripe: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
 - Admin: `ADMIN_PORTAL_KEY`
 - Cron: `CRON_SECRET`
+- Security: `CSRF_SECRET` (min 32 chars for CSRF token signing)
 - Email (at least one provider): `RESEND_API_KEY` + `EMAIL_FROM`
+- Rate limiting (optional): `KV_REST_API_URL`, `KV_REST_API_TOKEN` (Upstash Redis)
 
 ## Email (Resend)
 
@@ -229,5 +237,6 @@ pnpm validate-env
 - Architecture/dev: `docs/ARCHITECTURE_AND_DEVELOPMENT.md`
 - Security: `docs/SECURITY.md`
 - DB & RLS: `docs/DATABASE.md`
+- RLS migration verification: `docs/RLS_MIGRATION_VERIFICATION.md` (critical for production)
 - API integrations: `docs/API_AND_INTEGRATIONS.md`
 - Operations/deploy: `docs/OPERATIONS.md`, `docs/DEPLOYMENT_GUIDE.md`
