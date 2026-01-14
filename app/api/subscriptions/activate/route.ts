@@ -1,28 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { safeApplyRateLimit, subscriptionRateLimit } from "@/lib/rate-limit-redis";
+import { errorResponses, handleApiError } from "@/lib/api/api-error-handler";
 
 export async function POST(request: NextRequest) {
   try {
+    // Rate limiting - subscription operations are limited
+    const rateLimitResponse = await safeApplyRateLimit(request, subscriptionRateLimit, 3, "1 h");
+    if (rateLimitResponse) return rateLimitResponse;
+
     const supabase = await createClient();
-    
+
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return errorResponses.unauthorized();
     }
 
     const body = await request.json();
     const { subscriptionId, planType } = body;
 
     if (!subscriptionId || !planType) {
-      return NextResponse.json(
-        { error: "Missing subscriptionId or planType" },
-        { status: 400 }
-      );
+      return errorResponses.badRequest("Missing subscriptionId or planType");
     }
 
     // Verify subscription belongs to user
@@ -34,10 +34,7 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (subError || !subscription) {
-      return NextResponse.json(
-        { error: "Subscription not found" },
-        { status: 404 }
-      );
+      return errorResponses.notFound("Subscription not found");
     }
 
     // Call add_letter_allowances function
@@ -49,10 +46,7 @@ export async function POST(request: NextRequest) {
 
     if (rpcError) {
       console.error('[ActivateSubscription] RPC error:', rpcError);
-      return NextResponse.json(
-        { error: "Failed to add allowances" },
-        { status: 500 }
-      );
+      return errorResponses.internalError("Failed to add allowances");
     }
 
     // Update subscription status to active
@@ -63,10 +57,7 @@ export async function POST(request: NextRequest) {
 
     if (updateError) {
       console.error('[ActivateSubscription] Update error:', updateError);
-      return NextResponse.json(
-        { error: "Failed to activate subscription" },
-        { status: 500 }
-      );
+      return errorResponses.internalError("Failed to activate subscription");
     }
 
     return NextResponse.json({
@@ -75,10 +66,6 @@ export async function POST(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error('[ActivateSubscription] Error:', error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return handleApiError(error, "ActivateSubscription");
   }
 }
