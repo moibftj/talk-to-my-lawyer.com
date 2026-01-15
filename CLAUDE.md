@@ -2,7 +2,7 @@
 
 Talk-To-My-Lawyer: AI legal letter drafts with **mandatory attorney review**.
 
-Last updated: 2026-01-14
+Last updated: 2026-01-15
 
 ## Non‑negotiables (security + roles)
 
@@ -21,21 +21,25 @@ Last updated: 2026-01-14
 - Stripe (payments)
 - Resend (email) + email queue
 - Upstash Redis (rate limiting; falls back to in-memory)
+- Workflow DevKit (durable workflows for letter generation)
 - OpenTelemetry tracing
 
 ## Key flows (mental model)
 
 - **Letter lifecycle**: `draft` → `generating` → `pending_review` → `under_review` → `approved|rejected` → `completed|failed|sent`
   - After approval, letters can be marked as `completed` (downloaded) or `sent` (emailed)
+  - **New letters** use Workflow DevKit for durable execution (see Workflows section below)
+  - **Legacy letters** use direct API endpoints (gradually being phased out)
 - **Subscription lifecycle**: `pending` (created) → payment verification → `active|past_due|canceled`
 - **Allowance**: check/deduct via DB RPCs (atomic), refund on failures where applicable.
 - **Review**: attorneys approve/reject with CSRF protection; audit trail tracks state changes.
 
-## Repo “where is what”
+## Repo "where is what"
 
 - API routes: `app/api/**/route.ts`
 - Subscriber UI: `app/dashboard/**`
 - Admin portals: `app/secure-admin-gateway/**` (super admin) and `app/attorney-portal/**`
+- Workflows: `app/workflows/**` (workflow definitions and steps)
 - Server Supabase client: `lib/supabase/server.ts`
 - Client Supabase client: `lib/supabase/client.ts`
 - Shared API responses/errors: `lib/api/api-error-handler.ts`
@@ -123,7 +127,13 @@ export async function POST(request: NextRequest) {
 
 - `GET /api/letters/[id]/pdf` — Generate/download a letter PDF.
 - `POST /api/letters/[id]/send-email` — Queue sending a letter by email.
-- `GET /api/letters/[id]/audit` — Fetch a letter’s audit trail.
+- `GET /api/letters/[id]/audit` — Fetch a letter's audit trail.
+
+### Workflows (new letter generation system)
+
+- `POST /api/workflows/trigger` — Start a new letter generation workflow (replaces /api/generate-letter for new letters).
+- `POST /api/workflows/resume` — Resume a paused workflow with attorney approval/rejection decision.
+- `GET /api/workflows/status/[id]` — Query workflow execution status and history.
 
 ### Admin
 
@@ -190,8 +200,82 @@ export async function POST(request: NextRequest) {
 - Admin: `ADMIN_PORTAL_KEY`
 - Cron: `CRON_SECRET`
 - Security: `CSRF_SECRET` (min 32 chars for CSRF token signing)
+- Workflows: `WORKFLOW_DB_URL` (Postgres connection string for workflow state storage - same as Supabase)
 - Email (at least one provider): `RESEND_API_KEY` + `EMAIL_FROM`
 - Rate limiting (optional): `KV_REST_API_URL`, `KV_REST_API_TOKEN` (Upstash Redis)
+
+## Workflows (Workflow DevKit)
+
+The letter generation process now uses **Workflow DevKit** for durable, resumable execution. This replaces the manual state machine with automatic retries, sleep functionality, and full observability.
+
+**Key benefits:**
+- Single workflow definition replaces 10+ API endpoints
+- Automatic retries on all steps (OpenAI, email, database)
+- Sleep without server cost during attorney review (can pause for days)
+- Full execution history and observability
+- Type-safe execution throughout
+
+**Architecture:**
+
+```ts
+// app/workflows/letter-generation.workflow.ts
+export async function generateLetterWorkflow(input: LetterInput) {
+  "use workflow"
+
+  // Step 1: Check allowance (atomic)
+  const allowance = await checkAllowanceStep(input.userId)
+
+  // Step 2: Generate AI draft (auto-retry)
+  const aiDraft = await generateDraftStep(input)
+
+  // Step 3: Save to database
+  await saveDraftStep(input.letterId, aiDraft)
+
+  // Step 4: Notify attorneys
+  await notifyAttorneysStep(input.letterId)
+
+  // Step 5: SLEEP until approval (no server cost!)
+  const approval = await sleep<ApprovalDecision>("attorney-approval")
+
+  // Step 6: Finalize letter
+  await finalizeLetterStep(input.letterId, approval)
+
+  // Step 7: Notify user (auto-retry)
+  await notifyUserStep(input.userId, input.letterId, approval)
+}
+```
+
+**Workflow steps** live in `app/workflows/steps/`:
+- `check-allowance.ts` - Atomic credit check/deduction
+- `generate-draft.ts` - AI generation with retries
+- `save-letter.ts` - Database operations
+- `notify-attorneys.ts` - Admin notifications
+- `finalize-letter.ts` - Process approval/rejection
+- `notify-user.ts` - User notifications
+
+**API endpoints:**
+- `POST /api/workflows/trigger` - Start new workflow
+- `POST /api/workflows/resume` - Resume with attorney decision
+- `GET /api/workflows/status/[id]` - Query workflow status
+
+**Database tracking:**
+
+Letters table includes workflow tracking columns:
+- `workflow_id` - Workflow execution ID
+- `workflow_status` - Current status (running, completed, failed, paused)
+- `workflow_started_at` - Start timestamp
+- `workflow_completed_at` - Completion timestamp
+- `workflow_error` - Error message if failed
+
+**Migration status:**
+- ✅ Week 1-2: Infrastructure and implementation complete
+- ⏳ Week 3-4: UI integration, database migration, testing
+- 🔄 **Dual running**: New letters use workflows, legacy letters use old endpoints
+- 📝 **Future**: Gradually phase out legacy endpoints
+
+**Configuration:**
+
+See `docs/WORKFLOW_CONFIGURATION.md` for detailed setup instructions.
 
 ## Email (Resend)
 
@@ -240,3 +324,4 @@ pnpm validate-env
 - RLS migration verification: `docs/RLS_MIGRATION_VERIFICATION.md` (critical for production)
 - API integrations: `docs/API_AND_INTEGRATIONS.md`
 - Operations/deploy: `docs/OPERATIONS.md`, `docs/DEPLOYMENT_GUIDE.md`
+- Workflows: `docs/WORKFLOW_IMPLEMENTATION_PLAN.md`, `docs/WORKFLOW_IMPLEMENTATION_PROGRESS.md`, `docs/WORKFLOW_CONFIGURATION.md`
