@@ -44,10 +44,11 @@
     "overrides": {
       "qs": "^6.14.1",
       "@modelcontextprotocol/sdk": "^1.25.2",
-      "undici": ">=5.29.0",
+      "undici": ">=7.18.2",
       "esbuild": ">=0.25.0",
       "glob": ">=10.5.0",
-      "hono": ">=4.11.4"
+      "hono": ">=4.11.4",
+      "diff": ">=8.0.3"
     }
   },
   "dependencies": {
@@ -144,8 +145,8 @@
     "baseline-browser-mapping": "^2.9.0",
     "dotenv": "^17.2.3",
     "dotenv-cli": "^11.0.0",
-    "eslint": "^8.57.0",
-    "eslint-config-next": "14.2.35",
+    "eslint": "^9.28.0",
+    "eslint-config-next": "^15.3.4",
     "mcp-server-code-runner": "^0.1.8",
     "postcss": "^8.5",
     "supabase": "^2.70.5",
