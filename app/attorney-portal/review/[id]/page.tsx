@@ -19,7 +19,7 @@ export default async function AttorneyReviewLetterDetailPage({ params }: { param
   const { id } = params
   const supabase = await createClient()
 
-  // Fetch letter with subscriber details
+  // Fetch letter with subscriber details (including workflow tracking)
   const { data: letter, error } = await supabase
     .from('letters')
     .select(`

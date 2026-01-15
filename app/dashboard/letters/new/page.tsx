@@ -84,6 +84,7 @@ export default function NewLetterPage() {
   const [error, setError] = useState<string | null>(null)
   const [aiDraft, setAiDraft] = useState("")
   const [letterId, setLetterId] = useState<string | null>(null)
+  const [workflowId, setWorkflowId] = useState<string | null>(null)
   const [isFreeTrial, setIsFreeTrial] = useState(false)
   const [showPricingOverlay, setShowPricingOverlay] = useState(false)
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false)
@@ -204,7 +205,7 @@ export default function NewLetterPage() {
         intakeData,
       }
 
-      const response = await fetch("/api/generate-letter", {
+      const response = await fetch("/api/workflows/trigger", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestBody),
@@ -224,17 +225,22 @@ export default function NewLetterPage() {
         throw new Error(errorMessage)
       }
 
-      const { letterId: newLetterId, aiDraft: draft, isFreeTrial: freeTrialFlag, status } = await response.json()
-      setLetterId(newLetterId)
-      setAiDraft(draft || "")
-      setIsFreeTrial(!!freeTrialFlag)
-      setShowPricingOverlay(!!freeTrialFlag)
-      if (status) {
-        setTrackerStatus(status as LetterStatus)
-      }
+      const result = await response.json()
 
-      // Automatically take the user to the letter status page (now queued for admin review)
-      router.push(`/dashboard/letters/${newLetterId}?submitted=1`)
+      // Workflow endpoint returns: { success, data: { workflowId, letterId, message, status } }
+      if (result.success && result.data) {
+        setWorkflowId(result.data.workflowId)
+        setLetterId(result.data.letterId || null)
+        setTrackerStatus(result.data.status as LetterStatus || "generating")
+
+        // For now, we'll navigate to the letter page
+        // In the future, we can poll workflow status using workflowId
+        if (result.data.letterId) {
+          router.push(`/dashboard/letters/${result.data.letterId}?submitted=1&workflow=${result.data.workflowId}`)
+        }
+      } else {
+        throw new Error(result.error || "Failed to start letter generation workflow")
+      }
     } catch (err: any) {
       console.error("[v0] Letter creation error:", err)
       setError(err.message || "Failed to create letter")

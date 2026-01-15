@@ -109,27 +109,58 @@ export function ReviewLetterModal({ letter }: { letter: Letter & { profiles?: { 
       toast.error('Rejection reason is required')
       return
     }
-    
+
     setLoading(true)
     try {
-      const endpoint = action === 'approve' 
-        ? `/api/letters/${letter.id}/approve`
-        : `/api/letters/${letter.id}/reject`
-      
-      const body = action === 'approve'
-        ? { finalContent: htmlToPlainText(finalContent), reviewNotes }
-        : { rejectionReason, reviewNotes }
-
       const headers = await getAdminHeaders()
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body)
-      })
 
-      if (!response.ok) {
-        const data = await response.json()
-        throw new Error(data.error || 'Failed to update letter')
+      // Check if this letter uses the new workflow system
+      const workflowId = (letter as any).workflow_id
+
+      if (workflowId) {
+        // New workflow approach - resume the paused workflow
+        const body = {
+          workflowId: workflowId,
+          approved: action === 'approve',
+          editedContent: action === 'approve' ? htmlToPlainText(finalContent) : undefined,
+          notes: reviewNotes || undefined,
+          reason: action === 'reject' ? rejectionReason : undefined,
+        }
+
+        const response = await fetch('/api/workflows/resume', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body)
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.error || 'Failed to resume workflow')
+        }
+
+        toast.success(action === 'approve' ? 'Letter approved successfully' : 'Letter rejected successfully')
+      } else {
+        // Legacy approach - direct API calls
+        const endpoint = action === 'approve'
+          ? `/api/letters/${letter.id}/approve`
+          : `/api/letters/${letter.id}/reject`
+
+        const body = action === 'approve'
+          ? { finalContent: htmlToPlainText(finalContent), reviewNotes }
+          : { rejectionReason, reviewNotes }
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body)
+        })
+
+        if (!response.ok) {
+          const data = await response.json()
+          throw new Error(data.error || 'Failed to update letter')
+        }
+
+        toast.success(action === 'approve' ? 'Letter approved successfully' : 'Letter rejected successfully')
       }
 
       setIsOpen(false)
