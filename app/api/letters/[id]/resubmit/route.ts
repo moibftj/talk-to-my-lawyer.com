@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
 import { generateText } from 'ai'
 import { letterGenerationRateLimit, safeApplyRateLimit } from '@/lib/rate-limit-redis'
-import { checkGenerationEligibility, deductLetterAllowance, shouldSkipDeduction } from '@/lib/services/allowance-service'
+import { checkAndDeductAllowance, refundLetterAllowance } from '@/lib/services/allowance-service'
 import { getOpenAIModel } from '@/lib/ai/openai-client'
 
 export async function POST(
@@ -45,12 +45,14 @@ export async function POST(
       }, { status: 400 })
     }
 
-    const eligibility = await checkGenerationEligibility(user.id)
-    if (!eligibility.canGenerate) {
+    // Atomically check and deduct allowance (prevents race conditions)
+    const allowanceResult = await checkAndDeductAllowance(user.id)
+
+    if (!allowanceResult.success) {
       return NextResponse.json(
         {
-          error: eligibility.reason || 'No letter credits remaining. Please upgrade your plan.',
-          needsSubscription: true,
+          error: allowanceResult.errorMessage || 'No letter credits remaining. Please upgrade your plan.',
+          needsSubscription: !allowanceResult.isFreeTrial && !allowanceResult.isSuperAdmin,
         },
         { status: 403 }
       )
@@ -96,24 +98,6 @@ export async function POST(
 
       if (finalUpdateError) throw finalUpdateError
 
-      // Deduct credit if needed
-      if (!shouldSkipDeduction(eligibility)) {
-        const deduction = await deductLetterAllowance(user.id)
-
-        if (!deduction.success || !deduction.wasDeducted) {
-          // Mark as failed if can't deduct
-          await supabase
-            .from('letters')
-            .update({ status: 'failed', updated_at: new Date().toISOString() })
-            .eq('id', id)
-
-          return NextResponse.json(
-            { error: deduction.error || 'No letter credits remaining. Please upgrade your plan.' },
-            { status: 403 }
-          )
-        }
-      }
-
       // Log audit trail
       await supabase.rpc('log_letter_audit', {
         p_letter_id: id,
@@ -132,6 +116,11 @@ export async function POST(
 
     } catch (generationError: any) {
       console.error('[Resubmit] Generation failed:', generationError)
+
+      // Refund the allowance since generation failed
+      if (!allowanceResult.isFreeTrial && !allowanceResult.isSuperAdmin) {
+        await refundLetterAllowance(user.id, 1)
+      }
 
       // Update letter status to failed
       await supabase
