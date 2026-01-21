@@ -34,7 +34,7 @@ All templates are defined in [../templates.ts](../templates.ts).
 
 ### Sending a Template Email
 
-```typescript
+\`\`\`typescript
 import { queueTemplateEmail } from '@/lib/email'
 
 // Example: Welcome email
@@ -68,7 +68,7 @@ await queueTemplateEmail(
     actionUrl: 'https://talk-to-my-lawyer.com/dashboard/commissions'
   }
 )
-```
+\`\`\`
 
 ## Adding a New Template
 
@@ -76,19 +76,19 @@ await queueTemplateEmail(
 
 Edit [../types.ts](../types.ts) and add to `EmailTemplate` type:
 
-```typescript
+\`\`\`typescript
 export type EmailTemplate =
   | 'welcome'
   | 'password-reset'
   // ... existing templates
   | 'your-new-template' // Add here
-```
+\`\`\`
 
 ### Step 2: Add Template Data Interface
 
 In [../types.ts](../types.ts), update `TemplateData` interface if needed:
 
-```typescript
+\`\`\`typescript
 export interface TemplateData {
   // Existing fields
   userName?: string
@@ -96,13 +96,13 @@ export interface TemplateData {
   // Add new fields if needed
   yourNewField?: string
 }
-```
+\`\`\`
 
 ### Step 3: Implement Template
 
 In [../templates.ts](../templates.ts), add to the `templates` object:
 
-```typescript
+\`\`\`typescript
 const templates: Record<EmailTemplate, (data: TemplateData) => TemplateOutput> = {
   // ... existing templates
 
@@ -140,13 +140,13 @@ const templates: Record<EmailTemplate, (data: TemplateData) => TemplateOutput> =
     `),
   }),
 }
-```
+\`\`\`
 
 ### Step 4: Use Security Functions
 
 **Always use these helpers to prevent XSS:**
 
-```typescript
+\`\`\`typescript
 // Escape HTML entities
 escapeHtml(data.userName)  // "John" → "John", "<script>" → "&lt;script&gt;"
 
@@ -155,16 +155,16 @@ nl2br(data.message)  // "Line 1\nLine 2" → "Line 1<br>Line 2"
 
 // Wrap email body with layout
 wrapHtml(content)  // Adds header, footer, styling
-```
+\`\`\`
 
 ### Step 5: Test the Template
 
-```bash
+\`\`\`bash
 # Create test file: test-new-template.js
 node test-new-template.js
-```
+\`\`\`
 
-```javascript
+\`\`\`javascript
 // test-new-template.js
 require('dotenv').config({ path: '.env.local' })
 const { queueTemplateEmail } = require('./lib/email')
@@ -182,7 +182,7 @@ async function test() {
 }
 
 test()
-```
+\`\`\`
 
 ## Template Styling
 
@@ -190,25 +190,25 @@ test()
 
 Defined in [../templates.ts:42-51](../templates.ts#L42-L51):
 
-```css
+\`\`\`css
 .container   /* Max-width container with padding */
 .header      /* Dark header with logo area */
 .content     /* White content area */
 .footer      /* Light gray footer */
 .button      /* Primary CTA button */
 .highlight   /* Blue highlighted box */
-```
+\`\`\`
 
 ### Custom Styles
 
 Use inline styles for custom formatting:
 
-```html
+\`\`\`html
 <p style="text-align: center; color: #666;">Centered gray text</p>
 <div style="background: #fef2f2; padding: 15px; border-left: 4px solid #dc2626;">
   Red alert box
 </div>
-```
+\`\`\`
 
 ## Common Template Issues
 
@@ -232,9 +232,9 @@ Use inline styles for custom formatting:
 2. Use default values: `data.userName || 'there'`
 3. Add conditional rendering:
 
-   ```typescript
+   \`\`\`typescript
    ${data.actionUrl ? `<a href="${escapeHtml(data.actionUrl)}">Click</a>` : ''}
-   ```
+   \`\`\`
 
 ### Issue 3: Broken HTML/Styling
 
@@ -265,26 +265,26 @@ Use inline styles for custom formatting:
 
 1. **Always use `escapeHtml()`** for user data:
 
-   ```typescript
+   \`\`\`typescript
    // ❌ WRONG - XSS vulnerability
    html: `<p>Hello ${data.userName}</p>`
 
    // ✅ CORRECT
    html: `<p>Hello ${escapeHtml(data.userName)}</p>`
-   ```
+   \`\`\`
 
 2. **Use `nl2br()` for multi-line text:**
 
-   ```typescript
+   \`\`\`typescript
    // Escapes HTML AND converts newlines
    ${nl2br(data.message)}
-   ```
+   \`\`\`
 
 ## Template Data Reference
 
 ### Common Fields
 
-```typescript
+\`\`\`typescript
 interface TemplateData {
   // User info
   userName?: string          // User's first name or full name
@@ -315,7 +315,7 @@ interface TemplateData {
   // Suspension
   suspensionReason?: string
 }
-```
+\`\`\`
 
 ## Testing Templates
 
@@ -329,17 +329,17 @@ interface TemplateData {
 
 ### Automated Testing
 
-```bash
+\`\`\`bash
 # Test template rendering
 node scripts/test-email-templates.js
-```
+\`\`\`
 
 ### Preview Templates
 
-```bash
+\`\`\`bash
 # Generate HTML preview
 node scripts/preview-template.js welcome
-```
+\`\`\`
 
 ## Best Practices
 
@@ -374,7 +374,7 @@ node scripts/preview-template.js welcome
 
 ## Quick Reference
 
-```typescript
+\`\`\`typescript
 // Render a template
 import { renderTemplate } from '@/lib/email/templates'
 const { subject, text, html } = renderTemplate('welcome', { userName: 'John' })
@@ -382,4 +382,4 @@ const { subject, text, html } = renderTemplate('welcome', { userName: 'John' })
 // Send a template
 import { queueTemplateEmail } from '@/lib/email'
 await queueTemplateEmail('welcome', 'user@example.com', { userName: 'John', actionUrl: '...' })
-```
+\`\`\`

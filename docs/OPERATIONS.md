@@ -31,14 +31,14 @@ Complete guide for production operations, monitoring, incident response, and mai
 - Webhook failures
 
 **Diagnostics**:
-```bash
+\`\`\`bash
 # Check Stripe webhook logs
 curl -H "Authorization: Bearer $STRIPE_SECRET_KEY" \
   "https://api.stripe.com/v1/webhook_endpoints"
 
 # Check application logs
 vercel logs --app=talk-to-my-lawyer
-```
+\`\`\`
 
 **Solutions**:
 - Verify webhook endpoint URL in Stripe Dashboard
@@ -54,13 +54,13 @@ vercel logs --app=talk-to-my-lawyer
 - Admin sessions timing out
 
 **Solutions**:
-```bash
+\`\`\`bash
 # Check admin portal key
 echo $ADMIN_PORTAL_KEY
 
 # Verify admin user role
 psql $DATABASE_URL -c "SELECT email, role FROM profiles WHERE role = 'admin';"
-```
+\`\`\`
 
 **Fix Steps**:
 1. Verify `ADMIN_PORTAL_KEY` environment variable
@@ -76,14 +76,14 @@ psql $DATABASE_URL -c "SELECT email, role FROM profiles WHERE role = 'admin';"
 - OpenAI API errors
 
 **Diagnostics**:
-```bash
+\`\`\`bash
 # Check OpenAI API status
 curl -H "Authorization: Bearer $OPENAI_API_KEY" \
   "https://api.openai.com/v1/models/gpt-4-turbo"
 
 # Check letter status distribution
 psql $DATABASE_URL -c "SELECT status, COUNT(*) FROM letters GROUP BY status;"
-```
+\`\`\`
 
 **Solutions**:
 - Verify `OPENAI_API_KEY` is valid and has credits
@@ -99,14 +99,14 @@ psql $DATABASE_URL -c "SELECT status, COUNT(*) FROM letters GROUP BY status;"
 - Provider API failures
 
 **Diagnostics**:
-```bash
+\`\`\`bash
 # Check email queue status
 psql $DATABASE_URL -c "SELECT status, COUNT(*) FROM email_queue GROUP BY status;"
 
 # Check Resend API status
 curl -H "Authorization: Bearer $RESEND_API_KEY" \
   "https://api.resend.com/domains"
-```
+\`\`\`
 
 **Solutions**:
 - Check Resend API key is valid
@@ -121,7 +121,7 @@ curl -H "Authorization: Bearer $RESEND_API_KEY" \
 - Slow query performance
 
 **Diagnostics**:
-```bash
+\`\`\`bash
 # Check database connectivity
 psql $DATABASE_URL -c "SELECT version();"
 
@@ -130,7 +130,7 @@ psql $DATABASE_URL -c "SELECT count(*) FROM pg_stat_activity;"
 
 # Check slow queries
 psql $DATABASE_URL -c "SELECT query, mean_exec_time FROM pg_stat_statements ORDER BY mean_exec_time DESC LIMIT 10;"
-```
+\`\`\`
 
 **Solutions**:
 - Check Supabase dashboard for database health
@@ -146,11 +146,11 @@ psql $DATABASE_URL -c "SELECT query, mean_exec_time FROM pg_stat_statements ORDE
 - Unable to generate letters
 
 **Solutions**:
-```bash
+\`\`\`bash
 # Check Redis/Upstash status
 curl -H "Authorization: Bearer $KV_REST_API_TOKEN" \
   "$KV_REST_API_URL/ping"
-```
+\`\`\`
 
 **Fix Steps**:
 1. Check Upstash Redis dashboard for connectivity
@@ -181,7 +181,7 @@ curl -H "Authorization: Bearer $KV_REST_API_TOKEN" \
 ### Alert Thresholds
 
 #### Critical (Immediate Response Required)
-```yaml
+\`\`\`yaml
 Payment Processing:
   - Payment failure rate > 5% in 1 hour
   - Stripe webhook failures > 10 in 15 minutes
@@ -195,10 +195,10 @@ Security:
   - Failed admin login attempts > 5 in 15 minutes
   - Suspicious payment patterns detected
   - Rate limit threshold breached > 50% above normal
-```
+\`\`\`
 
 #### Warning (Monitor Closely)
-```yaml
+\`\`\`yaml
 Performance:
   - API response time > 2 seconds (95th percentile)
   - Database query time > 1 second average
@@ -208,11 +208,11 @@ Business:
   - Letter generation failure rate > 10% in 1 hour
   - Customer support tickets increase > 200%
   - Daily active users drop > 20%
-```
+\`\`\`
 
 ### Health Check Endpoints
 
-```bash
+\`\`\`bash
 # Basic health check
 curl https://www.talk-to-my-lawyer.com/api/health
 
@@ -236,7 +236,7 @@ curl https://www.talk-to-my-lawyer.com/api/health/detailed
     "cpuUsage": "23%"
   }
 }
-```
+\`\`\`
 
 ### Performance Baselines
 
@@ -304,13 +304,13 @@ curl https://www.talk-to-my-lawyer.com/api/health/detailed
 
 #### Rollback Procedure
 
-```bash
+\`\`\`bash
 # Via Vercel CLI
 vercel rollback --app=talk-to-my-lawyer
 
 # Via Vercel Dashboard
 # Go to Deployments → Select previous version → Promote to Production
-```
+\`\`\`
 
 #### When to Consider Rollback
 - Payment processing failure rate > 10%
@@ -323,7 +323,7 @@ vercel rollback --app=talk-to-my-lawyer
 
 In case of suspected security breach:
 
-```bash
+\`\`\`bash
 # Environment variables to rotate immediately
 ADMIN_PORTAL_KEY
 OPENAI_API_KEY
@@ -332,7 +332,7 @@ STRIPE_WEBHOOK_SECRET
 RESEND_API_KEY
 SUPABASE_SECRET_KEY
 SUPABASE_SERVICE_ROLE_KEY
-```
+\`\`\`
 
 ---
 
@@ -398,7 +398,7 @@ SUPABASE_SERVICE_ROLE_KEY
 
 ### Recovery Procedures
 
-```bash
+\`\`\`bash
 # Database point-in-time recovery
 # Via Supabase Dashboard → Database → Backups → Restore
 
@@ -407,7 +407,7 @@ vercel rollback
 
 # Verify recovery
 curl https://www.talk-to-my-lawyer.com/api/health/detailed
-```
+\`\`\`
 
 ---
 

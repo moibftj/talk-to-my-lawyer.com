@@ -53,7 +53,7 @@ All sensitive routes should follow this order:
 
 1) rate limit → 2) auth → 3) role check → 4) validate/sanitize → 5) business logic → 6) consistent response
 
-```ts
+\`\`\`ts
 import { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
 import { safeApplyRateLimit, apiRateLimit } from "@/lib/rate-limit-redis"
@@ -78,7 +78,7 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, "API")
   }
 }
-```
+\`\`\`
 
 ## Endpoints (objective only)
 
@@ -217,7 +217,7 @@ The letter generation process now uses **Workflow DevKit** for durable, resumabl
 
 **Architecture:**
 
-```ts
+\`\`\`ts
 // app/workflows/letter-generation.workflow.ts
 export async function generateLetterWorkflow(input: LetterInput) {
   "use workflow"
@@ -243,7 +243,7 @@ export async function generateLetterWorkflow(input: LetterInput) {
   // Step 7: Notify user (auto-retry)
   await notifyUserStep(input.userId, input.letterId, approval)
 }
-```
+\`\`\`
 
 **Workflow steps** live in `app/workflows/steps/`:
 - `check-allowance.ts` - Atomic credit check/deduction
@@ -285,7 +285,7 @@ See `docs/WORKFLOW_CONFIGURATION.md` for detailed setup instructions.
 
 **Send a template (direct):**
 
-```ts
+\`\`\`ts
 import { sendTemplateEmail } from "@/lib/email/service"
 
 await sendTemplateEmail("letter-approved", userEmail, {
@@ -293,7 +293,7 @@ await sendTemplateEmail("letter-approved", userEmail, {
   letterTitle: "…",
   letterLink: "…",
 })
-```
+\`\`\`
 
 **Add/modify a template:**
 
@@ -307,13 +307,13 @@ await sendTemplateEmail("letter-approved", userEmail, {
 
 ## Commands
 
-```bash
+\`\`\`bash
 pnpm install
 pnpm dev
 pnpm lint
 CI=1 pnpm build
 pnpm validate-env
-```
+\`\`\`
 
 ## Pointers (use these instead of duplicating details here)
 

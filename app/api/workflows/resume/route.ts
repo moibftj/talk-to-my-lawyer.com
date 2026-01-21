@@ -2,23 +2,23 @@
  * Workflow Resume Endpoint
  * POST /api/workflows/resume
  *
- * Resumes a paused workflow with attorney approval/rejection decision.
+ * Handles attorney approval/rejection decision for a letter.
  *
- * This replaces the old /api/letters/[id]/approve and /api/letters/[id]/reject endpoints
- * for workflows.
+ * This replaces the old /api/letters/[id]/approve and /api/letters/[id]/reject endpoints.
  */
 import { NextRequest } from "next/server"
-import { resumeWorkflow } from "workflow/next"
+import { createClient } from "@/lib/supabase/server"
 import { requireAdminAuth } from "@/lib/auth/admin-guard"
 import { successResponse, errorResponses, handleApiError } from "@/lib/api/api-error-handler"
 import { validateCsrfToken } from "@/lib/security/csrf"
+import { handleAttorneyDecision } from "@/app/workflows/letter-generation.workflow"
 import { z } from "zod"
 
 export const runtime = "nodejs"
 
 // Request schema
 const resumeSchema = z.object({
-  workflowId: z.string().uuid(),
+  letterId: z.string().uuid(),
   approved: z.boolean(),
   editedContent: z.string().optional(),
   notes: z.string().optional(),
@@ -27,7 +27,7 @@ const resumeSchema = z.object({
 })
 
 /**
- * Resume a workflow with attorney decision
+ * Handle attorney decision for a letter
  */
 export async function POST(request: NextRequest) {
   try {
@@ -40,13 +40,10 @@ export async function POST(request: NextRequest) {
     const validation = resumeSchema.safeParse(body)
 
     if (!validation.success) {
-      return errorResponses.badRequest(
-        "Invalid input",
-        validation.error.flatten().fieldErrors
-      )
+      return errorResponses.badRequest("Invalid input", validation.error.flatten().fieldErrors)
     }
 
-    const { workflowId, approved, editedContent, notes, reason, csrfToken } = validation.data
+    const { letterId, approved, editedContent, notes, reason, csrfToken } = validation.data
 
     // 3. CSRF protection (critical for state-changing admin actions)
     const isCsrfValid = await validateCsrfToken(csrfToken)
@@ -54,10 +51,22 @@ export async function POST(request: NextRequest) {
       return errorResponses.forbidden("Invalid CSRF token")
     }
 
-    // 4. Resume the workflow with approval decision
-    console.log(`[ResumeWorkflow] Resuming workflow ${workflowId}`)
+    // 4. Get the letter to find the user ID
+    const supabase = await createClient()
+    const { data: letter, error: letterError } = await supabase
+      .from("letters")
+      .select("user_id")
+      .eq("id", letterId)
+      .single()
 
-    await resumeWorkflow(workflowId, "attorney-approval", {
+    if (letterError || !letter) {
+      return errorResponses.notFound("Letter not found")
+    }
+
+    // 5. Handle the attorney decision
+    console.log(`[ResumeWorkflow] Processing decision for letter ${letterId}`)
+
+    const result = await handleAttorneyDecision(letterId, letter.user_id, {
       approved,
       attorneyId: adminAuth.data.admin.id,
       editedContent,
@@ -65,14 +74,17 @@ export async function POST(request: NextRequest) {
       reason,
     })
 
-    console.log(`[ResumeWorkflow] Workflow resumed: ${approved ? 'approved' : 'rejected'}`)
+    if (!result.success) {
+      return errorResponses.serverError(result.reason || "Failed to process decision")
+    }
+
+    console.log(`[ResumeWorkflow] Letter ${approved ? "approved" : "rejected"}`)
 
     return successResponse({
-      message: `Letter ${approved ? 'approved' : 'rejected'} successfully`,
-      workflowId,
-      status: approved ? "approved" : "rejected",
+      message: `Letter ${approved ? "approved" : "rejected"} successfully`,
+      letterId,
+      status: result.status,
     })
-
   } catch (error) {
     return handleApiError(error, "ResumeWorkflow")
   }

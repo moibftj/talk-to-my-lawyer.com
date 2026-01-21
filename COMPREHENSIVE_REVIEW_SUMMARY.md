@@ -142,12 +142,12 @@ Conducted comprehensive review as requested:
 ### 1. Security Audit Results
 
 #### Authentication & Authorization
-```typescript
+\`\`\`typescript
 // Multi-factor admin authentication
 1. Email/Password (Supabase Auth)
 2. Role check (profiles.role = 'admin')
 3. Sub-role routing (super_admin vs attorney_admin)
-```
+\`\`\`
 
 **Verified Secure:**
 - ✅ Admin login: `/api/admin-auth/login`
@@ -193,12 +193,12 @@ Conducted comprehensive review as requested:
 **Status:** ✅ PROTECTED
 
 Email templates use proper escaping:
-```typescript
+\`\`\`typescript
 function escapeHtml(text) {
   // Escapes: & < > " ' / `
   // Prevents HTML injection
 }
-```
+\`\`\`
 
 **One Minor Note:**
 - `components/review-letter-modal.tsx:40` uses `innerHTML`
@@ -212,7 +212,7 @@ function escapeHtml(text) {
 
 **File:** `lib/email/providers/resend.ts`
 
-```typescript
+\`\`\`typescript
 export class ResendProvider implements EmailProviderInterface {
   name = 'resend' as const
   private client: Resend | undefined
@@ -232,7 +232,7 @@ export class ResendProvider implements EmailProviderInterface {
     // Implementation
   }
 }
-```
+\`\`\`
 
 **Status:** ✅ Properly configured
 
@@ -297,7 +297,7 @@ All 17 templates verified:
 - Cron processing
 
 **Strategy:**
-```typescript
+\`\`\`typescript
 // Try immediate send first
 if (emailService.isConfigured()) {
   const result = await emailService.send(message)
@@ -306,7 +306,7 @@ if (emailService.isConfigured()) {
 
 // Fall back to queue on failure
 return queue.enqueue(message, maxRetries)
-```
+\`\`\`
 
 **Admin Monitoring:**
 - Queue statistics dashboard
@@ -320,7 +320,7 @@ return queue.enqueue(message, maxRetries)
 **Migration Files:** 18 total
 
 **Key Migrations:**
-```
+\`\`\`
 001_core_schema.sql - Base tables
 002_rls_policies.sql - Security policies
 003_database_functions.sql - RPC functions
@@ -330,10 +330,10 @@ return queue.enqueue(message, maxRetries)
 007_analytics_and_optimization.sql - Performance
 013_admin_role_separation.sql - Multi-admin
 014_schema_alignment.sql - Latest sync
-```
+\`\`\`
 
 **Latest Migration (014):**
-```sql
+\`\`\`sql
 -- Add missing columns
 ALTER TABLE profiles 
 ADD COLUMN IF NOT EXISTS total_letters_generated INT DEFAULT 0,
@@ -346,14 +346,14 @@ ADD COLUMN IF NOT EXISTS credits_remaining INT DEFAULT 0;
 
 -- Cleanup
 ALTER TABLE profiles DROP COLUMN IF EXISTS is_super_user;
-```
+\`\`\`
 
 #### TypeScript Types
 
 **File:** `lib/database.types.ts`
 
 **Verified Synchronization:**
-```typescript
+\`\`\`typescript
 export interface Profile {
   id: string
   email: string
@@ -363,14 +363,14 @@ export interface Profile {
   is_licensed_attorney: boolean // ✅ Added in 014
   // ... matches schema exactly
 }
-```
+\`\`\`
 
 #### Row Level Security
 
 **Status:** ✅ ENABLED ON ALL TABLES
 
 **Policy Examples:**
-```sql
+\`\`\`sql
 -- Users can view own profile
 CREATE POLICY "Users can view own profile"
 ON profiles FOR SELECT
@@ -388,14 +388,14 @@ USING (EXISTS (
   SELECT 1 FROM profiles
   WHERE id = auth.uid() AND role = 'admin'
 ));
-```
+\`\`\`
 
 ### 4. Documentation Review
 
 #### Structure
 
 **Main Documentation:**
-```
+\`\`\`
 docs/
 ├── README.md (index)
 ├── SETUP_AND_CONFIGURATION.md
@@ -408,14 +408,14 @@ docs/
 ├── PAYMENTS.md
 ├── OPERATIONS.md
 └── TRACING.md
-```
+\`\`\`
 
 **Root Documentation:**
-```
+\`\`\`
 README.md - Main project README
 SECURITY_REVIEW_REPORT.md - Security audit (NEW)
 .env.example - Environment template
-```
+\`\`\`
 
 #### Accuracy Check
 
@@ -505,14 +505,14 @@ SECURITY_REVIEW_REPORT.md - Security audit (NEW)
 ### 1. package.json
 
 **Before:**
-```json
+\`\`\`json
 "@types/react": "^18"
-```
+\`\`\`
 
 **After:**
-```json
+\`\`\`json
 "@types/react": "^19"
-```
+\`\`\`
 
 **Reason:** Fix peer dependency warning with React 19
 
@@ -534,42 +534,42 @@ SECURITY_REVIEW_REPORT.md - Security audit (NEW)
 
 ### Build Test
 
-```bash
+\`\`\`bash
 $ CI=1 pnpm build
 ✓ Compiled successfully
 ✓ TypeScript checks passed
 ✓ Generated 64 routes
 ✓ Production build complete
-```
+\`\`\`
 
 **Status:** ✅ PASS
 
 ### Linting
 
-```bash
+\`\`\`bash
 $ pnpm lint
 ✓ No errors or warnings
-```
+\`\`\`
 
 **Status:** ✅ PASS
 
 ### Environment Validation
 
-```bash
+\`\`\`bash
 $ pnpm validate-env
 ✓ Script runs correctly
 ✓ Validates environment variables
 ✓ Provides clear error messages
-```
+\`\`\`
 
 **Status:** ✅ FUNCTIONAL
 
 ### Code Review
 
-```
+\`\`\`
 Reviewed 3 files
 No review comments found
-```
+\`\`\`
 
 **Status:** ✅ PASS
 

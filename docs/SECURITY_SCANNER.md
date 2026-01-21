@@ -18,13 +18,13 @@ The security scanner is a comprehensive tool that checks the codebase for:
 
 Run the security scanner locally before committing:
 
-```bash
+\`\`\`bash
 # Run the security scanner
 pnpm security:scan
 
 # Or directly
 node scripts/security-scan.js
-```
+\`\`\`
 
 ### GitHub Actions
 
@@ -65,7 +65,7 @@ The GitHub Action workflow includes multiple security checks:
 
 The scanner uses regex patterns to detect:
 
-```javascript
+\`\`\`javascript
 // API Keys
 /api[_-]?key|apikey|api[_-]?secret/
 
@@ -79,7 +79,7 @@ The scanner uses regex patterns to detect:
 /AKIA[0-9A-Z]{16}/
 
 // And many more...
-```
+\`\`\`
 
 ## False Positive Prevention
 
@@ -97,7 +97,7 @@ The scanner intelligently skips:
 
 Edit `EXCLUDE_PATTERNS` in `scripts/security-scan.js`:
 
-```javascript
+\`\`\`javascript
 const EXCLUDE_PATTERNS = [
   'node_modules',
   '.git',
@@ -107,26 +107,26 @@ const EXCLUDE_PATTERNS = [
   'out',
   // Add more patterns...
 ];
-```
+\`\`\`
 
 ### Safe Files
 
 Edit `SAFE_FILES` to mark files that can contain example patterns:
 
-```javascript
+\`\`\`javascript
 const SAFE_FILES = [
   '.env.example',
   'README.md',
   'docs/',
   // Add more files...
 ];
-```
+\`\`\`
 
 ### Security Patterns
 
 Add new patterns in `SECURITY_PATTERNS`:
 
-```javascript
+\`\`\`javascript
 const SECURITY_PATTERNS = {
   myPattern: {
     pattern: /your-regex-here/gi,
@@ -134,16 +134,16 @@ const SECURITY_PATTERNS = {
     description: 'Description of what this detects'
   }
 };
-```
+\`\`\`
 
 ## Best Practices
 
 ### Before Committing
 
 1. **Always run the scanner** before committing code:
-   ```bash
+   \`\`\`bash
    pnpm security:scan
-   ```
+   \`\`\`
 
 2. **Review findings** - Not all findings are real issues, use judgment
 
@@ -161,7 +161,7 @@ const SECURITY_PATTERNS = {
 
 ### Environment Variables
 
-```typescript
+\`\`\`typescript
 // ❌ BAD - Logging environment variables
 console.log('API Key:', process.env.OPENAI_API_KEY);
 
@@ -173,13 +173,13 @@ const apiKey = process.env.OPENAI_API_KEY;
 
 // ✅ GOOD - Safe logging (log name, not value)
 console.log('Using API key:', process.env.OPENAI_API_KEY ? 'configured' : 'missing');
-```
+\`\`\`
 
 ### .gitignore Patterns
 
 Ensure these patterns are in `.gitignore`:
 
-```gitignore
+\`\`\`gitignore
 # Environment variables
 .env
 .env.local
@@ -194,7 +194,7 @@ Ensure these patterns are in `.gitignore`:
 *_CREDENTIALS*
 secrets.json
 credentials.json
-```
+\`\`\`
 
 ## GitHub Actions Workflow
 
@@ -245,7 +245,7 @@ If a secret was committed to git:
 
 1. **Immediately rotate the secret** in the service (Stripe, OpenAI, etc.)
 2. **Remove from git history**:
-   ```bash
+   \`\`\`bash
    # Using BFG Repo-Cleaner (recommended)
    bfg --replace-text passwords.txt
    git reflog expire --expire=now --all
@@ -255,11 +255,11 @@ If a secret was committed to git:
    git filter-branch --force --index-filter \
      "git rm --cached --ignore-unmatch path/to/file" \
      --prune-empty --tag-name-filter cat -- --all
-   ```
+   \`\`\`
 3. **Force push** (requires admin rights):
-   ```bash
+   \`\`\`bash
    git push --force --all origin
-   ```
+   \`\`\`
 4. **Notify team** that they need to re-clone the repository
 
 ## Additional Resources

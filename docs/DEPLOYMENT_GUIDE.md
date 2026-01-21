@@ -64,12 +64,12 @@ Complete guide for deploying Talk-To-My-Lawyer to production, including CI/CD, V
 
 #### 3. Production Deployment
 
-```bash
+\`\`\`bash
 # Deploy via git push (triggers Vercel deployment)
 git add .
 git commit -m "Production deployment - $(date)"
 git push origin main
-```
+\`\`\`
 
 #### 4. Post-Deployment Verification
 - [ ] Health check endpoint responding: `/api/health`
@@ -83,14 +83,14 @@ git push origin main
 
 #### Critical Path Testing
 
-```bash
+\`\`\`bash
 # Run production health check
 pnpm health-check:production
 
 # Test API endpoints
 curl https://www.talk-to-my-lawyer.com/api/health
 curl https://www.talk-to-my-lawyer.com/api/health/detailed
-```
+\`\`\`
 
 #### Manual Testing Checklist
 - [ ] **User Registration**: New user can sign up successfully
@@ -146,13 +146,13 @@ curl https://www.talk-to-my-lawyer.com/api/health/detailed
 
 #### Emergency Rollback Procedure
 
-```bash
+\`\`\`bash
 # Via Vercel CLI
 vercel rollback --app=talk-to-my-lawyer
 
 # Via Vercel Dashboard
 # Go to Deployments → Select previous version → Promote to Production
-```
+\`\`\`
 
 #### When to Consider Rollback
 - Payment processing failure rate > 10%
@@ -244,7 +244,7 @@ Before deploying to Vercel, ensure you have:
 
 #### Option 2: Vercel CLI Deployment
 
-```bash
+\`\`\`bash
 # Install Vercel CLI
 pnpm add -g vercel
 
@@ -256,7 +256,7 @@ vercel
 
 # Deploy to production
 vercel --prod
-```
+\`\`\`
 
 ### Post-Deployment Tasks
 
@@ -297,10 +297,10 @@ vercel --prod
 
 #### Build Failures
 
-```bash
+\`\`\`bash
 # Run locally to identify issues
 pnpm build
-```
+\`\`\`
 
 **Solution**: Fix type errors before deploying. Do not disable `ignoreBuildErrors`.
 
@@ -365,33 +365,33 @@ The CI/CD pipeline is implemented using GitHub Actions with three main workflows
 
 Add these secrets to Settings → Secrets and variables → Actions:
 
-```
+\`\`\`
 VERCEL_TOKEN          - Vercel deployment token
 GITHUB_TOKEN          - Automatically provided by GitHub Actions
-```
+\`\`\`
 
 ### Workflow Behavior
 
 #### On Feature Branch Push
-```
+\`\`\`
 Lint → Build → Security Audit → Auto-fix & Commit
-```
+\`\`\`
 
 #### On Pull Request to Main
-```
+\`\`\`
 Lint → Build → Security Audit
-```
+\`\`\`
 (Auto-fix does not run on PRs)
 
 #### On Push to Main
-```
+\`\`\`
 Lint → Build → Security Audit → Deploy to Vercel
-```
+\`\`\`
 
 #### Weekly (via Dependabot)
-```
+\`\`\`
 Check Dependencies → Create Grouped PRs
-```
+\`\`\`
 
 ### Dependabot Configuration
 
@@ -442,7 +442,7 @@ Dependencies are grouped to reduce PR noise:
 
 #### Critical (Immediate Response Required)
 
-```yaml
+\`\`\`yaml
 Payment Processing:
   - Payment failure rate > 5% in 1 hour
   - Stripe webhook failures > 10 in 15 minutes
@@ -456,11 +456,11 @@ Security:
   - Failed admin login attempts > 5 in 15 minutes
   - Suspicious payment patterns detected
   - Rate limit threshold breached > 50% above normal
-```
+\`\`\`
 
 #### Warning (Monitor Closely)
 
-```yaml
+\`\`\`yaml
 Performance:
   - API response time > 2 seconds (95th percentile)
   - Database query time > 1 second average
@@ -470,11 +470,11 @@ Business:
   - Letter generation failure rate > 10% in 1 hour
   - Customer support tickets increase > 200%
   - Daily active users drop > 20%
-```
+\`\`\`
 
 ### Health Check Endpoints
 
-```bash
+\`\`\`bash
 # Basic health check
 curl https://www.talk-to-my-lawyer.com/api/health
 
@@ -486,7 +486,7 @@ curl https://www.talk-to-my-lawyer.com/api/health/stripe
 curl https://www.talk-to-my-lawyer.com/api/health/database  
 curl https://www.talk-to-my-lawyer.com/api/health/email
 curl https://www.talk-to-my-lawyer.com/api/health/ai
-```
+\`\`\`
 
 ---
 

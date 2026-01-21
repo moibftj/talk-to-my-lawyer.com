@@ -13,7 +13,7 @@ The email queue provides:
 
 ## Queue Architecture
 
-```
+\`\`\`
 Email Request
     ↓
 queueTemplateEmail()
@@ -34,7 +34,7 @@ queueTemplateEmail()
     ├─ Attempt 2: +5 min
     ├─ Attempt 3: +10 min
     └─ Attempt 4: Mark as failed ❌
-```
+\`\`\`
 
 **Implementation:** [../queue.ts](../queue.ts)
 
@@ -42,7 +42,7 @@ queueTemplateEmail()
 
 ### Table: `email_queue`
 
-```sql
+\`\`\`sql
 CREATE TABLE email_queue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   to TEXT NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE email_queue (
 
 CREATE INDEX idx_email_queue_status ON email_queue(status);
 CREATE INDEX idx_email_queue_next_retry ON email_queue(next_retry_at);
-```
+\`\`\`
 
 ## Queue Operations
 
@@ -69,7 +69,7 @@ CREATE INDEX idx_email_queue_next_retry ON email_queue(next_retry_at);
 
 **Via queueTemplateEmail (Recommended):**
 
-```typescript
+\`\`\`typescript
 import { queueTemplateEmail } from '@/lib/email'
 
 // Tries immediate send, falls back to queue on failure
@@ -79,11 +79,11 @@ const messageId = await queueTemplateEmail(
   { userName: 'John', actionUrl: 'https://...' },
   3  // max retries (default: 3)
 )
-```
+\`\`\`
 
 **Direct Queue (Bypass Immediate Send):**
 
-```typescript
+\`\`\`typescript
 import { getEmailQueue } from '@/lib/email/queue'
 
 const queue = getEmailQueue()
@@ -93,7 +93,7 @@ const queueId = await queue.enqueue({
   html: '<p>HTML content</p>',
   text: 'Plain text'
 }, 3)  // max retries
-```
+\`\`\`
 
 ### Processing Queue
 
@@ -101,7 +101,7 @@ const queueId = await queue.enqueue({
 
 Runs every 10 minutes via Vercel Cron:
 
-```json
+\`\`\`json
 // vercel.json
 {
   "crons": [{
@@ -109,11 +109,11 @@ Runs every 10 minutes via Vercel Cron:
     "schedule": "*/10 * * * *"
   }]
 }
-```
+\`\`\`
 
 **Manual Trigger:**
 
-```bash
+\`\`\`bash
 # Via API (secured with CRON_SECRET)
 curl -X POST "https://your-domain.com/api/cron/process-email-queue?secret=YOUR_CRON_SECRET"
 
@@ -122,13 +122,13 @@ import { processEmailQueue } from '@/lib/email/queue'
 const stats = await processEmailQueue()
 console.log(stats)
 // { processed: 5, failed: 1, remaining: 10 }
-```
+\`\`\`
 
 ## Monitoring the Queue
 
 ### Check Queue Status
 
-```sql
+\`\`\`sql
 -- Overview
 SELECT
   status,
@@ -143,11 +143,11 @@ GROUP BY status;
 -- pending |   5   | 2024-01-12 10:30
 -- sent    |  142  | 2024-01-12 10:35
 -- failed  |   3   | 2024-01-12 09:15
-```
+\`\`\`
 
 ### Check Pending Emails
 
-```sql
+\`\`\`sql
 SELECT
   id,
   to,
@@ -159,11 +159,11 @@ SELECT
 FROM email_queue
 WHERE status = 'pending'
 ORDER BY next_retry_at ASC;
-```
+\`\`\`
 
 ### Check Failed Emails
 
-```sql
+\`\`\`sql
 SELECT
   id,
   to,
@@ -175,11 +175,11 @@ FROM email_queue
 WHERE status = 'failed'
 ORDER BY created_at DESC
 LIMIT 20;
-```
+\`\`\`
 
 ### Check Queue Performance
 
-```sql
+\`\`\`sql
 -- Average delivery time (for successful sends)
 SELECT AVG(sent_at - created_at) as avg_delivery_time
 FROM email_queue
@@ -193,7 +193,7 @@ SELECT
 FROM email_queue
 WHERE created_at > NOW() - INTERVAL '24 hours'
 GROUP BY status;
-```
+\`\`\`
 
 ## Common Queue Issues
 
@@ -207,39 +207,39 @@ GROUP BY status;
 
 **Diagnosis:**
 
-```sql
+\`\`\`sql
 SELECT COUNT(*) as stuck_emails
 FROM email_queue
 WHERE status = 'pending'
 AND next_retry_at < NOW() - INTERVAL '30 minutes';
-```
+\`\`\`
 
 **Solutions:**
 
 1. **Check Cron Job Running:**
 
-   ```bash
+   \`\`\`bash
    # Check Vercel logs
    vercel logs --follow
 
    # Look for: "Processing email queue..."
-   ```
+   \`\`\`
 
 2. **Manually Trigger Queue:**
 
-   ```bash
+   \`\`\`bash
    curl -X POST "https://your-domain.com/api/cron/process-email-queue?secret=YOUR_CRON_SECRET"
-   ```
+   \`\`\`
 
 3. **Reset Stuck Emails:**
 
-   ```sql
+   \`\`\`sql
    -- Reset retry timer
    UPDATE email_queue
    SET next_retry_at = NOW(), attempts = 0
    WHERE status = 'pending'
    AND next_retry_at < NOW() - INTERVAL '1 hour';
-   ```
+   \`\`\`
 
 4. **Check CRON_SECRET:**
 
@@ -255,13 +255,13 @@ AND next_retry_at < NOW() - INTERVAL '30 minutes';
 
 **Diagnosis:**
 
-```sql
+\`\`\`sql
 SELECT error, COUNT(*) as count
 FROM email_queue
 WHERE status = 'failed'
 GROUP BY error
 ORDER BY count DESC;
-```
+\`\`\`
 
 **Common Errors & Solutions:**
 
@@ -282,15 +282,15 @@ ORDER BY count DESC;
 
 **Diagnosis:**
 
-```sql
+\`\`\`sql
 SELECT COUNT(*) FROM email_queue WHERE status = 'pending';
-```
+\`\`\`
 
 **Solutions:**
 
 1. **Increase Processing Frequency:**
 
-   ```json
+   \`\`\`json
    // vercel.json - Change from */10 to */5 (every 5 min)
    {
      "crons": [{
@@ -298,26 +298,26 @@ SELECT COUNT(*) FROM email_queue WHERE status = 'pending';
        "schedule": "*/5 * * * *"
      }]
    }
-   ```
+   \`\`\`
 
 2. **Increase Batch Size:**
 
    Edit [../queue.ts](../queue.ts):
 
-   ```typescript
+   \`\`\`typescript
    // Change from 10 to 20
    .limit(20)
-   ```
+   \`\`\`
 
 3. **Manual Bulk Processing:**
 
-   ```bash
+   \`\`\`bash
    # Run multiple times
    for i in {1..5}; do
      curl -X POST "https://your-domain.com/api/cron/process-email-queue?secret=SECRET"
      sleep 2
    done
-   ```
+   \`\`\`
 
 ### Issue 4: Duplicate Emails
 
@@ -328,13 +328,13 @@ SELECT COUNT(*) FROM email_queue WHERE status = 'pending';
 
 **Diagnosis:**
 
-```sql
+\`\`\`sql
 SELECT to, subject, COUNT(*) as duplicates
 FROM email_queue
 WHERE created_at > NOW() - INTERVAL '1 hour'
 GROUP BY to, subject
 HAVING COUNT(*) > 1;
-```
+\`\`\`
 
 **Solutions:**
 
@@ -344,7 +344,7 @@ HAVING COUNT(*) > 1;
 
 2. **Add Idempotency:**
 
-   ```typescript
+   \`\`\`typescript
    // Before queuing, check if already sent recently
    const { data: recent } = await supabase
      .from('email_queue')
@@ -357,7 +357,7 @@ HAVING COUNT(*) > 1;
    if (!recent) {
      await queueTemplateEmail(...)
    }
-   ```
+   \`\`\`
 
 ## Queue Maintenance
 
@@ -365,25 +365,25 @@ HAVING COUNT(*) > 1;
 
 **Sent Emails (>30 days):**
 
-```sql
+\`\`\`sql
 DELETE FROM email_queue
 WHERE status = 'sent'
 AND sent_at < NOW() - INTERVAL '30 days';
-```
+\`\`\`
 
 **Failed Emails (>7 days):**
 
-```sql
+\`\`\`sql
 DELETE FROM email_queue
 WHERE status = 'failed'
 AND created_at < NOW() - INTERVAL '7 days';
-```
+\`\`\`
 
 **Automated Cleanup (Recommended):**
 
 Create a new cron job in `vercel.json`:
 
-```json
+\`\`\`json
 {
   "crons": [
     {
@@ -392,11 +392,11 @@ Create a new cron job in `vercel.json`:
     }
   ]
 }
-```
+\`\`\`
 
 ### Retry Failed Emails
 
-```sql
+\`\`\`sql
 -- Retry all failed emails from last 24 hours
 UPDATE email_queue
 SET
@@ -406,13 +406,13 @@ SET
   error = NULL
 WHERE status = 'failed'
 AND created_at > NOW() - INTERVAL '24 hours';
-```
+\`\`\`
 
 ### Archive Old Emails
 
 Instead of deleting, archive to separate table:
 
-```sql
+\`\`\`sql
 -- Create archive table
 CREATE TABLE email_queue_archive AS SELECT * FROM email_queue WHERE false;
 
@@ -426,13 +426,13 @@ AND sent_at < NOW() - INTERVAL '90 days';
 DELETE FROM email_queue
 WHERE status = 'sent'
 AND sent_at < NOW() - INTERVAL '90 days';
-```
+\`\`\`
 
 ## Testing the Queue
 
 ### Test Enqueue
 
-```javascript
+\`\`\`javascript
 // test-queue.js
 const { getEmailQueue } = require('./lib/email/queue')
 
@@ -450,11 +450,11 @@ async function test() {
 }
 
 test()
-```
+\`\`\`
 
 ### Test Processing
 
-```bash
+\`\`\`bash
 # 1. Add test email to queue
 node test-queue.js
 
@@ -466,7 +466,7 @@ curl -X POST "http://localhost:3000/api/cron/process-email-queue?secret=YOUR_SEC
 
 # 4. Check it's sent
 psql -c "SELECT * FROM email_queue ORDER BY created_at DESC LIMIT 1"
-```
+\`\`\`
 
 ## API Reference
 
@@ -474,40 +474,40 @@ psql -c "SELECT * FROM email_queue ORDER BY created_at DESC LIMIT 1"
 
 Returns queue instance.
 
-```typescript
+\`\`\`typescript
 import { getEmailQueue } from '@/lib/email/queue'
 const queue = getEmailQueue()
-```
+\`\`\`
 
 ### `queue.enqueue(message, maxRetries)`
 
 Add email to queue.
 
-```typescript
+\`\`\`typescript
 const queueId = await queue.enqueue({
   to: 'user@example.com',
   subject: 'Subject',
   html: '<p>HTML</p>',
   text: 'Plain text'
 }, 3)  // max retries
-```
+\`\`\`
 
 ### `processEmailQueue()`
 
 Process pending emails (called by cron).
 
-```typescript
+\`\`\`typescript
 import { processEmailQueue } from '@/lib/email/queue'
 
 const stats = await processEmailQueue()
 // { processed: 5, failed: 1, remaining: 10 }
-```
+\`\`\`
 
 ## Configuration
 
 ### Environment Variables
 
-```bash
+\`\`\`bash
 # Required for queue
 SUPABASE_SECRET_KEY=xxxxx        # For database access (preferred)
 SUPABASE_SERVICE_ROLE_KEY=xxxxx  # Legacy fallback
@@ -516,19 +516,19 @@ CRON_SECRET=xxxxx                # For cron security
 # Required for sending
 RESEND_API_KEY=re_xxxxx
 EMAIL_FROM=noreply@yourdomain.com
-```
+\`\`\`
 
 ### Retry Configuration
 
 Edit [../queue.ts](../queue.ts):
 
-```typescript
+\`\`\`typescript
 // Default retry delays
 const delays = [0, 300000, 600000, 1200000]  // 0, 5min, 10min, 20min
 
 // Change max retries default
 const MAX_RETRIES = 3  // Change to 5 for more retries
-```
+\`\`\`
 
 ## Monitoring & Alerts
 
@@ -537,23 +537,23 @@ const MAX_RETRIES = 3  // Change to 5 for more retries
 Set up monitoring for:
 
 1. **Queue Size > 100**
-   ```sql
+   \`\`\`sql
    SELECT COUNT(*) FROM email_queue WHERE status = 'pending'
-   ```
+   \`\`\`
 
 2. **Old Pending Emails**
-   ```sql
+   \`\`\`sql
    SELECT COUNT(*) FROM email_queue
    WHERE status = 'pending'
    AND created_at < NOW() - INTERVAL '1 hour'
-   ```
+   \`\`\`
 
 3. **High Failure Rate**
-   ```sql
+   \`\`\`sql
    SELECT COUNT(*) FROM email_queue
    WHERE status = 'failed'
    AND created_at > NOW() - INTERVAL '1 hour'
-   ```
+   \`\`\`
 
 4. **Cron Not Running**
    - Check Vercel logs for cron executions
@@ -568,7 +568,7 @@ Set up monitoring for:
 
 ## Quick Reference
 
-```bash
+\`\`\`bash
 # Check queue status
 SELECT status, COUNT(*) FROM email_queue GROUP BY status;
 
@@ -580,4 +580,4 @@ DELETE FROM email_queue WHERE status = 'sent' AND sent_at < NOW() - INTERVAL '30
 
 # Retry failed emails
 UPDATE email_queue SET status='pending', attempts=0, next_retry_at=NOW() WHERE status='failed';
-```
+\`\`\`

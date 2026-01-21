@@ -29,10 +29,10 @@
 
 **Status:** ✅ ACCEPTABLE
 
-```
+\`\`\`
 Total Vulnerabilities: 20 (13 moderate, 7 high)
 Production Impact: NONE (all in devDependencies)
-```
+\`\`\`
 
 **Details:**
 - All vulnerabilities are in `vercel` CLI (development tool only)
@@ -49,23 +49,23 @@ Production Impact: NONE (all in devDependencies)
 
 **Authentication & Authorization:** ✅ SECURE
 
-```typescript
+\`\`\`typescript
 // Multi-factor admin authentication
 1. Email/Password (Supabase Auth)
 2. Role check (profiles.role = 'admin')
 3. Sub-role routing (super_admin vs attorney_admin)
-```
+\`\`\`
 
 **Rate Limiting:** ✅ IMPLEMENTED
 
-```typescript
+\`\`\`typescript
 // Different limits for different endpoints
 - Auth: 5 requests per 15 minutes
 - API: 100 requests per minute
 - Admin: 10 requests per 15 minutes
 - Letter Generation: 5 requests per hour
 - Subscriptions: 3 requests per hour
-```
+\`\`\`
 
 **Input Sanitization:** ✅ COMPREHENSIVE
 
@@ -85,7 +85,7 @@ Located in `lib/security/input-sanitizer.ts`:
 **XSS Prevention:** ✅ SECURE
 
 Email templates use proper escaping:
-```typescript
+\`\`\`typescript
 function escapeHtml(text: string | number | undefined | null): string {
   const htmlEntities = {
     '&': '&amp;', '<': '&lt;', '>': '&gt;',
@@ -93,7 +93,7 @@ function escapeHtml(text: string | number | undefined | null): string {
   }
   return str.replace(/[&<>"'/`]/g, (char) => htmlEntities[char] || char)
 }
-```
+\`\`\`
 
 **One Minor Issue Found:**
 - `components/review-letter-modal.tsx:40` uses `innerHTML` for HTML to plain text conversion
@@ -129,11 +129,11 @@ function escapeHtml(text: string | number | undefined | null): string {
 - Configuration check: `isConfigured()` method
 
 **Environment Variables:**
-```bash
+\`\`\`bash
 RESEND_API_KEY=re_your-resend-api-key
 EMAIL_FROM=noreply@talk-to-my-lawyer.com
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
-```
+\`\`\`
 
 ### 2.2 Email Templates
 
@@ -175,13 +175,13 @@ All 17 templates implemented in `lib/email/templates.ts`:
 **Status:** ✅ RELIABLE
 
 **Immediate Send + Queue Fallback:**
-```typescript
+\`\`\`typescript
 // queueTemplateEmail() tries immediate send first
 1. Attempt immediate delivery via Resend
 2. On success: return immediately
 3. On failure: fall back to database queue
 4. Queue processed by cron job
-```
+\`\`\`
 
 **Queue System:**
 - Table: `email_queue` (Supabase)
@@ -196,22 +196,22 @@ All 17 templates implemented in `lib/email/templates.ts`:
 Email sending in API routes:
 
 1. **Welcome Email** (`create-profile/route.ts`)
-   ```typescript
+   \`\`\`typescript
    sendTemplateEmail('welcome', email, { ... })
-   ```
+   \`\`\`
 
 2. **Letter Notifications** (`generate-letter/route.ts`, `admin/letters/batch/route.ts`)
-   ```typescript
+   \`\`\`typescript
    queueTemplateEmail('letter-approved', email, { ... })
    queueTemplateEmail('letter-rejected', email, { ... })
    queueTemplateEmail('admin-alert', adminEmails, { ... })
-   ```
+   \`\`\`
 
 3. **Payment Confirmations** (`stripe/webhook/route.ts`)
-   ```typescript
+   \`\`\`typescript
    queueTemplateEmail('subscription-confirmation', email, { ... })
    queueTemplateEmail('commission-earned', email, { ... })
-   ```
+   \`\`\`
 
 **All user types covered:**
 - ✅ Subscribers: welcome, letter notifications, subscription events
@@ -279,7 +279,7 @@ Latest migration: `20260103000000_014_schema_alignment.sql`
 **Status:** ✅ SYNCHRONIZED
 
 TypeScript types in `lib/database.types.ts` match schema:
-```typescript
+\`\`\`typescript
 export interface Profile {
   id: string
   email: string
@@ -289,7 +289,7 @@ export interface Profile {
   is_licensed_attorney: boolean
   // ... all fields present
 }
-```
+\`\`\`
 
 ### 3.4 Row Level Security (RLS)
 
@@ -302,11 +302,11 @@ export interface Profile {
 - Service role for backend operations
 
 **Example:**
-```sql
+\`\`\`sql
 CREATE POLICY "Users can view own profile"
 ON profiles FOR SELECT
 USING (auth.uid() = id);
-```
+\`\`\`
 
 ---
 
@@ -349,7 +349,7 @@ USING (auth.uid() = id);
 **Status:** ⚠️ NEEDS UPDATE
 
 **Current package.json:**
-```json
+\`\`\`json
 {
   "dependencies": {
     "next": "^16.1.1",
@@ -358,7 +358,7 @@ USING (auth.uid() = id);
     // ... all updated
   }
 }
-```
+\`\`\`
 
 **Documentation references older versions in some places**
 - Main README.md has current info
@@ -389,13 +389,13 @@ USING (auth.uid() = id);
 ### 5.2 Changes Made
 
 **Fixed Type Dependency:**
-```json
+\`\`\`json
 // BEFORE
 "@types/react": "^18"
 
 // AFTER
 "@types/react": "^19"
-```
+\`\`\`
 
 This fixes peer dependency warnings with React 19.
 
@@ -408,7 +408,7 @@ This fixes peer dependency warnings with React 19.
 **Status:** ✅ CONSISTENT
 
 All API routes follow security pattern:
-```typescript
+\`\`\`typescript
 1. Rate limiting (safeApplyRateLimit)
 2. Authentication (supabase.auth.getUser)
 3. Role check (profiles.role validation)
@@ -416,7 +416,7 @@ All API routes follow security pattern:
 5. Sanitization (input-sanitizer.ts)
 6. Business logic
 7. Consistent error responses
-```
+\`\`\`
 
 ### 6.2 Critical Endpoints
 
@@ -443,13 +443,13 @@ All API routes follow security pattern:
 **Status:** ✅ IMPLEMENTED
 
 Admin actions require CSRF token:
-```typescript
+\`\`\`typescript
 // Get token
 GET /api/admin/csrf
 
 // Use token
 headers: { 'x-csrf-token': token }
-```
+\`\`\`
 
 ---
 

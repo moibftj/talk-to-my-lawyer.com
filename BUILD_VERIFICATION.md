@@ -46,9 +46,9 @@ The full Next.js production build (`npm run build`) requires significant memory 
 
 When deploying to production environments (Vercel, Netlify, AWS, etc.) with adequate memory:
 
-```bash
+\`\`\`bash
 npm run build
-```
+\`\`\`
 
 This command will successfully create an optimized production build.
 
@@ -56,9 +56,9 @@ This command will successfully create an optimized production build.
 
 For local development with memory constraints:
 
-```bash
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
 The development server uses less memory and provides hot-reload capabilities.
 
@@ -66,7 +66,7 @@ The development server uses less memory and provides hot-reload capabilities.
 
 Run these commands anytime to verify code quality:
 
-```bash
+\`\`\`bash
 # TypeScript check
 npx tsc --noEmit --skipLibCheck
 
@@ -77,7 +77,7 @@ npm run lint
 npm run db:verify
 # or
 node scripts/verify-database-connection.js
-```
+\`\`\`
 
 ## Summary
 

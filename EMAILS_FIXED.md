@@ -46,26 +46,26 @@ I've modified the email system to send emails **immediately** instead of queuing
 
 Open [`.env.local`](.env.local) and update these lines:
 
-```bash
+\`\`\`bash
 # Replace this with your actual Resend API key
 RESEND_API_KEY=re_YOUR_ACTUAL_KEY_HERE
 
 # Use this for testing (no domain verification needed)
 EMAIL_FROM=onboarding@resend.dev
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
-```
+\`\`\`
 
 Also add your Supabase keys:
 
-```bash
+\`\`\`bash
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
+\`\`\`
 
 ### Step 3: Test the Configuration
 
-```bash
+\`\`\`bash
 # Check if everything is configured
 node check-email-config.js
 
@@ -73,20 +73,20 @@ node check-email-config.js
 # ✅ RESEND_API_KEY: re_abc123...
 # ✅ EMAIL_FROM: onboarding@resend.dev
 # etc.
-```
+\`\`\`
 
 ### Step 4: Start the Server
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 ### Step 5: Test Email Sending
 
 **Option A: Test Script**
-```bash
+\`\`\`bash
 node test-email-send.js
-```
+\`\`\`
 
 **Option B: Real Signup Test**
 1. Go to http://localhost:3000/auth/signup
@@ -98,9 +98,9 @@ node test-email-send.js
 
 When emails are sent, you should see:
 
-```
+\`\`\`
 [Email] Sent immediately: { to: 'user@example.com', subject: 'Welcome to Talk-To-My-Lawyer', messageId: 'xxx' }
-```
+\`\`\`
 
 ## 📧 Email Types That Now Work
 
@@ -119,9 +119,9 @@ All these emails send **immediately**:
 
 For development, Resend provides a test domain that requires **no verification**:
 
-```bash
+\`\`\`bash
 EMAIL_FROM=onboarding@resend.dev
-```
+\`\`\`
 
 This is perfect for:
 - Local development
@@ -140,9 +140,9 @@ When you're ready to go live:
    - Wait for verification
 
 2. **Update EMAIL_FROM:**
-   ```bash
+   \`\`\`bash
    EMAIL_FROM=noreply@talk-to-my-lawyer.com
-   ```
+   \`\`\`
 
 3. **Add env vars to hosting platform** (Vercel, etc.)
 
@@ -154,10 +154,10 @@ When you're ready to go live:
 
 **Fix:** Make sure `.env.local` has `RESEND_API_KEY` set
 
-```bash
+\`\`\`bash
 # Check your .env.local file
 cat .env.local | grep RESEND_API_KEY
-```
+\`\`\`
 
 ### Emails Not Arriving
 
@@ -170,13 +170,13 @@ cat .env.local | grep RESEND_API_KEY
 
 **Fix:** Use Resend's test domain or verify your own domain
 
-```bash
+\`\`\`bash
 # For testing (no verification needed)
 EMAIL_FROM=onboarding@resend.dev
 
 # For production (requires domain verification)
 EMAIL_FROM=noreply@yourdomain.com
-```
+\`\`\`
 
 ## 📊 Rate Limits
 

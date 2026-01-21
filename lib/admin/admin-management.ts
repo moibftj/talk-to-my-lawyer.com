@@ -21,7 +21,7 @@
  */
 
 import { createClient } from '@/lib/supabase/server'
-import { Admin } from '@/lib/database.types'
+import type { Admin } from '@/lib/database.types'
 
 export interface CreateAdminResult {
   success: boolean

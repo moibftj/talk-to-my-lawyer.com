@@ -26,13 +26,13 @@ This plan addresses the 4 critical P0 issues and 4 high-priority P1 issues ident
 - `app/api/generate-letter/route.ts`
 
 **Current Problem:**
-```typescript
+\`\`\`typescript
 // app/api/generate-letter/route.ts:88-127
 const eligibility = await checkGenerationEligibility(user.id)  // Line 89
 // ... validation ...
 const deductionResult = await deductLetterAllowance(user.id)   // Line 119
 // RACE CONDITION: Multiple requests can pass check before deduction
-```
+\`\`\`
 
 **Solution Steps:**
 
@@ -40,7 +40,7 @@ const deductionResult = await deductLetterAllowance(user.id)   // Line 119
 
 Create `supabase/migrations/20260107000001_atomic_allowance_deduction.sql`:
 
-```sql
+\`\`\`sql
 -- Atomic check and deduct function
 CREATE OR REPLACE FUNCTION public.check_and_deduct_allowance(u_id UUID)
 RETURNS TABLE(
@@ -115,13 +115,13 @@ GRANT EXECUTE ON FUNCTION public.check_and_deduct_allowance(UUID) TO authenticat
 -- Add comment
 COMMENT ON FUNCTION public.check_and_deduct_allowance IS
 'Atomically checks eligibility and deducts letter allowance in a single transaction. Prevents race conditions.';
-```
+\`\`\`
 
 2. **Update allowance service** (1 hour)
 
 Modify `lib/services/allowance-service.ts`:
 
-```typescript
+\`\`\`typescript
 import { createClient } from '@/lib/supabase/server'
 
 export interface AllowanceResult {
@@ -197,13 +197,13 @@ export async function refundAllowance(userId: string): Promise<boolean> {
     return false
   }
 }
-```
+\`\`\`
 
 3. **Update generate-letter API route** (1 hour)
 
 Modify `app/api/generate-letter/route.ts`:
 
-```typescript
+\`\`\`typescript
 // Remove old imports
 // import { checkGenerationEligibility, deductLetterAllowance, shouldSkipDeduction } from '...'
 
@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, 'GenerateLetter')
   }
 }
-```
+\`\`\`
 
 4. **Testing** (0.5 hours)
 
@@ -284,7 +284,7 @@ Test cases to verify:
 - `app/api/create-checkout/route.ts`
 
 **Current Problem:**
-```typescript
+\`\`\`typescript
 // Lines 239-255
 const { data: currentCoupon } = await supabase
   .from('employee_coupons')
@@ -299,7 +299,7 @@ const { error: updateError } = await supabase
     updated_at: new Date().toISOString()
   })
   .eq('code', couponCode)
-```
+\`\`\`
 
 **Solution Steps:**
 
@@ -307,7 +307,7 @@ const { error: updateError } = await supabase
 
 Modify `app/api/create-checkout/route.ts:238-255`:
 
-```typescript
+\`\`\`typescript
 // Replace read-then-update with atomic increment
 
 // OLD CODE (DELETE):
@@ -339,13 +339,13 @@ if (updateError) {
     newUsageCount: updatedCoupon?.usage_count
   })
 }
-```
+\`\`\`
 
 2. **Create RPC function** (0.5 hours)
 
 Create `supabase/migrations/20260107000002_atomic_coupon_increment.sql`:
 
-```sql
+\`\`\`sql
 -- Atomic coupon usage increment
 CREATE OR REPLACE FUNCTION public.increment_coupon_usage(coupon_code TEXT)
 RETURNS TABLE(usage_count INTEGER) AS $$
@@ -365,7 +365,7 @@ GRANT EXECUTE ON FUNCTION public.increment_coupon_usage(TEXT) TO authenticated;
 
 COMMENT ON FUNCTION public.increment_coupon_usage IS
 'Atomically increments coupon usage count. Prevents race conditions from concurrent checkouts.';
-```
+\`\`\`
 
 ---
 
@@ -378,13 +378,13 @@ COMMENT ON FUNCTION public.increment_coupon_usage IS
 - `app/api/create-checkout/route.ts`
 
 **Current Problem:**
-```typescript
+\`\`\`typescript
 // Lines 182-256: Multiple operations not in transaction
 1. Create subscription
 2. Create commission  // If this fails...
 3. Update coupon usage
 4. Return success  // ...user gets subscription but employee loses commission
-```
+\`\`\`
 
 **Solution Steps:**
 
@@ -392,7 +392,7 @@ COMMENT ON FUNCTION public.increment_coupon_usage IS
 
 Create `supabase/migrations/20260107000003_atomic_checkout.sql`:
 
-```sql
+\`\`\`sql
 -- Atomic checkout function combining subscription, commission, and coupon update
 CREATE OR REPLACE FUNCTION public.create_subscription_with_commission(
     p_user_id UUID,
@@ -521,13 +521,13 @@ GRANT EXECUTE ON FUNCTION public.create_subscription_with_commission TO authenti
 
 COMMENT ON FUNCTION public.create_subscription_with_commission IS
 'Atomically creates subscription with optional commission and coupon usage. All operations succeed or all fail together.';
-```
+\`\`\`
 
 2. **Update checkout route to use RPC** (2.5 hours)
 
 Modify `app/api/create-checkout/route.ts`:
 
-```typescript
+\`\`\`typescript
 // In TEST_MODE section (around line 220-256)
 
 // Replace all the manual insert operations with:
@@ -565,7 +565,7 @@ return NextResponse.json({
   letters: selectedPlan.letters,
   message: 'Subscription created successfully'
 })
-```
+\`\`\`
 
 3. **Also update webhook handler** (0.5 hours)
 
@@ -587,7 +587,7 @@ Use the same RPC in `app/api/stripe/webhook/route.ts` for consistency.
 
 Create `supabase/migrations/20260107000004_webhook_idempotency.sql`:
 
-```sql
+\`\`\`sql
 -- Table to track processed webhooks
 CREATE TABLE IF NOT EXISTS public.webhook_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -661,13 +661,13 @@ GRANT EXECUTE ON FUNCTION public.check_and_record_webhook TO service_role;
 
 COMMENT ON TABLE public.webhook_events IS
 'Tracks processed Stripe webhooks to ensure idempotency and prevent duplicate processing.';
-```
+\`\`\`
 
 2. **Update webhook handler** (1.5 hours)
 
 Modify `app/api/stripe/webhook/route.ts`:
 
-```typescript
+\`\`\`typescript
 export async function POST(request: NextRequest) {
   try {
     // ... existing signature verification ...
@@ -741,13 +741,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: false, error: 'Webhook processing failed' }, { status: 500 })
   }
 }
-```
+\`\`\`
 
 3. **Add cleanup job** (0.5 hours)
 
 Add to `app/api/cron/cleanup-webhooks/route.ts` (new file):
 
-```typescript
+\`\`\`typescript
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceRoleClient } from '@/lib/supabase/server'
 
@@ -773,7 +773,7 @@ export async function POST(request: NextRequest) {
 
   return NextResponse.json({ success: true })
 }
-```
+\`\`\`
 
 ---
 
@@ -784,7 +784,7 @@ export async function POST(request: NextRequest) {
 **Estimated Time:** 30 minutes
 **File:** `app/api/create-checkout/route.ts`
 
-```typescript
+\`\`\`typescript
 // Line 12
 const TEST_MODE = process.env.ENABLE_TEST_MODE === 'true'
 
@@ -796,7 +796,7 @@ if (TEST_MODE && process.env.NODE_ENV === 'production') {
 
 // Line 15: Update log
 console.log('[Checkout] Request received, TEST_MODE:', TEST_MODE, 'ENV:', process.env.NODE_ENV)
-```
+\`\`\`
 
 ---
 
@@ -809,7 +809,7 @@ console.log('[Checkout] Request received, TEST_MODE:', TEST_MODE, 'ENV:', proces
 
 Add to `lib/email/templates.ts`:
 
-```typescript
+\`\`\`typescript
 /**
  * Escape HTML special characters to prevent injection
  */
@@ -835,13 +835,13 @@ function escapeHtmlWithBreaks(text: string | undefined | null): string {
   if (!text) return ''
   return escapeHtml(text).replace(/\n/g, '<br>')
 }
-```
+\`\`\`
 
 2. **Update all templates** (1.5 hours)
 
 Update each template to use escaping:
 
-```typescript
+\`\`\`typescript
 // BEFORE:
 html: `<p>Rejection Reason: ${data.rejectionReason}</p>`
 
@@ -850,7 +850,7 @@ html: `<p>Rejection Reason: ${escapeHtml(data.rejectionReason)}</p>`
 
 // For multi-line content with line breaks:
 html: `<p>${escapeHtmlWithBreaks(data.reviewNotes)}</p>`
-```
+\`\`\`
 
 Apply to ALL templates in the file.
 
@@ -866,7 +866,7 @@ Apply to ALL templates in the file.
 
 Add at the start of each POST handler:
 
-```typescript
+\`\`\`typescript
 // Apply rate limiting
 const rateLimitResponse = await safeApplyRateLimit(
   request,
@@ -875,7 +875,7 @@ const rateLimitResponse = await safeApplyRateLimit(
   "15 m"   // per 15 minutes
 )
 if (rateLimitResponse) return rateLimitResponse
-```
+\`\`\`
 
 ---
 
@@ -885,20 +885,20 @@ if (rateLimitResponse) return rateLimitResponse
 **File:** `netlify.toml`
 
 **Option 1: Delete (recommended)**
-```bash
+\`\`\`bash
 git rm netlify.toml
 git commit -m "Remove netlify.toml - using Vercel deployment"
-```
+\`\`\`
 
 **Option 2: Fix for Netlify**
-```toml
+\`\`\`toml
 [build]
   command = "npm run build"
   publish = ".next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-```
+\`\`\`
 
 ---
 
@@ -908,7 +908,7 @@ git commit -m "Remove netlify.toml - using Vercel deployment"
 
 Create `__tests__/allowance.test.ts`:
 
-```typescript
+\`\`\`typescript
 import { describe, it, expect } from '@jest/globals'
 import { checkAndDeductAllowance, refundAllowance } from '@/lib/services/allowance-service'
 
@@ -925,13 +925,13 @@ describe('Allowance Service', () => {
     // Test super admin bypass
   })
 })
-```
+\`\`\`
 
 ### Integration Tests
 
 Create `__tests__/checkout.test.ts`:
 
-```typescript
+\`\`\`typescript
 describe('Checkout Flow', () => {
   it('should create subscription with commission atomically', async () => {
     // Test full checkout flow
@@ -945,11 +945,11 @@ describe('Checkout Flow', () => {
     // Test atomic increment
   })
 })
-```
+\`\`\`
 
 ### Manual Testing Checklist
 
-```markdown
+\`\`\`markdown
 - [ ] Letter generation with concurrent requests (use Postman/Thunder Client)
 - [ ] Coupon usage with multiple simultaneous checkouts
 - [ ] Stripe webhook duplicate delivery (simulate retry)
@@ -960,7 +960,7 @@ describe('Checkout Flow', () => {
 - [ ] Free trial users can generate letters
 - [ ] Refund works when generation fails
 - [ ] Transaction rollback on commission failure
-```
+\`\`\`
 
 ---
 
@@ -1005,14 +1005,14 @@ describe('Checkout Flow', () => {
 If critical issues are discovered after deployment:
 
 1. **Immediate Actions:**
-   ```bash
+   \`\`\`bash
    # Revert code deployment
    git revert <commit-hash>
    git push origin main
 
    # Or redeploy previous version
    vercel rollback
-   ```
+   \`\`\`
 
 2. **Database Rollback:**
    - New RPC functions are additive (safe to leave)
@@ -1074,4 +1074,3 @@ After deployment, monitor these metrics:
 **Estimated Completion:** 3 working days
 **Risk Level:** Medium (well-understood problems with clear solutions)
 **Production Impact:** High (blocking issues for production readiness)
-

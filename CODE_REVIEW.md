@@ -46,7 +46,7 @@ The recent changes demonstrate good refactoring practices, security improvements
 - **Better error handling**: Database constraints enforce data integrity automatically
 
 ✅ **Database Triggers Verified:**
-```sql
+\`\`\`sql
 -- Trigger 1: Create profile from auth.users metadata
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
@@ -56,7 +56,7 @@ CREATE TRIGGER on_auth_user_created
 CREATE TRIGGER trigger_create_employee_coupon
     AFTER INSERT ON profiles
     FOR EACH ROW EXECUTE FUNCTION public.create_employee_coupon();
-```
+\`\`\`
 
 The trigger implementation at `supabase/migrations/20251214022758_003_database_functions.sql:21-73` is correct:
 - Properly extracts role from `raw_user_meta_data`
@@ -109,20 +109,20 @@ The trigger implementation at `supabase/migrations/20251214022758_003_database_f
    - **Impact**: Medium - could slow down new developer onboarding
 
    **From lib/email/service.ts:24-26:**
-   ```typescript
+   \`\`\`typescript
    if (!this.provider.isConfigured()) {
      console.error('[EmailService] Resend is not configured! Set RESEND_API_KEY environment variable.')
    }
-   ```
+   \`\`\`
 
    **Issue**: Error is logged but service continues. Email sends will silently fail.
 
    **Recommendation**: Consider throwing an error in production mode:
-   ```typescript
+   \`\`\`typescript
    if (!this.provider.isConfigured() && process.env.NODE_ENV === 'production') {
      throw new Error('Resend is required in production')
    }
-   ```
+   \`\`\`
 
 2. **No Local Development Fallback**
    - **Impact**: Developers can't test email flows without Resend API key
@@ -197,7 +197,7 @@ The trigger implementation at `supabase/migrations/20251214022758_003_database_f
    - Shows connection details
 
 2. **Good Error Handling:**
-   ```javascript
+   \`\`\`javascript
    // Lines 46-58: Graceful error handling
    try {
      const { error } = await supabase.from(table).select('count').limit(1);
@@ -211,7 +211,7 @@ The trigger implementation at `supabase/migrations/20251214022758_003_database_f
      console.log(`   ❌ ${table} - ${e.message}`);
      allPassed = false;
    }
-   ```
+   \`\`\`
 
 3. **Appropriate Exit Codes:**
    - Returns 0 on success
@@ -226,22 +226,22 @@ The trigger implementation at `supabase/migrations/20251214022758_003_database_f
 ⚠️ **Minor Issues:**
 
 1. **Line 16: Potential Security Exposure**
-   ```javascript
+   \`\`\`javascript
    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-   ```
+   \`\`\`
    - Service role key should be preferred for verification
    - Anon key may not have access to all tables due to RLS
    - **Impact**: Low - script is for development/CI only
 
 2. **Line 86: Hardcoded Test UUID**
-   ```javascript
+   \`\`\`javascript
    const testId = '00000000-0000-0000-0000-000000000000';
-   ```
+   \`\`\`
    - Good practice, but could cause issues if database has foreign key constraints
    - **Impact**: Minimal - script handles errors gracefully
 
 3. **Lines 98-109: RPC Error Detection Could Be More Specific**
-   ```javascript
+   \`\`\`javascript
    const { error } = await supabase.rpc(name, params);
    if (error && error.message.includes('does not exist')) {
      console.log(`   ❌ ${name} - NOT FOUND`);
@@ -249,7 +249,7 @@ The trigger implementation at `supabase/migrations/20251214022758_003_database_f
    } else {
      console.log(`   ✅ ${name}`);
    }
-   ```
+   \`\`\`
    - Only checks for "does not exist" error
    - Other errors are silently passed as success
    - **Recommendation**: Log other errors as warnings
@@ -264,11 +264,11 @@ The trigger implementation at `supabase/migrations/20251214022758_003_database_f
 - Added basic Netlify deployment configuration
 
 **Content:**
-```toml
+\`\`\`toml
 [build]
 command = "npx next build"
 publish = "out"
-```
+\`\`\`
 
 **Analysis:**
 
@@ -280,9 +280,9 @@ publish = "out"
    - Next.js static exports output to `out/`
 
    **From next.config.mjs (mentioned in INSTALLATION_VERIFICATION.md:166):**
-   ```
+   \`\`\`
    output: standalone (Docker/Vercel compatible)
-   ```
+   \`\`\`
 
    **Problem**: Configuration mismatch!
    - `next.config.mjs` is configured for `standalone` output
@@ -298,24 +298,24 @@ publish = "out"
    - Current config won't work for API routes
 
 **Correct Configuration for Standalone:**
-```toml
+\`\`\`toml
 [build]
   command = "npm run build"
   publish = ".next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-```
+\`\`\`
 
 **OR** for static export (requires changing next.config.mjs):
-```toml
+\`\`\`toml
 [build]
   command = "npm run build"
   publish = "out"
 
 # In next.config.mjs, need to add:
 # output: 'export'
-```
+\`\`\`
 
 **Verdict:** ❌ **NEEDS FIXING** - Current configuration won't work. Deployment will fail.
 
@@ -361,10 +361,10 @@ publish = "out"
 
 1. **Build Status Shows OOM Kill:**
    From BUILD_STATUS.md:
-   ```
+   \`\`\`
    Exit code: 137 (SIGKILL - Out of Memory)
    Status: Killed by system OOM killer
-   ```
+   \`\`\`
    - Build requires 4-6GB RAM
    - Current environment has insufficient memory
    - **Impact**: Can't build in CI with < 4GB RAM
@@ -384,28 +384,28 @@ publish = "out"
 ### TypeScript & Linting
 
 From INSTALLATION_VERIFICATION.md:
-```
+\`\`\`
 TypeScript Compilation: ✅ PASSED (0 errors, 231 files)
 ESLint: ✅ PASSED (0 warnings)
-```
+\`\`\`
 
 ✅ **Excellent** - No type errors, no lint warnings
 
 ### Database Integrity
 
 From verify-database-connection.js execution:
-```
+\`\`\`
 Database Connection: ✅ PASSED (13 tables, 6 RPCs accessible)
-```
+\`\`\`
 
 ✅ **Excellent** - All required tables and functions verified
 
 ### Security Scanning
 
 From package.json:
-```json
+\`\`\`json
 "audit:security": "pnpm audit --audit-level=high"
-```
+\`\`\`
 
 ✅ **Good** - Security scanning available (should be run in CI)
 
@@ -523,7 +523,7 @@ From package.json:
    - **Priority**: HIGH
 
 2. **Add Production Guard for Email Service**
-   ```typescript
+   \`\`\`typescript
    if (!this.provider.isConfigured()) {
      const msg = 'Resend is not configured! Set RESEND_API_KEY environment variable.'
      console.error('[EmailService]', msg)
@@ -531,7 +531,7 @@ From package.json:
        throw new Error(msg)
      }
    }
-   ```
+   \`\`\`
    - **Priority**: MEDIUM
    - **Effort**: 2 minutes
 
@@ -543,7 +543,7 @@ From package.json:
    - Test email sending
 
 2. **Create .env.example**
-   ```env
+   \`\`\`env
    # Supabase
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
@@ -554,20 +554,20 @@ From package.json:
    EMAIL_FROM=noreply@yourdomain.com
 
    # ... other vars
-   ```
+   \`\`\`
 
 3. **Consolidate Verification Documentation**
    - Consider combining related verification reports
    - Or clearly document purpose of each file
 
 4. **Add CI Checks**
-   ```yaml
+   \`\`\`yaml
    # .github/workflows/ci.yml
    - name: Verify Database Schema
      run: pnpm db:verify
    - name: Security Audit
      run: pnpm audit:security
-   ```
+   \`\`\`
 
 ---
 

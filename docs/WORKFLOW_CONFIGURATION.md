@@ -11,9 +11,9 @@ The Workflow DevKit has been integrated into Talk-To-My-Lawyer to transform the 
 The Workflow DevKit requires a PostgreSQL connection string to store workflow execution state. We use the existing Supabase database for this purpose.
 
 **Format:**
-```
+\`\`\`
 WORKFLOW_DB_URL=postgresql://postgres:[PASSWORD]@db.nomiiqzxaxyxnxndvkbe.supabase.co:5432/postgres
-```
+\`\`\`
 
 ## Getting Your Database Password
 
@@ -38,9 +38,9 @@ If you don't have the password:
 5. Copy the new password
 6. Update the connection string in `.env.local`:
 
-```bash
+\`\`\`bash
 WORKFLOW_DB_URL=postgresql://postgres:YOUR-NEW-PASSWORD@db.nomiiqzxaxyxnxndvkbe.supabase.co:5432/postgres
-```
+\`\`\`
 
 ## Configuration Steps
 
@@ -48,13 +48,13 @@ WORKFLOW_DB_URL=postgresql://postgres:YOUR-NEW-PASSWORD@db.nomiiqzxaxyxnxndvkbe.
 
 Update your `.env.local` file:
 
-```bash
+\`\`\`bash
 # Find this line:
 WORKFLOW_DB_URL=postgresql://postgres:YOUR-DATABASE-PASSWORD@db.nomiiqzxaxyxnxndvkbe.supabase.co:5432/postgres
 
 # Replace YOUR-DATABASE-PASSWORD with your actual Supabase password
 WORKFLOW_DB_URL=postgresql://postgres:actual_password_here@db.nomiiqzxaxyxnxndvkbe.supabase.co:5432/postgres
-```
+\`\`\`
 
 **Important:** Never commit `.env.local` to git. It's already in `.gitignore`.
 
@@ -74,7 +74,7 @@ WORKFLOW_DB_URL=postgresql://postgres:actual_password_here@db.nomiiqzxaxyxnxndvk
 
 After setting the environment variable, verify it works:
 
-```bash
+\`\`\`bash
 # Start development server
 pnpm dev
 
@@ -92,7 +92,7 @@ curl -X POST http://localhost:3000/api/workflows/trigger \
   }'
 
 # Should return: { "success": true, "data": { "workflowId": "...", ... } }
-```
+\`\`\`
 
 ## Database Migration
 
@@ -102,9 +102,9 @@ Before workflows can fully function, you need to apply the database migration:
 
 If you're running local Supabase:
 
-```bash
+\`\`\`bash
 supabase migration up
-```
+\`\`\`
 
 ### Production (Supabase Cloud)
 
@@ -119,7 +119,7 @@ supabase migration up
 
 ### Verify Migration
 
-```sql
+\`\`\`sql
 -- Run this query in Supabase SQL Editor to verify columns were added
 SELECT column_name, data_type
 FROM information_schema.columns
@@ -132,7 +132,7 @@ WHERE table_name = 'letters'
 -- workflow_started_at | timestamp with time zone
 -- workflow_completed_at | timestamp with time zone
 -- workflow_error | text
-```
+\`\`\`
 
 ## Security Considerations
 
@@ -198,10 +198,10 @@ Supabase connections use SSL by default. No additional configuration needed.
 
 Default pool size is 10 connections. To adjust:
 
-```env
+\`\`\`env
 # Add to .env.local if needed (optional)
 WORKFLOW_DB_POOL_SIZE=20
-```
+\`\`\`
 
 Recommended values:
 - Local development: 5-10
@@ -212,12 +212,12 @@ Recommended values:
 
 Archive completed workflows after 90 days to reduce storage:
 
-```sql
+\`\`\`sql
 -- Run this periodically (or create a cron job)
 DELETE FROM workflow_executions
 WHERE status = 'completed'
   AND completed_at < NOW() - INTERVAL '90 days';
-```
+\`\`\`
 
 ## Migration Timeline
 

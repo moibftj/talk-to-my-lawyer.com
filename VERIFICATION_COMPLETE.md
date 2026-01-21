@@ -93,7 +93,7 @@
 
 ## Quick Commands
 
-```bash
+\`\`\`bash
 # Install dependencies
 pnpm install
 
@@ -109,7 +109,7 @@ pnpm db:verify
 
 # Build for production (requires 4GB+ RAM)
 pnpm build
-```
+\`\`\`
 
 ---
 

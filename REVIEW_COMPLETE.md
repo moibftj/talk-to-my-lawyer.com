@@ -127,29 +127,29 @@ All requested items reviewed. No critical issues found. Platform is secure, well
 ## Using pnpm (Corrected)
 
 **Install dependencies:**
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 **Run development server:**
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 **Build for production:**
-```bash
+\`\`\`bash
 CI=1 pnpm build
-```
+\`\`\`
 
 **Run linter:**
-```bash
+\`\`\`bash
 pnpm lint
-```
+\`\`\`
 
 **Validate environment:**
-```bash
+\`\`\`bash
 pnpm validate-env
-```
+\`\`\`
 
 ---
 

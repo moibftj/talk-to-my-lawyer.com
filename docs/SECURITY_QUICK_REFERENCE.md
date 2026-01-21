@@ -2,13 +2,13 @@
 
 ## Quick Commands
 
-```bash
+\`\`\`bash
 # Run security scan
 pnpm security:scan
 
 # Run before every commit (recommended)
 pnpm precommit
-```
+\`\`\`
 
 ## Common Issues & Fixes
 
@@ -17,33 +17,33 @@ pnpm precommit
 **Problem:** Found pattern like `API_KEY = "sk-xxxxx"`
 
 **Fix:** Use environment variables:
-```typescript
+\`\`\`typescript
 // Bad
 const apiKey = "sk-1234567890"
 
 // Good
 const apiKey = process.env.OPENAI_API_KEY
-```
+\`\`\`
 
 ### ❌ "Environment variable logging detected"
 
 **Problem:** `console.log(process.env.SECRET_KEY)`
 
 **Fix:** Log safely without exposing values:
-```typescript
+\`\`\`typescript
 // Bad
 console.log('Key:', process.env.SECRET_KEY)
 
 // Good
 console.log('Key configured:', !!process.env.SECRET_KEY)
-```
+\`\`\`
 
 ### ❌ "Missing pattern in .gitignore"
 
 **Problem:** Required patterns missing from .gitignore
 
 **Fix:** Add to `.gitignore`:
-```gitignore
+\`\`\`gitignore
 .env
 .env.local
 .env*.local
@@ -51,7 +51,7 @@ console.log('Key configured:', !!process.env.SECRET_KEY)
 *.pem
 *_SECRETS*
 *_CREDENTIALS*
-```
+\`\`\`
 
 ### ❌ "Sensitive file committed to git"
 
@@ -60,10 +60,10 @@ console.log('Key configured:', !!process.env.SECRET_KEY)
 **Fix:** 
 1. Add to `.gitignore`
 2. Remove from git:
-   ```bash
+   \`\`\`bash
    git rm --cached .env
    git commit -m "Remove .env from git"
-   ```
+   \`\`\`
 3. If already pushed, rotate the secrets immediately!
 
 ## Severity Levels

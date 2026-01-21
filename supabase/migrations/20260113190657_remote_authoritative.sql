@@ -1066,6 +1066,3 @@ with check ((user_id = ( SELECT auth.uid() AS uid)));
   for select
   to public
 using ((user_id = ( SELECT auth.uid() AS uid)));
-
-
-

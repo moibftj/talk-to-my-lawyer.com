@@ -9,9 +9,9 @@
 ## 1. Package Installation
 
 ### Command
-```bash
+\`\`\`bash
 pnpm install --frozen-lockfile
-```
+\`\`\`
 
 ### Results
 - **Status:** ✅ SUCCESS
@@ -49,9 +49,9 @@ pnpm install --frozen-lockfile
 ## 2. Development Server
 
 ### Command
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 ### Results
 - **Status:** ✅ SUCCESS
@@ -63,46 +63,46 @@ pnpm dev
 ### Server Initialization Sequence
 
 1. **Next.js Startup**
-   ```
+   \`\`\`
    ▲ Next.js 16.1.1 (Turbopack)
    ✓ Starting...
-   ```
+   \`\`\`
 
 2. **Environment Loading**
-   ```
+   \`\`\`
    - Environments: .env
    - Experiments: optimizePackageImports
-   ```
+   \`\`\`
 
 3. **Proxy Convention**
    Using `proxy.ts` for request handling (no file-convention warning expected).
 
 4. **OpenTelemetry Tracing**
-   ```
+   \`\`\`
    [Tracing] OpenTelemetry initialized with endpoint: http://localhost:4318/v1/traces
    [Instrumentation] OpenTelemetry tracing initialized
-   ```
+   \`\`\`
    **Status:** Initialized (will connect to OTLP collector if available)
 
 5. **Instrumentation**
-   ```
+   \`\`\`
    [Instrumentation] Initializing server instrumentation...
    [Instrumentation] Server instrumentation complete
-   ```
+   \`\`\`
    **Components:**
    - Database connection handlers
    - Redis connection handlers
    - Graceful shutdown hooks
 
 6. **Ready State**
-   ```
+   \`\`\`
    ✓ Ready in 6.7s
-   ```
+   \`\`\`
 
 ### Graceful Shutdown Test
 
 When SIGTERM received:
-```
+\`\`\`
 [GracefulShutdown] Received SIGTERM, starting graceful shutdown...
 [GracefulShutdown] Executing handler: database
 [Shutdown] Closing database connections...
@@ -111,7 +111,7 @@ When SIGTERM received:
 [Shutdown] Closing Redis connections...
 [GracefulShutdown] Handler completed: redis
 [GracefulShutdown] Shutdown completed successfully
-```
+\`\`\`
 
 **Status:** ✅ Graceful shutdown works correctly
 
@@ -120,27 +120,27 @@ When SIGTERM received:
 ## 3. Code Quality Verification
 
 ### TypeScript Compilation
-```bash
+\`\`\`bash
 npx tsc --noEmit --skipLibCheck
-```
+\`\`\`
 - **Status:** ✅ PASSED
 - **Exit Code:** 0
 - **Errors:** 0
 - **Files Checked:** 231
 
 ### ESLint
-```bash
+\`\`\`bash
 pnpm lint
-```
+\`\`\`
 - **Status:** ✅ PASSED
 - **Exit Code:** 0
 - **Warnings:** 0
 - **Errors:** 0
 
 ### Database Connection
-```bash
+\`\`\`bash
 pnpm db:verify
-```
+\`\`\`
 - **Status:** ✅ PASSED
 - **Tables Accessible:** 13/13
 - **RPC Functions:** 6/6
@@ -180,7 +180,7 @@ pnpm db:verify
 ## 5. File System Integrity
 
 ### Project Structure
-```
+\`\`\`
 /tmp/cc-agent/62256491/project/
 ├── node_modules/          ✅ 921 packages installed
 ├── app/                   ✅ 87 TypeScript files
@@ -196,7 +196,7 @@ pnpm db:verify
 ├── package.json           ✅ Valid
 ├── pnpm-lock.yaml         ✅ Locked
 └── tsconfig.json          ✅ Valid
-```
+\`\`\`
 
 ### Key Files Verified
 - ✅ proxy.ts (request proxy)
@@ -265,57 +265,57 @@ pnpm db:verify
 ### Quick Start Commands
 
 **Install dependencies:**
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 **Start development server:**
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 Server available at http://localhost:3000
 
 **Run linting:**
-```bash
+\`\`\`bash
 pnpm lint
-```
+\`\`\`
 
 **Type checking:**
-```bash
+\`\`\`bash
 npx tsc --noEmit --skipLibCheck
-```
+\`\`\`
 
 **Verify database:**
-```bash
+\`\`\`bash
 pnpm db:verify
-```
+\`\`\`
 
 **Build for production:** (requires 4GB+ RAM)
-```bash
+\`\`\`bash
 pnpm build
-```
+\`\`\`
 
 ---
 
 ## 10. Troubleshooting
 
 ### If `pnpm install` fails:
-```bash
+\`\`\`bash
 rm -rf node_modules pnpm-lock.yaml
 pnpm install
-```
+\`\`\`
 
 ### If dev server won't start:
-```bash
+\`\`\`bash
 rm -rf .next
 pnpm dev
-```
+\`\`\`
 
 ### If types are incorrect:
-```bash
+\`\`\`bash
 pnpm add -D typescript@latest
 npx tsc --noEmit --skipLibCheck
-```
+\`\`\`
 
 ### If database connection fails:
 1. Check `.env` has correct Supabase credentials

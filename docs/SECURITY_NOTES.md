@@ -17,7 +17,7 @@
 - Anonymous users (role: anon) might have unintended DELETE access
 
 **Recommendation:**
-```sql
+\`\`\`sql
 -- Review and consolidate policies
 -- Option 1: Use restrictive policies instead of permissive
 -- Option 2: Combine into single permissive policy with proper conditions
@@ -31,7 +31,7 @@ AND cmd = 'DELETE';
 -- Test as unauthenticated user
 DELETE FROM suspicious_patterns WHERE id = 'test-id';
 -- Should fail with permission denied
-```
+\`\`\`
 
 **Next Steps:**
 1. Audit all policies on suspicious_patterns table
@@ -44,13 +44,13 @@ DELETE FROM suspicious_patterns WHERE id = 'test-id';
 ## RLS Policy Best Practices
 
 ### Use Restrictive Policies When Possible
-```sql
+\`\`\`sql
 -- Permissive (OR logic - any matching policy grants access)
 CREATE POLICY "policy_name" ON table_name AS PERMISSIVE ...
 
 -- Restrictive (AND logic - all policies must pass)
 CREATE POLICY "policy_name" ON table_name AS RESTRICTIVE ...
-```
+\`\`\`
 
 ### Avoid Multiple Permissive Policies for Same Role+Action
 - Can lead to unintended access grants
@@ -58,7 +58,7 @@ CREATE POLICY "policy_name" ON table_name AS RESTRICTIVE ...
 - Prefer single comprehensive policy
 
 ### Always Test Anonymous Access
-```sql
+\`\`\`sql
 -- Switch to anonymous role
 SET ROLE anon;
 
@@ -69,7 +69,7 @@ UPDATE sensitive_table SET field = 'value';
 
 -- Reset role
 RESET ROLE;
-```
+\`\`\`
 
 ---
 

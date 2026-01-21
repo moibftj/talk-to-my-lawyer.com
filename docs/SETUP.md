@@ -16,35 +16,35 @@ Complete setup guide for local development and production deployment of the Talk
 
 ### 1. Install Dependencies
 
-```bash
+\`\`\`bash
 # Clone repository
 git clone https://github.com/moizjmj-pk/talk-to-my-lawyer.git
 cd talk-to-my-lawyer
 
 # Install dependencies (uses pnpm exclusively)
 pnpm install
-```
+\`\`\`
 
 ### 2. Environment Configuration
 
 Copy the example environment file:
 
-```bash
+\`\`\`bash
 cp .env.example .env.local
-```
+\`\`\`
 
 ### 3. Required Environment Variables
 
 #### Critical (Always Required)
-```env
+\`\`\`env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_publishable_key
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key  # Legacy fallback
 OPENAI_API_KEY=your_openai_key
-```
+\`\`\`
 
 #### Production Required
-```env
+\`\`\`env
 SUPABASE_SECRET_KEY=your_secret_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key  # Legacy fallback
 STRIPE_SECRET_KEY=sk_live_or_test_key
@@ -52,56 +52,56 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_or_test_key
 ADMIN_PORTAL_KEY=your_secure_portal_key
 CRON_SECRET=your_cron_secret
-```
+\`\`\`
 
 #### Email Service
-```env
+\`\`\`env
 EMAIL_FROM=noreply@talk-to-my-lawyer.com
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
 
 # Resend (https://resend.com)
 RESEND_API_KEY=your_resend_key
-```
+\`\`\`
 SMTP_PASS=your_smtp_password
-```
+\`\`\`
 
 #### Rate Limiting (Upstash Redis)
-```env
+\`\`\`env
 KV_REST_API_URL=your_upstash_url
 KV_REST_API_TOKEN=your_upstash_token
-```
+\`\`\`
 
 #### Application URLs
-```env
+\`\`\`env
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_SITE_URL=https://www.talk-to-my-lawyer.com
-```
+\`\`\`
 
 ### 4. Database Setup
 
 Run SQL migrations in order:
 
-```bash
+\`\`\`bash
 # Run migrations script
 pnpm db:migrate
 
 # Or manually in Supabase SQL Editor:
 # 1. Execute scripts/001-023.sql files in numeric order
 # 2. Execute supabase/migrations/*.sql files in order
-```
+\`\`\`
 
 ### 5. Validate Environment
 
-```bash
+\`\`\`bash
 # Check environment configuration
 pnpm validate-env
-```
+\`\`\`
 
 ### 6. Start Development Server
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Application will be available at `http://localhost:3000`
 
@@ -112,7 +112,7 @@ For CI/CD pipeline, add these secrets to GitHub repository:
 **Settings → Secrets and variables → Actions**
 
 ### Required Secrets
-```
+\`\`\`
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -128,14 +128,14 @@ CRON_SECRET
 KV_REST_API_URL
 KV_REST_API_TOKEN
 RESEND_API_KEY
-```
+\`\`\`
 
 ### Vercel Deployment Secrets
-```
+\`\`\`
 VERCEL_TOKEN          # From https://vercel.com/account/tokens
 VERCEL_ORG_ID         # From vercel.json or project settings
 VERCEL_PROJECT_ID     # From .vercel/project.json
-```
+\`\`\`
 
 ## Stripe Setup (Local Development)
 
@@ -146,12 +146,12 @@ The Stripe CLI enables local webhook testing.
 ### Webhook Forwarding
 
 **Option 1: Automated (Recommended)**
-```bash
+\`\`\`bash
 ./scripts/setup-stripe-webhooks.sh
-```
+\`\`\`
 
 **Option 2: Manual**
-```bash
+\`\`\`bash
 # Start dev server
 pnpm dev
 
@@ -169,34 +169,34 @@ stripe listen --forward-to http://localhost:3000/api/stripe/webhook \
 
 # Copy webhook secret to .env.local
 # STRIPE_WEBHOOK_SECRET=whsec_...
-```
+\`\`\`
 
 ### Test Payment
 
 Use Stripe test card:
-```
+\`\`\`
 Card: 4242 4242 4242 4242
 Expiry: Any future date (12/34)
 CVC: Any 3 digits (123)
 ZIP: Any 5 digits (12345)
-```
+\`\`\`
 
 ## Admin User Setup
 
 Create the first admin user:
 
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password>
-```
+\`\`\`
 
 **Example:**
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts admin@company.com SecurePass123!
-```
+\`\`\`
 
 ## Essential Commands
 
-```bash
+\`\`\`bash
 pnpm install          # Install dependencies
 pnpm dev              # Development server
 pnpm build            # Production build
@@ -204,7 +204,7 @@ pnpm lint             # Lint code
 pnpm validate-env     # Validate environment variables
 pnpm health-check     # Check system health
 pnpm db:migrate       # Run database migrations
-```
+\`\`\`
 
 ## Environment Validation Modes
 
@@ -225,22 +225,22 @@ pnpm db:migrate       # Run database migrations
 ## Troubleshooting
 
 ### Build Fails
-```bash
+\`\`\`bash
 # Check for TypeScript errors
 pnpm build
 
 # Check for linting issues
 pnpm lint
-```
+\`\`\`
 
 ### Environment Variables Missing
-```bash
+\`\`\`bash
 # Validate configuration
 pnpm validate-env
 
 # Check .env.local exists
 ls -la .env.local
-```
+\`\`\`
 
 ### Database Connection Issues
 - Verify `NEXT_PUBLIC_SUPABASE_URL` is correct
@@ -257,9 +257,9 @@ ls -la .env.local
 1. **Never commit** `.env.local` or actual secrets
 2. **Use environment variables** for all sensitive configuration
 3. **Generate secure keys** for `ADMIN_PORTAL_KEY` and `CRON_SECRET`:
-   ```bash
+   \`\`\`bash
    openssl rand -hex 32
-   ```
+   \`\`\`
 4. **Rotate secrets** quarterly in production
 5. **Use different keys** for development and production
 

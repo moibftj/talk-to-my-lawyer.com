@@ -27,7 +27,7 @@ Complete guide for setting up and configuring Talk-To-My-Lawyer for development 
 
 ### Quick Start
 
-```bash
+\`\`\`bash
 # Clone the repository
 git clone https://github.com/moizjmj-pk/talk-to-my-lawyer.git
 cd talk-to-my-lawyer
@@ -45,7 +45,7 @@ pnpm db:migrate
 
 # Start development server
 pnpm dev
-```
+\`\`\`
 
 Visit http://localhost:3000
 
@@ -55,7 +55,7 @@ Visit http://localhost:3000
 
 ### Critical Variables (Always Required)
 
-```bash
+\`\`\`bash
 # Supabase
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
@@ -100,11 +100,11 @@ KV_REST_API_TOKEN=your-token
 
 # Application
 NEXT_PUBLIC_SITE_URL=https://www.talk-to-my-lawyer.com
-```
+\`\`\`
 
 ### Optional Variables
 
-```bash
+\`\`\`bash
 # Development
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL=http://localhost:3000
@@ -118,25 +118,25 @@ SUPABASE_HOSTNAME=your-project.supabase.co
 
 # Cron Jobs
 CRON_SECRET=your-cron-secret
-```
+\`\`\`
 
 ### Generating Secure Keys
 
-```bash
+\`\`\`bash
 # Generate a random 64-character key
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 # Or use OpenSSL
 openssl rand -hex 32
-```
+\`\`\`
 
 ### Environment Validation
 
 Before starting the app, validate your environment:
 
-```bash
+\`\`\`bash
 pnpm validate-env
-```
+\`\`\`
 
 This will check:
 - All critical variables are set
@@ -155,9 +155,9 @@ The database setup requires running SQL migrations in sequence.
 
 #### Option 1: Using the Migration Script
 
-```bash
+\`\`\`bash
 pnpm db:migrate
-```
+\`\`\`
 
 This runs all migrations in order from both:
 - `/scripts/*.sql` (001-023)
@@ -170,32 +170,32 @@ This runs all migrations in order from both:
 3. Run scripts in order:
 
 **Core Schema**:
-```
+\`\`\`
 scripts/001_setup_schema.sql
 scripts/002_setup_rls.sql
 scripts/003_seed_data.sql
 scripts/004_create_functions.sql
-```
+\`\`\`
 
 **Key Features**:
-```
+\`\`\`
 scripts/005_letter_allowance_system.sql
 scripts/006_audit_trail.sql
 scripts/008_employee_coupon_auto_generation.sql
 scripts/011_security_hardening.sql
-```
+\`\`\`
 
 **Latest Enhancements**:
-```
+\`\`\`
 scripts/020_decrement_credits_atomic.sql
 scripts/021_add_total_letters_generated.sql
 scripts/022_fix_deduct_letter_allowance.sql
 scripts/023_add_fraud_detection_tables.sql
-```
+\`\`\`
 
 ### Verifying Database Setup
 
-```bash
+\`\`\`bash
 # Check database connectivity
 psql $DATABASE_URL -c "SELECT version();"
 
@@ -207,7 +207,7 @@ psql $DATABASE_URL -c "SELECT tablename, policyname FROM pg_policies WHERE schem
 
 # Test key functions
 psql $DATABASE_URL -c "SELECT * FROM check_letter_allowance('user-id-here');"
-```
+\`\`\`
 
 ### Key Database Functions
 
@@ -248,14 +248,14 @@ The platform supports **multiple admin users** who share the same admin dashboar
 
 #### Method 1: Using the Script (Recommended)
 
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password>
-```
+\`\`\`
 
 **Example:**
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts admin@company.com SecurePass123!
-```
+\`\`\`
 
 **What the script does:**
 1. Creates a Supabase Auth user (or updates if exists)
@@ -265,7 +265,7 @@ npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts admin
 
 #### Method 2: Manual Database Update
 
-```sql
+\`\`\`sql
 -- Step 1: Create user in Supabase Auth (via dashboard or API)
 
 -- Step 2: Update role to admin
@@ -274,7 +274,7 @@ SET role = 'admin',
     admin_sub_role = 'super_admin',  -- or 'attorney_admin'
     updated_at = NOW()
 WHERE email = 'admin@example.com';
-```
+\`\`\`
 
 ### Admin Authentication
 
@@ -317,14 +317,14 @@ Test mode allows you to test the complete workflow without processing real Strip
 
 Add to `.env.local`:
 
-```bash
+\`\`\`bash
 ENABLE_TEST_MODE="true"
 NEXT_PUBLIC_TEST_MODE="true"
-```
+\`\`\`
 
 #### Vercel Production
 
-```bash
+\`\`\`bash
 # Set environment variables
 vercel env add ENABLE_TEST_MODE production
 # Enter: true
@@ -334,7 +334,7 @@ vercel env add NEXT_PUBLIC_TEST_MODE production
 
 # Redeploy
 vercel --prod
-```
+\`\`\`
 
 ### What Test Mode Does
 
@@ -400,20 +400,20 @@ Visual indicators show when test mode is active:
 ### Disabling Test Mode
 
 **Local:**
-```bash
+\`\`\`bash
 # Edit .env.local
 ENABLE_TEST_MODE="false"
 NEXT_PUBLIC_TEST_MODE="false"
-```
+\`\`\`
 
 **Vercel:**
-```bash
+\`\`\`bash
 vercel env rm ENABLE_TEST_MODE production --yes
 vercel env rm NEXT_PUBLIC_TEST_MODE production --yes
 
 # Redeploy
 vercel --prod
-```
+\`\`\`
 
 ⚠️ **CRITICAL**: Test mode MUST be disabled in production for real payments!
 
@@ -432,9 +432,9 @@ The application includes comprehensive security headers configured in `next.conf
 
 Verify headers are applied:
 
-```bash
+\`\`\`bash
 curl -I https://yourdomain.com
-```
+\`\`\`
 
 ### Rate Limiting
 
@@ -473,17 +473,17 @@ Database access is protected by RLS policies:
 
 Verify RLS is enabled:
 
-```sql
+\`\`\`sql
 SELECT tablename, rowsecurity
 FROM pg_tables
 WHERE schemaname = 'public';
-```
+\`\`\`
 
 ### API Key Rotation
 
 Rotate sensitive keys quarterly:
 
-```bash
+\`\`\`bash
 # Environment variables to rotate
 ADMIN_PORTAL_KEY
 OPENAI_API_KEY
@@ -492,7 +492,7 @@ STRIPE_WEBHOOK_SECRET
 RESEND_API_KEY
 SUPABASE_SECRET_KEY
 SUPABASE_SERVICE_ROLE_KEY
-```
+\`\`\`
 
 **Rotation Process:**
 1. Generate new key from provider
@@ -516,7 +516,7 @@ Monitor for security incidents:
 - Security advisories monitored via GitHub
 
 **Audit Trails:**
-```sql
+\`\`\`sql
 -- View admin activity
 SELECT * FROM admin_audit_log
 ORDER BY created_at DESC
@@ -526,7 +526,7 @@ LIMIT 50;
 SELECT * FROM letter_audit_trail
 ORDER BY created_at DESC
 LIMIT 50;
-```
+\`\`\`
 
 ---
 
@@ -534,7 +534,7 @@ LIMIT 50;
 
 ### Local Development
 
-```bash
+\`\`\`bash
 # Start dev server
 pnpm dev
 
@@ -552,11 +552,11 @@ pnpm validate-env
 
 # Run health check
 pnpm health-check
-```
+\`\`\`
 
 ### Testing
 
-```bash
+\`\`\`bash
 # Test email delivery
 node test-email-send.js
 
@@ -565,11 +565,11 @@ node check-email-provider.js
 
 # Test Stripe webhooks
 stripe trigger checkout.session.completed
-```
+\`\`\`
 
 ### Database Development
 
-```bash
+\`\`\`bash
 # Connect to database
 psql $DATABASE_URL
 
@@ -578,11 +578,11 @@ psql $DATABASE_URL -f scripts/001_setup_schema.sql
 
 # Check migrations status
 psql $DATABASE_URL -c "SELECT * FROM supabase_migrations.schema_migrations ORDER BY version;"
-```
+\`\`\`
 
 ### Git Workflow
 
-```bash
+\`\`\`bash
 # Create feature branch
 git checkout -b feature/my-feature
 
@@ -594,7 +594,7 @@ git commit -m "Description of changes"
 git push origin feature/my-feature
 
 # Create pull request on GitHub
-```
+\`\`\`
 
 ---
 

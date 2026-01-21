@@ -12,7 +12,6 @@ import { safeApplyRateLimit, letterGenerationRateLimit } from "@/lib/rate-limit-
 import { successResponse, errorResponses, handleApiError } from "@/lib/api/api-error-handler"
 import { validateLetterGenerationRequest } from "@/lib/validation/letter-schema"
 import { generateLetterWorkflow } from "@/app/workflows/letter-generation.workflow"
-import { runWorkflow } from "workflow/next"
 
 export const runtime = "nodejs"
 
@@ -32,7 +31,10 @@ export async function POST(request: NextRequest) {
 
     // 2. Authentication
     const supabase = await createClient()
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
     if (authError || !user) return errorResponses.unauthorized()
 
     // 3. Role check - only subscribers can generate letters
@@ -56,10 +58,11 @@ export async function POST(request: NextRequest) {
       return errorResponses.validation("Invalid input data", validation.errors)
     }
 
-    // 5. Start the workflow
-    console.log('[TriggerWorkflow] Starting letter generation workflow')
+    // 5. Start the workflow directly
+    console.log("[TriggerWorkflow] Starting letter generation workflow")
 
-    const workflowRun = await runWorkflow(generateLetterWorkflow, {
+    // Execute workflow and get result
+    const result = await generateLetterWorkflow({
       userId: user.id,
       letterType,
       intakeData: validation.data!,
@@ -67,14 +70,17 @@ export async function POST(request: NextRequest) {
       title,
     })
 
-    console.log(`[TriggerWorkflow] Workflow started: ${workflowRun.id}`)
+    console.log(`[TriggerWorkflow] Workflow completed: ${result.letterId}`)
+
+    if (!result.success) {
+      return errorResponses.serverError(result.reason || "Letter generation failed")
+    }
 
     return successResponse({
-      workflowId: workflowRun.id,
+      letterId: result.letterId,
       message: "Letter generation started",
-      status: "processing",
+      status: result.status,
     })
-
   } catch (error) {
     return handleApiError(error, "TriggerWorkflow")
   }

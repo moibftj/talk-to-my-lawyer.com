@@ -83,7 +83,7 @@ Talk-To-My-Lawyer is an AI-powered legal letter generation platform with mandato
 
 ### Directory Structure
 
-```
+\`\`\`
 talk-to-my-lawyer/
 ├── app/                        # Next.js App Router
 │   ├── api/                    # API route handlers
@@ -110,13 +110,13 @@ talk-to-my-lawyer/
 ├── supabase/                   # Supabase-specific migrations
 ├── docs/                       # Documentation
 └── types/                      # Shared TypeScript types
-```
+\`\`\`
 
 ### API Route Structure
 
 All routes under `app/api/` follow this pattern:
 
-```typescript
+\`\`\`typescript
 import { createClient } from "@/lib/supabase/server"
 import { safeApplyRateLimit, letterGenerationRateLimit } from '@/lib/rate-limit-redis'
 import { successResponse, errorResponses, handleApiError } from '@/lib/api/api-error-handler'
@@ -138,18 +138,18 @@ export async function POST(request: NextRequest) {
   // 4. Business logic...
   return successResponse(data)
 }
-```
+\`\`\`
 
 ### Admin Routes
 
 Use `requireAdminAuth()` from `lib/auth/admin-guard.ts`:
 
-```typescript
+\`\`\`typescript
 import { requireAdminAuth } from '@/lib/auth/admin-guard'
 
 const authError = await requireAdminAuth()
 if (authError) return authError
-```
+\`\`\`
 
 ---
 
@@ -157,11 +157,11 @@ if (authError) return authError
 
 ### User Roles
 
-```typescript
+\`\`\`typescript
 export type UserRole = 'subscriber' | 'employee' | 'admin'
 
 export type AdminSubRole = 'super_admin' | 'attorney_admin'
-```
+\`\`\`
 
 **Role Hierarchy:**
 - `subscriber` - Generate letters, view own letters, manage subscription
@@ -172,7 +172,7 @@ export type AdminSubRole = 'super_admin' | 'attorney_admin'
 
 ### Letter Status Lifecycle
 
-```typescript
+\`\`\`typescript
 export type LetterStatus =
   | 'draft'          // Initial state - user is filling form
   | 'generating'     // AI is generating content
@@ -182,19 +182,19 @@ export type LetterStatus =
   | 'completed'      // Letter delivered to user
   | 'rejected'       // Attorney rejected the letter
   | 'failed'         // Generation failed
-```
+\`\`\`
 
 **State Transitions:**
-```
+\`\`\`
 Draft → Generating → Pending Review → Under Review → Approved → Completed
                                                     ↘ Rejected → Resubmit
                     ↘ Failed
-```
+\`\`\`
 
 ### Core Entities
 
 **Profile:**
-```typescript
+\`\`\`typescript
 interface Profile {
   id: string                    // UUID - FK to auth.users
   email: string
@@ -207,10 +207,10 @@ interface Profile {
   created_at: string
   updated_at: string
 }
-```
+\`\`\`
 
 **Letter:**
-```typescript
+\`\`\`typescript
 interface Letter {
   id: string
   user_id: string
@@ -226,10 +226,10 @@ interface Letter {
   created_at: string
   updated_at: string
 }
-```
+\`\`\`
 
 **Subscription:**
-```typescript
+\`\`\`typescript
 interface Subscription {
   id: string
   user_id: string
@@ -245,7 +245,7 @@ interface Subscription {
   stripe_customer_id: string | null
   created_at: string
 }
-```
+\`\`\`
 
 ### Database RPC Functions
 
@@ -275,7 +275,7 @@ Key PostgreSQL functions:
 
 ### 1. User Registration Flow
 
-```
+\`\`\`
 User → /auth/signup
     ↓
 Supabase Auth signup
@@ -285,11 +285,11 @@ Database Trigger: handle_new_user()
 Creates Profile Record (role: 'subscriber')
     ↓
 Redirect to /dashboard
-```
+\`\`\`
 
 ### 2. Letter Generation Flow
 
-```
+\`\`\`
 User fills form → POST /api/generate-letter
     ↓
 Rate Limit Check (5/hour)
@@ -310,11 +310,11 @@ AI Generation (OpenAI GPT-4 Turbo)
     └─ Update: ai_draft_content, increment_total_letters
     ↓
 Return {letterId, status, aiDraft}
-```
+\`\`\`
 
 ### 3. Attorney Review Flow
 
-```
+\`\`\`
 Admin logs in → /secure-admin-gateway/login
     (requires email + password + ADMIN_PORTAL_KEY)
     ↓
@@ -337,11 +337,11 @@ Admin actions:
 │    └─ Send email: letter-rejected
 └─ Improve → POST /api/letters/[id]/improve
      └─ Generate new AI content with improvements
-```
+\`\`\`
 
 ### 4. Subscription & Payment Flow
 
-```
+\`\`\`
 User selects plan → POST /api/create-checkout
     ↓
 Rate Limit (3/hour)
@@ -371,11 +371,11 @@ Create Subscription Record
 Send email: subscription-confirmation
     ↓
 Redirect to /dashboard?payment=success
-```
+\`\`\`
 
 ### 5. Employee Referral Flow
 
-```
+\`\`\`
 Employee → /dashboard/coupons
     ↓
 View auto-generated coupon code
@@ -398,7 +398,7 @@ Request payout → POST /api/employee/payouts
 Admin processes payout
     ↓
 Commission status updated to 'paid'
-```
+\`\`\`
 
 ---
 
@@ -415,7 +415,7 @@ Commission status updated to 'paid'
 
 Use helpers from `lib/api/api-error-handler.ts`:
 
-```typescript
+\`\`\`typescript
 import { successResponse, errorResponses, handleApiError } from '@/lib/api/api-error-handler'
 
 // Success responses
@@ -433,13 +433,13 @@ try {
 } catch (error) {
   return handleApiError(error, "ContextName")
 }
-```
+\`\`\`
 
 ### Rate Limiting
 
 Predefined limiters in `lib/rate-limit-redis.ts`:
 
-```typescript
+\`\`\`typescript
 import { safeApplyRateLimit, authRateLimit, apiRateLimit, letterGenerationRateLimit } from '@/lib/rate-limit-redis'
 
 // Apply rate limit
@@ -450,7 +450,7 @@ const rateLimitResponse = await safeApplyRateLimit(
   "1 h"   // fallback window
 )
 if (rateLimitResponse) return rateLimitResponse
-```
+\`\`\`
 
 **Available Limiters:**
 - `authRateLimit` - 5/15min
@@ -463,20 +463,20 @@ if (rateLimitResponse) return rateLimitResponse
 
 Use schema-based validation from `lib/validation/letter-schema.ts`:
 
-```typescript
+\`\`\`typescript
 import { validateLetterGenerationRequest } from '@/lib/validation/letter-schema'
 
 const validation = validateLetterGenerationRequest(letterType, intakeData)
 if (!validation.valid) {
   return errorResponses.validation("Invalid input", validation.errors)
 }
-```
+\`\`\`
 
 ### Email Sending
 
 Provider-agnostic email service:
 
-```typescript
+\`\`\`typescript
 import { sendTemplateEmail } from '@/lib/email/service'
 
 await sendTemplateEmail(
@@ -484,7 +484,7 @@ await sendTemplateEmail(
   userEmail,
   { letterTitle, finalContent, downloadUrl }
 )
-```
+\`\`\`
 
 ### Security Best Practices
 
@@ -574,11 +574,11 @@ This section is for AI coding assistants working on this repository.
 1. **Understand the issue** fully before coding
 2. **Explore repository** and related files
 3. **Run existing checks**:
-   ```bash
+   \`\`\`bash
    pnpm lint
    CI=1 pnpm build
    pnpm validate-env
-   ```
+   \`\`\`
 4. **Check for similar patterns** in existing code
 5. **Respect non-negotiables** listed above
 
@@ -588,10 +588,10 @@ This section is for AI coding assistants working on this repository.
 2. **Follow existing patterns** - API routes, error handling, validation
 3. **Test your changes** - manually verify functionality
 4. **Run validation**:
-   ```bash
+   \`\`\`bash
    pnpm lint
    CI=1 pnpm build
-   ```
+   \`\`\`
 5. **Document if needed** - update README or docs if adding features
 
 ### Common Tasks

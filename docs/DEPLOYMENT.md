@@ -54,7 +54,7 @@ The project uses GitHub Actions for continuous integration and automated deploym
 Add these in **Settings → Secrets and variables → Actions**:
 
 #### Application Secrets
-```
+\`\`\`
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -70,14 +70,14 @@ CRON_SECRET
 KV_REST_API_URL
 KV_REST_API_TOKEN
 RESEND_API_KEY
-```
+\`\`\`
 
 #### Vercel Deployment Secrets
-```
+\`\`\`
 VERCEL_TOKEN          # From https://vercel.com/account/tokens
 VERCEL_ORG_ID         # From vercel.json or project settings
 VERCEL_PROJECT_ID     # From .vercel/project.json
-```
+\`\`\`
 
 ### Workflow Behavior
 
@@ -126,7 +126,7 @@ VERCEL_PROJECT_ID     # From .vercel/project.json
 
 #### Option 2: Vercel CLI
 
-```bash
+\`\`\`bash
 # Install Vercel CLI
 pnpm add -g vercel
 
@@ -138,7 +138,7 @@ vercel
 
 # Deploy to production
 vercel --prod
-```
+\`\`\`
 
 ---
 
@@ -264,13 +264,13 @@ Access via **Vercel Dashboard → Analytics**:
 
 ### Health Check Endpoints
 
-```bash
+\`\`\`bash
 # Basic health check
 curl https://www.talk-to-my-lawyer.com/api/health
 
 # Detailed system status
 curl https://www.talk-to-my-lawyer.com/api/health/detailed
-```
+\`\`\`
 
 ### Log Management
 
@@ -286,10 +286,10 @@ curl https://www.talk-to-my-lawyer.com/api/health/detailed
 
 **Issue**: TypeScript build errors
 
-```bash
+\`\`\`bash
 # Run locally to identify issues
 pnpm build
-```
+\`\`\`
 
 **Solution**: Fix type errors before deploying. Do not disable `ignoreBuildErrors`.
 
@@ -334,7 +334,7 @@ pnpm build
 
 ### 1. Pre-Deployment
 
-```bash
+\`\`\`bash
 # Run tests locally
 pnpm lint
 CI=1 pnpm build
@@ -342,26 +342,26 @@ pnpm validate-env
 
 # Check security
 pnpm audit --audit-level=high
-```
+\`\`\`
 
 ### 2. Staging Deployment
 
-```bash
+\`\`\`bash
 # Deploy to staging branch
 git checkout -b staging
 git push origin staging
 vercel --env=staging
-```
+\`\`\`
 
 ### 3. Production Promotion
 
-```bash
+\`\`\`bash
 # Merge staging to main
 git checkout main
 git merge staging
 git push origin main
 # Vercel auto-deploys main branch
-```
+\`\`\`
 
 ### 4. Rollback Procedure
 
@@ -373,9 +373,9 @@ If issues occur:
 3. Click "Promote to Production"
 
 **Via CLI**:
-```bash
+\`\`\`bash
 vercel rollback
-```
+\`\`\`
 
 ---
 
@@ -383,11 +383,11 @@ vercel rollback
 
 ### Deploy to Production
 
-```bash
+\`\`\`bash
 git push origin main
 # Automatic deployment triggered
 # Check Actions tab for status
-```
+\`\`\`
 
 ### Check Deployment Status
 
@@ -398,9 +398,9 @@ git push origin main
 
 ### Manual Trigger Auto-fix
 
-```bash
+\`\`\`bash
 # Go to GitHub Actions → Auto Create PR → Run workflow
-```
+\`\`\`
 
 ### Review Dependency Updates
 

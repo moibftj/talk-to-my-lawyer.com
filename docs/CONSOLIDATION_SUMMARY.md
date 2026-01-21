@@ -7,7 +7,7 @@ Successfully consolidated 27 scattered markdown files into 9 well-organized docu
 ## Before & After
 
 ### Before (27 files)
-```
+\`\`\`
 Root Directory (8 files):
 ├── README.md
 ├── ADMIN_SETUP.md
@@ -42,10 +42,10 @@ docs/ (13 files):
 
 skills/env-var-specialist/ (1 file):
 └── SKILL.md
-```
+\`\`\`
 
 ### After (14 files)
-```
+\`\`\`
 Root Directory (3 files):
 ├── README.md ⬅️ UPDATED with doc navigation
 ├── AGENTS.md ⬅️ KEPT (detailed reference)
@@ -67,7 +67,7 @@ docs/ (9 files):
 
 skills/env-var-specialist/ (1 file):
 └── SKILL.md ⬅️ KEPT (skill definition)
-```
+\`\`\`
 
 ## New Documentation Structure
 

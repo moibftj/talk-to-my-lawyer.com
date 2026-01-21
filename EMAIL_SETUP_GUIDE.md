@@ -23,7 +23,7 @@ Emails were not being sent because they were queued to a database table and only
 
 Open the `.env.local` file and update these values:
 
-```bash
+\`\`\`bash
 # REQUIRED - Your Resend API Key
 RESEND_API_KEY=re_YOUR_ACTUAL_KEY_HERE
 
@@ -33,7 +33,7 @@ EMAIL_FROM_NAME=Talk-To-My-Lawyer
 
 # For production, use your verified domain
 # EMAIL_FROM=noreply@yourdomain.com
-```
+\`\`\`
 
 ### 3. (Optional) Verify Your Own Domain
 
@@ -50,26 +50,26 @@ If you want to send emails from your own domain:
 
 Run the test script to verify everything works:
 
-```bash
+\`\`\`bash
 # Option 1: Using the test script
 node test-email-send.js
 
 # Option 2: Test via API during signup
 # Just sign up a new user and check if the welcome email arrives
-```
+\`\`\`
 
 ### 5. Update Other Environment Variables
 
 Make sure you also have these configured in `.env.local`:
 
-```bash
+\`\`\`bash
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-supabase-publishable-key
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key  # Legacy fallback
 SUPABASE_SECRET_KEY=your-supabase-secret-key
 SUPABASE_SERVICE_ROLE_KEY=your-supabase-service-role-key  # Legacy fallback
 OPENAI_API_KEY=sk-your-openai-key
-```
+\`\`\`
 
 ## How Emails Work Now
 
@@ -85,9 +85,9 @@ OPENAI_API_KEY=sk-your-openai-key
 ## Testing
 
 1. **Start the development server:**
-   ```bash
+   \`\`\`bash
    pnpm dev
-   ```
+   \`\`\`
 
 2. **Sign up a new user:**
    - Go to http://localhost:3000/auth/signup
@@ -96,9 +96,9 @@ OPENAI_API_KEY=sk-your-openai-key
 
 3. **Check the console:**
    - You should see logs like:
-     ```
+     \`\`\`
      [Email] Sent immediately: { to: 'user@example.com', subject: 'Welcome to Talk-To-My-Lawyer', messageId: 'xxx' }
-     ```
+     \`\`\`
 
 ## Email Templates Available
 
@@ -119,10 +119,10 @@ All these emails now send immediately:
 ### Emails not sending?
 
 1. **Check environment variables:**
-   ```bash
+   \`\`\`bash
    # Make sure RESEND_API_KEY is set
    echo $RESEND_API_KEY
-   ```
+   \`\`\`
 
 2. **Check console logs:**
    - Look for `[EmailService] Resend is not configured!`

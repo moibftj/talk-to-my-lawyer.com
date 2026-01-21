@@ -33,7 +33,7 @@ AI-powered legal letter generation platform with mandatory attorney review. Subs
 
 All routes under `app/api/` follow this pattern:
 
-```typescript
+\`\`\`typescript
 import { createClient } from "@/lib/supabase/server"
 import { safeApplyRateLimit, letterGenerationRateLimit } from '@/lib/rate-limit-redis'
 import { successResponse, errorResponses, handleApiError } from '@/lib/api/api-error-handler'
@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
   // 4. Business logic...
   return successResponse(data)
 }
-```
+\`\`\`
 
 ### Supabase Client Usage
 
@@ -72,10 +72,10 @@ Use helpers from `lib/api/api-error-handler.ts`:
 ### Validation
 
 Use schema-based validation from `lib/validation/letter-schema.ts`:
-```typescript
+\`\`\`typescript
 const validation = validateLetterGenerationRequest(letterType, intakeData)
 if (!validation.valid) return errorResponses.validation("Invalid input", validation.errors)
-```
+\`\`\`
 
 ### Rate Limiting
 
@@ -99,9 +99,9 @@ Falls back to in-memory when Upstash unavailable.
 
 ### Letter Status Flow
 
-```
+\`\`\`
 draft → generating → pending_review → under_review → approved/rejected/completed/failed
-```
+\`\`\`
 
 ### Key Database RPCs (Supabase)
 
@@ -168,13 +168,13 @@ draft → generating → pending_review → under_review → approved/rejected/c
 
 ## Essential Commands
 
-```bash
+\`\`\`bash
 pnpm install          # Install dependencies
 pnpm dev              # Development server
 pnpm lint             # Required before delivery
 CI=1 pnpm build       # Production build (stricter checks)
 pnpm validate-env     # Check environment variables
-```
+\`\`\`
 
 ## Testing Approach
 

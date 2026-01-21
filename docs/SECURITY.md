@@ -26,7 +26,7 @@ This guide covers security vulnerabilities, fixes applied, ongoing security meas
 - **Advisory**: https://github.com/advisories/GHSA-w48q-cv73-mx4w
 
 **Fix Applied**:
-```json
+\`\`\`json
 {
   "pnpm": {
     "overrides": {
@@ -34,7 +34,7 @@ This guide covers security vulnerabilities, fixes applied, ongoing security meas
     }
   }
 }
-```
+\`\`\`
 
 ### Package Updates Applied
 
@@ -52,7 +52,7 @@ Updated to latest secure versions:
 
 ### Security Scripts
 
-```bash
+\`\`\`bash
 # Run security audit
 pnpm run audit:security
 
@@ -61,7 +61,7 @@ pnpm run audit:fix
 
 # Update all packages
 pnpm run update:packages
-```
+\`\`\`
 
 ## Security Layers
 
@@ -73,15 +73,15 @@ Admin access requires THREE factors:
 2. Password (Supabase Auth)
 3. Portal Key (Environment variable)
 
-```typescript
+\`\`\`typescript
 // Admin login validation
 const authError = await requireAdminAuth()
 if (authError) return authError
-```
+\`\`\`
 
 #### Role-Based Access Control (RBAC)
 
-```typescript
+\`\`\`typescript
 // Role validation in API routes
 const { data: profile } = await supabase
   .from("profiles")
@@ -92,7 +92,7 @@ const { data: profile } = await supabase
 if (profile?.role !== "subscriber") {
   return errorResponses.forbidden("Only subscribers can...")
 }
-```
+\`\`\`
 
 ### 2. Rate Limiting
 
@@ -106,7 +106,7 @@ Implemented via Upstash Redis with in-memory fallback:
 | **Letter Generation** | 5 requests | 1 hour |
 | **Subscriptions** | 3 requests | 1 hour |
 
-```typescript
+\`\`\`typescript
 // Apply rate limiting
 const rateLimitResponse = await safeApplyRateLimit(
   request,
@@ -115,35 +115,35 @@ const rateLimitResponse = await safeApplyRateLimit(
   "1 h"
 )
 if (rateLimitResponse) return rateLimitResponse
-```
+\`\`\`
 
 ### 3. Input Validation & Sanitization
 
 #### Schema-Based Validation
 
-```typescript
+\`\`\`typescript
 // Validation using letter-schema.ts
 const validation = validateLetterGenerationRequest(letterType, intakeData)
 if (!validation.valid) {
   return errorResponses.validation("Invalid input", validation.errors)
 }
-```
+\`\`\`
 
 #### Input Sanitization
 
-```typescript
+\`\`\`typescript
 import { sanitizeString, sanitizeEmail, sanitizeHtml } from '@/lib/security/input-sanitizer'
 
 const cleanName = sanitizeString(userInput, 100)
 const cleanEmail = sanitizeEmail(emailInput)
 const cleanContent = sanitizeHtml(htmlInput)
-```
+\`\`\`
 
 ### 4. CSRF Protection
 
 Admin actions require CSRF tokens:
 
-```typescript
+\`\`\`typescript
 // Generate CSRF token
 export function generateAdminCSRF() {
   return {
@@ -157,7 +157,7 @@ export function generateAdminCSRF() {
 export async function validateAdminRequest(request: NextRequest) {
   // Verify token from cookie matches request
 }
-```
+\`\`\`
 
 ### 5. Database Security
 
@@ -165,7 +165,7 @@ export async function validateAdminRequest(request: NextRequest) {
 
 All tables have RLS policies:
 
-```sql
+\`\`\`sql
 -- Example: Profiles RLS policy
 CREATE POLICY "Users can view own profile"
 ON profiles FOR SELECT
@@ -179,13 +179,13 @@ USING (
     WHERE id = auth.uid() AND role = 'admin'
   )
 );
-```
+\`\`\`
 
 #### SQL Injection Prevention
 
 All queries use parameterized queries via Supabase SDK:
 
-```typescript
+\`\`\`typescript
 // Safe - parameterized query
 const { data } = await supabase
   .from("profiles")
@@ -193,13 +193,13 @@ const { data } = await supabase
   .eq("email", userEmail)  // Automatically escaped
 
 // Never use raw SQL with user input
-```
+\`\`\`
 
 ### 6. Content Security Policy (CSP)
 
 Configured in `next.config.mjs`:
 
-```javascript
+\`\`\`javascript
 {
   key: 'Content-Security-Policy',
   value: `
@@ -210,13 +210,13 @@ Configured in `next.config.mjs`:
     connect-src 'self' *.supabase.co *.stripe.com api.openai.com;
   `.replace(/\s{2,}/g, ' ').trim()
 }
-```
+\`\`\`
 
 ### 7. Security Headers
 
 All responses include:
 
-```javascript
+\`\`\`javascript
 // In next.config.mjs
 {
   headers: [
@@ -234,7 +234,7 @@ All responses include:
     }
   ]
 }
-```
+\`\`\`
 
 ## Security Best Practices
 
@@ -248,49 +248,49 @@ All responses include:
 
 #### Secret Generation
 
-```bash
+\`\`\`bash
 # Generate secure portal key
 openssl rand -hex 32
 
 # Generate cron secret
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-```
+\`\`\`
 
 ### API Security
 
 #### Always Authenticate
 
-```typescript
+\`\`\`typescript
 // Every API route must start with auth check
 const supabase = await createClient()
 const { data: { user }, error } = await supabase.auth.getUser()
 if (error || !user) return errorResponses.unauthorized()
-```
+\`\`\`
 
 #### Never Log Secrets
 
-```typescript
+\`\`\`typescript
 // BAD - logs secret
 console.log('Using key:', process.env.OPENAI_API_KEY)
 
 // GOOD - reference only
 console.log('Using OPENAI_API_KEY')
-```
+\`\`\`
 
 ### Database Security
 
 #### Always Use RLS
 
-```sql
+\`\`\`sql
 -- Enable RLS on all tables
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE letters ENABLE ROW LEVEL SECURITY;
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
-```
+\`\`\`
 
 #### Use Security Definer Functions
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION check_letter_allowance(u_id UUID)
 RETURNS TABLE(...) 
 LANGUAGE SQL 
@@ -298,13 +298,13 @@ SECURITY DEFINER  -- Runs with function owner permissions
 AS $$
   -- Function implementation
 $$;
-```
+\`\`\`
 
 ### Audit Logging
 
 All critical actions are logged:
 
-```typescript
+\`\`\`typescript
 // Log letter audit trail
 await supabase.rpc('log_letter_audit', {
   p_letter_id: letterId,
@@ -314,7 +314,7 @@ await supabase.rpc('log_letter_audit', {
   p_new_status: 'approved',
   p_notes: reviewNotes
 })
-```
+\`\`\`
 
 ## Incident Response
 
@@ -350,7 +350,7 @@ await supabase.rpc('log_letter_audit', {
 
 In case of suspected compromise:
 
-```bash
+\`\`\`bash
 # Keys to rotate immediately:
 ADMIN_PORTAL_KEY
 OPENAI_API_KEY
@@ -360,23 +360,23 @@ RESEND_API_KEY
 SUPABASE_SECRET_KEY
 SUPABASE_SERVICE_ROLE_KEY
 CRON_SECRET
-```
+\`\`\`
 
 ## Security Monitoring
 
 ### Failed Login Attempts
 
-```sql
+\`\`\`sql
 -- Monitor failed admin logins
 SELECT * FROM admin_audit_log
 WHERE action = 'login_failed'
   AND created_at > NOW() - INTERVAL '1 hour'
 ORDER BY created_at DESC;
-```
+\`\`\`
 
 ### Suspicious Activity
 
-```sql
+\`\`\`sql
 -- Check for unusual patterns
 SELECT user_id, COUNT(*) as attempts
 FROM letters
@@ -384,7 +384,7 @@ WHERE status = 'generating'
   AND created_at > NOW() - INTERVAL '1 hour'
 GROUP BY user_id
 HAVING COUNT(*) > 5;
-```
+\`\`\`
 
 ### Rate Limit Breaches
 
@@ -399,7 +399,7 @@ Monitor Upstash Redis dashboard for:
 
 Endpoints for data privacy:
 
-```typescript
+\`\`\`typescript
 // Accept privacy policy
 POST /api/gdpr/accept-privacy-policy
 
@@ -408,7 +408,7 @@ POST /api/gdpr/delete-account
 
 // Export user data
 GET /api/gdpr/export-data
-```
+\`\`\`
 
 ### Data Retention
 

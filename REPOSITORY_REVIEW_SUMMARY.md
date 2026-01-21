@@ -109,7 +109,7 @@ This document summarizes the comprehensive repository review and improvements ma
 #### 5. Standardized Error Handling
 
 **Pattern Applied:**
-```typescript
+\`\`\`typescript
 import { errorResponses, handleApiError } from "@/lib/api/api-error-handler"
 
 // Instead of:
@@ -128,7 +128,7 @@ catch (error: any) {
 catch (error) {
   return handleApiError(error, "Context")
 }
-```
+\`\`\`
 
 **Files Updated:**
 - `/app/api/subscriptions/check-allowance/route.ts`

@@ -69,7 +69,7 @@ However, **several critical race conditions and transaction atomicity issues** r
 **Impact:** Users can generate unlimited letters by exploiting concurrent requests
 
 **The Problem:**
-```typescript
+\`\`\`typescript
 // Line 89: Check if user can generate
 const eligibility = await checkGenerationEligibility(user.id)
 
@@ -81,7 +81,7 @@ if (!eligibility.canGenerate) {
 
 // Line 119: Deduct allowance (RACE CONDITION WINDOW)
 const deductionResult = await deductLetterAllowance(user.id)
-```
+\`\`\`
 
 **Attack Scenario:**
 1. User has 1 letter remaining
@@ -98,7 +98,7 @@ const deductionResult = await deductLetterAllowance(user.id)
 **The Fix:**
 Combine check and deduct into a single atomic database operation:
 
-```sql
+\`\`\`sql
 -- New RPC function
 CREATE OR REPLACE FUNCTION check_and_deduct_allowance(u_id UUID)
 RETURNS TABLE(success BOOLEAN, remaining INTEGER, error TEXT) AS $$
@@ -122,7 +122,7 @@ BEGIN
   END IF;
 END;
 $$ LANGUAGE plpgsql;
-```
+\`\`\`
 
 **Estimated Fix Time:** 4 hours (including testing)
 
@@ -135,7 +135,7 @@ $$ LANGUAGE plpgsql;
 **Impact:** Lost commission records, incorrect usage counts
 
 **The Problem:**
-```typescript
+\`\`\`typescript
 // Line 239-243: Read current count
 const { data: currentCoupon } = await supabase
   .from('employee_coupons')
@@ -151,7 +151,7 @@ const { error: updateError } = await supabase
     updated_at: new Date().toISOString()
   })
   .eq('code', couponCode)
-```
+\`\`\`
 
 **Attack Scenario:**
 1. Employee coupon used by 3 users simultaneously
@@ -168,7 +168,7 @@ const { error: updateError } = await supabase
 **The Fix:**
 Use atomic increment:
 
-```typescript
+\`\`\`typescript
 // Atomic update - no separate read needed
 const { error: updateError } = await supabase
   .from('employee_coupons')
@@ -177,7 +177,7 @@ const { error: updateError } = await supabase
     updated_at: new Date().toISOString()
   })
   .eq('code', couponCode)
-```
+\`\`\`
 
 **Estimated Fix Time:** 2 hours
 
@@ -202,7 +202,7 @@ If commission creation fails, user gets subscription but employee loses commissi
 **The Fix:**
 Wrap in database transaction or use Supabase RPC:
 
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION create_subscription_with_commission(
   p_user_id UUID,
   p_plan_type TEXT,
@@ -219,7 +219,7 @@ BEGIN
   -- COMMIT or ROLLBACK together
 END;
 $$ LANGUAGE plpgsql;
-```
+\`\`\`
 
 **Estimated Fix Time:** 6 hours
 
@@ -232,14 +232,14 @@ $$ LANGUAGE plpgsql;
 **Impact:** Duplicate subscriptions on webhook retry
 
 **The Problem:**
-```typescript
+\`\`\`typescript
 // Line 73: Parse metadata
 const metadata = session.metadata || {}
 const userId = metadata.user_id
 
 // No check if this webhook was already processed!
 // If Stripe retries, creates duplicate subscription
-```
+\`\`\`
 
 Stripe webhooks can be delivered multiple times. Without idempotency checks:
 - Webhook delivered once → subscription created ✅
@@ -248,7 +248,7 @@ Stripe webhooks can be delivered multiple times. Without idempotency checks:
 **The Fix:**
 Track processed webhook IDs:
 
-```typescript
+\`\`\`typescript
 // Before processing
 const { data: existing } = await supabase
   .from('webhook_events')
@@ -268,7 +268,7 @@ await supabase.from('webhook_events').insert({
   event_type: event.type,
   processed_at: new Date().toISOString()
 })
-```
+\`\`\`
 
 **Estimated Fix Time:** 3 hours
 
@@ -285,7 +285,7 @@ await supabase.from('webhook_events').insert({
 **Impact:** Free subscriptions if accidentally enabled in production
 
 **The Problem:**
-```typescript
+\`\`\`typescript
 const TEST_MODE = process.env.ENABLE_TEST_MODE === 'true'
 
 if (TEST_MODE) {
@@ -293,7 +293,7 @@ if (TEST_MODE) {
   // Creates active subscription without payment
   // Anyone can get free subscription
 }
-```
+\`\`\`
 
 **Mitigation Exists:**
 - Pre-deploy check script validates this
@@ -308,7 +308,7 @@ if (TEST_MODE) {
 **The Fix:**
 Add production runtime guard:
 
-```typescript
+\`\`\`typescript
 if (TEST_MODE) {
   if (process.env.NODE_ENV === 'production') {
     console.error('[CRITICAL] Test mode enabled in production!')
@@ -316,7 +316,7 @@ if (TEST_MODE) {
   }
   // Continue with test mode in dev/staging
 }
-```
+\`\`\`
 
 **Estimated Fix Time:** 30 minutes
 
@@ -329,13 +329,13 @@ if (TEST_MODE) {
 **Impact:** Email body manipulation, potential XSS in email clients
 
 **The Problem:**
-```typescript
+\`\`\`typescript
 // User-controlled data inserted without escaping
 html: `
   <p>Rejection Reason: ${data.rejectionReason}</p>
   <p>Review Notes: ${data.reviewNotes}</p>
 `
-```
+\`\`\`
 
 If admin enters rejection reason: `<script>alert('xss')</script>`, it's injected directly into email HTML.
 
@@ -347,7 +347,7 @@ If admin enters rejection reason: `<script>alert('xss')</script>`, it's injected
 **The Fix:**
 HTML escape all dynamic variables:
 
-```typescript
+\`\`\`typescript
 function escapeHtml(text: string): string {
   const map: Record<string, string> = {
     '&': '&amp;',
@@ -362,7 +362,7 @@ function escapeHtml(text: string): string {
 html: `
   <p>Rejection Reason: ${escapeHtml(data.rejectionReason)}</p>
 `
-```
+\`\`\`
 
 **Estimated Fix Time:** 2 hours
 
@@ -379,17 +379,17 @@ html: `
 **Impact:** Enumeration attacks, DoS, abuse
 
 **Example Attack:**
-```bash
+\`\`\`bash
 # Try to enumerate valid user IDs
 for i in {1..1000}; do
   curl -X POST /api/gdpr/export-data -d "{\"userId\":\"$i\"}"
 done
-```
+\`\`\`
 
 **The Fix:**
 Add rate limiting to all endpoints:
 
-```typescript
+\`\`\`typescript
 // In each route
 const rateLimitResponse = await safeApplyRateLimit(
   request,
@@ -398,7 +398,7 @@ const rateLimitResponse = await safeApplyRateLimit(
   "15 m"  // per 15 minutes
 )
 if (rateLimitResponse) return rateLimitResponse
-```
+\`\`\`
 
 **Estimated Fix Time:** 1 hour
 
@@ -411,11 +411,11 @@ if (rateLimitResponse) return rateLimitResponse
 **Impact:** Deployment will fail
 
 **The Problem:**
-```toml
+\`\`\`toml
 [build]
 command = "npx next build"
 publish = "out"
-```
+\`\`\`
 
 But `next.config.mjs` has `output: 'standalone'`, not static export.
 
@@ -437,12 +437,12 @@ Either:
 
 Currently logs error but continues if Resend not configured:
 
-```typescript
+\`\`\`typescript
 if (!this.provider.isConfigured()) {
   console.error('[EmailService] Resend is not configured!')
   // Continues anyway - emails silently fail
 }
-```
+\`\`\`
 
 **Fix:** Throw error in production mode.
 
@@ -498,7 +498,7 @@ Metadata extracted without full validation:
 ### Architecture Pattern ⭐ 9/10
 
 **Clean Separation of Concerns:**
-```
+\`\`\`
 app/
 ├── api/           ← Backend API routes (42 endpoints)
 ├── dashboard/     ← Subscriber & employee UI
@@ -513,7 +513,7 @@ lib/
 ├── security/      ← Security utilities (CSRF, sanitization)
 ├── email/         ← Email service
 └── validation/    ← Input validation
-```
+\`\`\`
 
 **Strengths:**
 - Clear domain separation
@@ -584,14 +584,14 @@ lib/
 **Critical Requirement Met:** ✅
 Employees are explicitly blocked from accessing letter content:
 
-```sql
+\`\`\`sql
 CREATE POLICY "Employees blocked from letters"
     ON letters FOR ALL
     TO authenticated
     USING (
         public.get_user_role() != 'employee'
     );
-```
+\`\`\`
 
 **Other Policies:**
 - ✅ Subscribers can only see their own data
@@ -600,11 +600,11 @@ CREATE POLICY "Employees blocked from letters"
 - ✅ Public can validate active coupons (for checkout)
 
 **Helper Functions:**
-```sql
+\`\`\`sql
 get_user_role() - Returns current user's role
 is_super_admin() - Checks super admin status
 is_attorney_admin() - Checks attorney admin status
-```
+\`\`\`
 
 **Strength:** Database enforces security even if application layer compromised.
 
@@ -613,14 +613,14 @@ is_attorney_admin() - Checks attorney admin status
 **Location:** `lib/security/input-sanitizer.ts`
 
 **Comprehensive Sanitization:**
-```typescript
+\`\`\`typescript
 - Remove XSS vectors (<script>, <iframe>, etc.)
 - Remove JavaScript event handlers
 - Remove javascript: and data: URIs
 - Sanitize file names (directory traversal prevention)
 - Email validation with regex
 - URL validation using URL constructor
-```
+\`\`\`
 
 **Additional Validation:**
 - Zod schemas for complex inputs
@@ -738,20 +738,20 @@ is_attorney_admin() - Checks attorney admin status
 ### Triggers ⭐ 9/10
 
 **Auto-Profile Creation:**
-```sql
+\`\`\`sql
 CREATE TRIGGER on_auth_user_created
     AFTER INSERT ON auth.users
     FOR EACH ROW EXECUTE FUNCTION handle_new_user();
-```
+\`\`\`
 
 Automatically creates profile from user metadata. Excellent pattern!
 
 **Auto-Employee Coupon:**
-```sql
+\`\`\`sql
 CREATE TRIGGER trigger_create_employee_coupon
     AFTER INSERT ON profiles
     FOR EACH ROW EXECUTE FUNCTION create_employee_coupon();
-```
+\`\`\`
 
 Generates unique coupon code for employees. Good separation!
 
@@ -765,7 +765,7 @@ Generates unique coupon code for employees. Good separation!
 
 **42 API routes** following consistent pattern:
 
-```typescript
+\`\`\`typescript
 export async function POST(request: NextRequest) {
   try {
     // 1. Rate limiting
@@ -794,7 +794,7 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, 'ContextName')
   }
 }
-```
+\`\`\`
 
 **Strengths:**
 - Consistent error handling
@@ -853,7 +853,7 @@ export async function POST(request: NextRequest) {
 
 **88 React components** organized well:
 
-```
+\`\`\`
 components/
 ├── ui/              ← Shadcn/UI components (buttons, dialogs, etc.)
 ├── admin/           ← Admin-specific components
@@ -861,7 +861,7 @@ components/
 ├── subscription-card.tsx
 ├── letter-actions.tsx
 └── ... (application components)
-```
+\`\`\`
 
 **Strengths:**
 - TypeScript throughout

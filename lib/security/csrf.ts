@@ -231,6 +231,20 @@ export async function validateAdminRequest(
 }
 
 /**
+ * Simple CSRF token validation (uses environment secret)
+ * This is a convenience wrapper for verifySignedCSRFToken
+ */
+export async function validateCsrfToken(token: string): Promise<boolean> {
+  try {
+    const secret = getCSRFSecret()
+    const result = verifySignedCSRFToken(token, secret)
+    return result.valid
+  } catch {
+    return false
+  }
+}
+
+/**
  * Generate CSRF tokens for admin session
  */
 export function generateAdminCSRF(): {

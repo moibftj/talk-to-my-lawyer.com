@@ -19,13 +19,13 @@ Complete guide for all third-party integrations and API configurations for Talk-
 
 Your `.env.local` file should contain these Stripe variables:
 
-```bash
+\`\`\`bash
 # Stripe Configuration
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_PUBLISHABLE_KEY_HERE
 STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_PUBLISHABLE_KEY_HERE
 STRIPE_SECRET_KEY=sk_test_YOUR_SECRET_KEY_HERE
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET_HERE
-```
+\`\`\`
 
 ### Stripe CLI Installation
 
@@ -33,10 +33,10 @@ The Stripe CLI is installed for webhook forwarding during local development.
 
 #### Verify Installation
 
-```bash
+\`\`\`bash
 stripe --version
 # Should output: stripe version 1.19.0
-```
+\`\`\`
 
 ### Local Development with Webhooks
 
@@ -44,9 +44,9 @@ stripe --version
 
 Run the webhook setup script:
 
-```bash
+\`\`\`bash
 ./scripts/setup-stripe-webhooks.sh
-```
+\`\`\`
 
 This script will:
 1. Authenticate with Stripe (using your STRIPE_SECRET_KEY)
@@ -56,17 +56,17 @@ This script will:
 #### Option 2: Manual Setup
 
 1. **Start your dev server:**
-   ```bash
+   \`\`\`bash
    pnpm dev
-   ```
+   \`\`\`
 
 2. **In a new terminal, login to Stripe:**
-   ```bash
+   \`\`\`bash
    stripe login --api-key sk_test_YOUR_SECRET_KEY_HERE
-   ```
+   \`\`\`
 
 3. **Start webhook forwarding:**
-   ```bash
+   \`\`\`bash
    stripe listen --forward-to http://localhost:3000/api/stripe/webhook \
      --events checkout.session.completed \
      --events customer.subscription.created \
@@ -76,18 +76,18 @@ This script will:
      --events invoice.payment_failed \
      --events payment_intent.succeeded \
      --events payment_intent.payment_failed
-   ```
+   \`\`\`
 
 4. **Copy the webhook secret:**
    The CLI will output a webhook secret like:
-   ```
+   \`\`\`
    whsec_1234567890abcdef...
-   ```
+   \`\`\`
    
    Copy this and update your `.env.local`:
-   ```bash
+   \`\`\`bash
    STRIPE_WEBHOOK_SECRET=whsec_1234567890abcdef...
-   ```
+   \`\`\`
 
 5. **Test a payment:**
    - Go to your local app: http://localhost:3000
@@ -121,9 +121,9 @@ For production deployment:
 4. **Configure webhook events** for your production endpoint
 
 The production webhook URL will be:
-```
+\`\`\`
 https://yourdomain.com/api/stripe/webhook
-```
+\`\`\`
 
 Make sure to configure the same events that you're listening for in development.
 
@@ -156,17 +156,17 @@ For any test card:
 
 ### Payment Flow Overview
 
-```
+\`\`\`
 User → Checkout → Stripe Checkout Page → Payment → Webhook → Subscription Created
-```
+\`\`\`
 
 ### How to Test Dummy Payments
 
 #### 1. Start Your Dev Server
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Your app should run on: `http://localhost:3000`
 
@@ -223,7 +223,7 @@ After successful payment:
 
 #### Debug Commands
 
-```bash
+\`\`\`bash
 # Check Stripe CLI connection
 stripe --version
 
@@ -235,7 +235,7 @@ stripe events list --limit 10
 
 # Test webhook forwarding
 stripe listen --forward-to http://localhost:3000/api/stripe/webhook --print-secret
-```
+\`\`\`
 
 ### Stripe Dashboard Links
 
@@ -253,14 +253,14 @@ The platform uses Resend for production-grade email delivery.
 
 ### Environment Variables
 
-```bash
+\`\`\`bash
 # Email Service Configuration
 EMAIL_FROM=noreply@talk-to-my-lawyer.com
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
 
 # Resend API Key (Required)
 RESEND_API_KEY=re_...
-```
+\`\`\`
 
 ### Resend Configuration
 
@@ -288,9 +288,9 @@ Templates are defined in `lib/email/templates.ts`:
 
 ### Testing Email Delivery
 
-```bash
+\`\`\`bash
 node test-email-send.js
-```
+\`\`\`
 
 ---
 
@@ -300,7 +300,7 @@ node test-email-send.js
 
 Add these secrets to your GitHub repository at Settings → Secrets and variables → Actions:
 
-```
+\`\`\`
 NEXT_PUBLIC_SUPABASE_URL
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
 NEXT_PUBLIC_SUPABASE_ANON_KEY
@@ -316,11 +316,11 @@ CRON_SECRET
 KV_REST_API_URL
 KV_REST_API_TOKEN
 RESEND_API_KEY
-```
+\`\`\`
 
 ### Optional Secrets
 
-```
+\`\`\`
 DATABASE_URL
 SUPABASE_HOSTNAME
 AI_GATEWAY_API_KEY
@@ -329,15 +329,15 @@ ADMIN_PASSWORD
 KV_REST_API_READ_ONLY_TOKEN
 REDIS_URL
 KV_URL
-```
+\`\`\`
 
 ### App URLs (Secrets or Variables)
 
-```
+\`\`\`
 NEXT_PUBLIC_APP_URL
 NEXT_PUBLIC_SITE_URL
 NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL
-```
+\`\`\`
 
 ### Production Deployment (Vercel)
 
@@ -345,19 +345,19 @@ For the production deployment workflow, also add these secrets:
 
 #### Vercel Deployment Secrets
 
-```
+\`\`\`
 VERCEL_TOKEN          # Your Vercel API token
 VERCEL_ORG_ID         # Your Vercel organization ID
 VERCEL_PROJECT_ID     # Your Vercel project ID
-```
+\`\`\`
 
 #### GitHub Variables (for Production)
 
 Go to Settings → Secrets and variables → Actions → Variables:
 
-```
+\`\`\`
 PRODUCTION_URL=https://www.talk-to-my-lawyer.com
-```
+\`\`\`
 
 **Finding your Vercel credentials:**
 

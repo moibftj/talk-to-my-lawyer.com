@@ -84,9 +84,9 @@ The workflow is fully supported by the data model:
 5. **Audit trail logged** → All changes tracked in `letter_audit_trail`
 
 ### Letter Status Flow
-```
+\`\`\`
 draft → generating → pending_review → under_review → approved/rejected → completed/sent
-```
+\`\`\`
 
 ---
 

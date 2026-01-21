@@ -7,10 +7,10 @@
 This platform has **3 main roles** with distinct permissions and access levels. All access is enforced via Row Level Security (RLS) in Supabase.
 
 **Role Types** (from `lib/database.types.ts`):
-```typescript
+\`\`\`typescript
 type UserRole = 'subscriber' | 'employee' | 'admin'
 type AdminSubRole = 'super_admin' | 'attorney_admin'
-```
+\`\`\`
 
 ---
 
@@ -47,7 +47,7 @@ The primary paying user who generates legal letters.
 
 ### Letter Status Flow (from `lib/database.types.ts`)
 
-```
+\`\`\`
 LetterStatus = 'draft' | 'generating' | 'pending_review' | 'under_review' 
              | 'approved' | 'completed' | 'rejected' | 'failed'
 
@@ -55,7 +55,7 @@ Flow:
 draft → generating → pending_review → under_review → approved/rejected
                                                           ↓
                                                      completed (downloadable)
-```
+\`\`\`
 
 ---
 
@@ -162,9 +162,9 @@ From `lib/auth/admin-session.ts`:
 4. Creates secure HTTP-only cookie session (`admin_session`)
 5. Session timeout: **30 minutes** of inactivity
 
-```typescript
+\`\`\`typescript
 const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
-```
+\`\`\`
 
 **Note**: The `ADMIN_PORTAL_KEY` mentioned in copilot-instructions is used at the UI level for additional portal access control, not in the core auth flow.
 
@@ -174,7 +174,7 @@ const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
 
 ### SQL Helper Functions
 
-```sql
+\`\`\`sql
 -- Check if current user is System Admin
 is_super_admin()
 -- Returns: true if role='admin' AND admin_sub_role='super_admin'
@@ -186,11 +186,11 @@ is_attorney_admin()
 -- Get dashboard stats (super admin only)
 get_admin_dashboard_stats()
 -- Returns: Comprehensive platform statistics
-```
+\`\`\`
 
 ### TypeScript Helper Functions (from `lib/auth/admin-session.ts`)
 
-```typescript
+\`\`\`typescript
 // Check auth status
 isAdminAuthenticated(): Promise<boolean>
 isSuperAdmin(): Promise<boolean>
@@ -204,11 +204,11 @@ requireAttorneyAdminAccess(): Promise<NextResponse | undefined> // Both admin ty
 // Session management
 getCurrentAdminSubRole(): Promise<AdminSubRole | null>
 getAdminSubRole(userId: string): Promise<AdminSubRole | null>
-```
+\`\`\`
 
 ### Profile Schema (from `lib/database.types.ts`)
 
-```typescript
+\`\`\`typescript
 interface Profile {
   id: string
   email: string
@@ -224,7 +224,7 @@ interface Profile {
   created_at: string
   updated_at: string
 }
-```
+\`\`\`
 
 ---
 
@@ -234,17 +234,17 @@ Admins are **never** created through normal signup flow.
 
 ### Method 1: CLI Script (Recommended)
 
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password>
-```
+\`\`\`
 
 ### Method 2: Promote Existing User
 
-```sql
+\`\`\`sql
 UPDATE profiles
 SET role = 'admin', admin_sub_role = 'super_admin'
 WHERE email = 'user@example.com';
-```
+\`\`\`
 
 ---
 

@@ -12,7 +12,7 @@ Convert the letter generation process from manual state management to durable wo
 
 ### Current Implementation (Manual State Machine)
 
-```
+\`\`\`
 User → API → Database (status: draft)
          ↓
 API → OpenAI → Database (status: generating)
@@ -26,7 +26,7 @@ Attorney UI → Database (status: under_review)
 Attorney UI → Database (status: approved)
          ↓
 Cron job checks status → Send email → Database (status: sent)
-```
+\`\`\`
 
 **Problems:**
 - ❌ 9 different status values to manage
@@ -37,7 +37,7 @@ Cron job checks status → Send email → Database (status: sent)
 
 ### Future Implementation (Workflow DevKit)
 
-```
+\`\`\`
 User → Trigger Workflow
          ↓
 [Workflow Step 1] Check allowance (atomic)
@@ -57,7 +57,7 @@ User → Trigger Workflow
 [Workflow Step 6] Send to user (auto-retry)
          ↓
 Done!
-```
+\`\`\`
 
 **Benefits:**
 - ✅ Single workflow definition
@@ -74,12 +74,12 @@ Done!
 ### Phase 1: Setup & Infrastructure (Week 1)
 
 **1.1 Install Workflow DevKit**
-```bash
+\`\`\`bash
 pnpm add workflow
-```
+\`\`\`
 
 **1.2 Configure Next.js Integration**
-```typescript
+\`\`\`typescript
 // next.config.mjs
 import { withWorkflow } from "workflow/next"
 
@@ -88,10 +88,10 @@ const config = {
 }
 
 export default withWorkflow(config)
-```
+\`\`\`
 
 **1.3 Create Workflow Directory Structure**
-```
+\`\`\`
 app/
   workflows/
     letter-generation.workflow.ts    # Main workflow
@@ -107,7 +107,7 @@ app/
       trigger/route.ts                # Start workflow
       resume/route.ts                 # Resume from webhook
       status/[id]/route.ts            # Check workflow status
-```
+\`\`\`
 
 **1.4 Setup Workflow Storage**
 
@@ -115,17 +115,17 @@ Workflow DevKit needs to store execution state. Options:
 - **Local dev:** SQLite (automatic)
 - **Production:** Vercel Postgres or Supabase (configure via env vars)
 
-```env
+\`\`\`env
 # .env.local
 WORKFLOW_DB_URL=postgresql://...  # Use Supabase connection string
-```
+\`\`\`
 
 ---
 
 ### Phase 2: Convert Letter Generation (Week 2)
 
 **2.1 Create Main Workflow**
-```typescript
+\`\`\`typescript
 // app/workflows/letter-generation.workflow.ts
 import { sleep, step } from "workflow"
 import { checkAllowanceStep } from "./steps/check-allowance"
@@ -229,13 +229,13 @@ interface AttorneyApproval {
   notes?: string
   reason?: string
 }
-```
+\`\`\`
 
 **2.2 Create Individual Steps**
 
 Each step is a separate function with proper error handling and retries:
 
-```typescript
+\`\`\`typescript
 // app/workflows/steps/check-allowance.ts
 import { step } from "workflow"
 import { createClient } from "@/lib/supabase/server"
@@ -254,9 +254,9 @@ export async function checkAllowanceStep(userId: string) {
     return data
   })
 }
-```
+\`\`\`
 
-```typescript
+\`\`\`typescript
 // app/workflows/steps/generate-ai-draft.ts
 import { step } from "workflow"
 import OpenAI from "openai"
@@ -291,11 +291,11 @@ export async function generateAIDraftStep(params: {
     backoff: "exponential"
   })
 }
-```
+\`\`\`
 
 **2.3 Create API Routes**
 
-```typescript
+\`\`\`typescript
 // app/api/workflows/trigger/route.ts
 import { NextRequest } from "next/server"
 import { createClient } from "@/lib/supabase/server"
@@ -364,9 +364,9 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, "TriggerWorkflow")
   }
 }
-```
+\`\`\`
 
-```typescript
+\`\`\`typescript
 // app/api/workflows/resume/route.ts
 import { NextRequest } from "next/server"
 import { resumeWorkflow } from "workflow/next"
@@ -399,7 +399,7 @@ export async function POST(request: NextRequest) {
     return handleApiError(error, "ResumeWorkflow")
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -409,7 +409,7 @@ export async function POST(request: NextRequest) {
 
 Instead of submitting to `/api/generate-letter`, submit to `/api/workflows/trigger`:
 
-```typescript
+\`\`\`typescript
 // components/letter-generation-form.tsx
 async function handleSubmit(formData: FormData) {
   const response = await fetch("/api/workflows/trigger", {
@@ -430,11 +430,11 @@ async function handleSubmit(formData: FormData) {
     router.push(`/dashboard/letters/${result.data.letterId}`)
   }
 }
-```
+\`\`\`
 
 **3.2 Update Attorney Portal Review Actions**
 
-```typescript
+\`\`\`typescript
 // app/attorney-portal/letters/[id]/page.tsx
 async function handleApprove() {
   const response = await fetch("/api/workflows/resume", {
@@ -470,11 +470,11 @@ async function handleReject() {
     router.push("/attorney-portal/letters")
   }
 }
-```
+\`\`\`
 
 **3.3 Add Workflow Status Tracking**
 
-```typescript
+\`\`\`typescript
 // components/letter-status.tsx
 import { useWorkflowStatus } from "workflow/react"
 
@@ -498,7 +498,7 @@ export function LetterStatus({ workflowId }: { workflowId: string }) {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -515,14 +515,14 @@ Run both systems in parallel for 1-2 weeks:
 
 Add workflow tracking to letters table:
 
-```sql
+\`\`\`sql
 -- Migration: Add workflow tracking
 ALTER TABLE letters
   ADD COLUMN workflow_id TEXT,
   ADD COLUMN workflow_status TEXT;
 
 CREATE INDEX idx_letters_workflow_id ON letters(workflow_id);
-```
+\`\`\`
 
 **4.3 Cleanup Old Code**
 

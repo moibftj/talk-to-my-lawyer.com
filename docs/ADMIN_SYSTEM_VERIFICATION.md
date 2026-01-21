@@ -25,7 +25,7 @@ Talk-To-My-Lawyer implements a **secure, role-based two-layered admin system** w
 
 ### Admin Roles & Access Model
 
-```
+\`\`\`
 Profiles Table
 ├── role = 'admin'
 ├── admin_sub_role = 'super_admin' OR 'attorney_admin'
@@ -36,7 +36,7 @@ Session Management
 ├── Individual admin credentials (email + password)
 ├── No shared secrets
 └── Full audit trail per admin
-```
+\`\`\`
 
 ---
 
@@ -63,7 +63,7 @@ Session Management
 **Purpose**: Approve/reject letters submitted by subscribers  
 
 **Functionality**:
-```typescript
+\`\`\`typescript
 // Fetches pending_review and under_review letters
 .in('status', ['pending_review', 'under_review'])
 
@@ -79,14 +79,14 @@ Session Management
 - Reject with reason
 - AI-assisted content improvement
 - CSRF-protected actions
-```
+\`\`\`
 
 **Access Verification** (layout.tsx):
-```typescript
+\`\`\`typescript
 const session = await getAdminSession()
 if (!session) redirect('/secure-admin-gateway/login')
 if (session.subRole !== 'super_admin') redirect('/attorney-portal/review')
-```
+\`\`\`
 
 ---
 
@@ -104,7 +104,7 @@ if (session.subRole !== 'super_admin') redirect('/attorney-portal/review')
 **Purpose**: Approve/reject letters (same as system admin but isolated interface)  
 
 **Functionality**:
-```typescript
+\`\`\`typescript
 // Fetches pending_review and under_review letters (same as System Admin)
 .in('status', ['pending_review', 'under_review'])
 
@@ -120,17 +120,17 @@ if (session.subRole !== 'super_admin') redirect('/attorney-portal/review')
 - Reject with reason
 - AI-assisted content improvement
 - CSRF-protected actions
-```
+\`\`\`
 
 **Access Verification** (layout.tsx):
-```typescript
+\`\`\`typescript
 const session = await getAdminSession()
 if (!session) redirect('/attorney-portal/login')
 // Allow both attorney_admin and super_admin
 if (session.subRole !== 'attorney_admin' && session.subRole !== 'super_admin') {
   redirect('/attorney-portal/login')
 }
-```
+\`\`\`
 
 ---
 
@@ -141,7 +141,7 @@ if (session.subRole !== 'attorney_admin' && session.subRole !== 'super_admin') {
 **Rate Limiting**: 10 requests per 15 minutes  
 
 **Flow**:
-```
+\`\`\`
 1. Admin provides email + password
 ↓
 2. verifyAdminCredentials() called
@@ -159,10 +159,10 @@ if (session.subRole !== 'attorney_admin' && session.subRole !== 'super_admin') {
 4. Route based on subRole
    ├── super_admin → /secure-admin-gateway/dashboard
    └── attorney_admin → /attorney-portal/review
-```
+\`\`\`
 
 **Code** (app/api/admin-auth/login/route.ts):
-```typescript
+\`\`\`typescript
 // Verify credentials
 const result = await verifyAdminCredentials(email, password)
 if (!result.success) return 401
@@ -175,12 +175,12 @@ await createAdminSession(result.userId!, email, subRole)
 const redirectUrl = subRole === 'attorney_admin'
   ? '/attorney-portal/review'
   : '/secure-admin-gateway/dashboard'
-```
+\`\`\`
 
 ### 3.2 Session Validation
 
 **Session Structure** (lib/auth/admin-session.ts):
-```typescript
+\`\`\`typescript
 interface AdminSession {
   userId: string
   email: string
@@ -194,15 +194,15 @@ const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000
 
 // Updated on each request
 session.lastActivity = Date.now()
-```
+\`\`\`
 
 **Logout**: `POST /api/admin-auth/logout`
-```typescript
+\`\`\`typescript
 export async function destroyAdminSession(): Promise<void> {
   const cookieStore = await cookies()
   cookieStore.delete(ADMIN_SESSION_COOKIE)
 }
-```
+\`\`\`
 
 ---
 
@@ -211,7 +211,7 @@ export async function destroyAdminSession(): Promise<void> {
 ### 4.1 Role-Based Authorization Functions
 
 #### For Letter Review (Both Admin Types)
-```typescript
+\`\`\`typescript
 export async function requireAttorneyAdminAccess(): Promise<NextResponse | undefined> {
   const session = await verifyAdminSession()
   if (!session) return 401 UNAUTHORIZED
@@ -220,7 +220,7 @@ export async function requireAttorneyAdminAccess(): Promise<NextResponse | undef
   // (session.subRole is either 'attorney_admin' or 'super_admin')
   return undefined
 }
-```
+\`\`\`
 
 **Used by**:
 - `POST /api/letters/[id]/approve`
@@ -230,7 +230,7 @@ export async function requireAttorneyAdminAccess(): Promise<NextResponse | undef
 - `GET /api/admin/letters` (list letters for review)
 
 #### For System Admin Only
-```typescript
+\`\`\`typescript
 export async function requireSuperAdminAuth(): Promise<NextResponse | undefined> {
   const session = await verifyAdminSession()
   if (!session) return 401 UNAUTHORIZED
@@ -238,7 +238,7 @@ export async function requireSuperAdminAuth(): Promise<NextResponse | undefined>
   if (session.subRole !== 'super_admin') return 403 FORBIDDEN
   return undefined
 }
-```
+\`\`\`
 
 **Used by**:
 - `GET /api/admin/analytics` - Analytics dashboard
@@ -250,7 +250,7 @@ export async function requireSuperAdminAuth(): Promise<NextResponse | undefined>
 
 ### 4.2 Sample API Route Pattern
 
-```typescript
+\`\`\`typescript
 // /app/api/admin/coupons/route.ts
 export async function GET(request: NextRequest) {
   // 1. SUPER ADMIN AUTH CHECK
@@ -270,7 +270,7 @@ export async function GET(request: NextRequest) {
   
   return successResponse({ coupons })
 }
-```
+\`\`\`
 
 ---
 
@@ -279,7 +279,7 @@ export async function GET(request: NextRequest) {
 ### 5.1 CSRF Token System
 
 **Token Generation** (lib/security/csrf.ts):
-```typescript
+\`\`\`typescript
 export function generateAdminCSRF() {
   const token = generateSecureToken()
   const expiresAt = Date.now() + CSRF_TOKEN_EXPIRY
@@ -291,10 +291,10 @@ export function generateAdminCSRF() {
     cookieHeader: cookie
   }
 }
-```
+\`\`\`
 
 **Token Validation**:
-```typescript
+\`\`\`typescript
 export async function validateAdminRequest(request: NextRequest) {
   const csrfToken = request.headers.get('x-csrf-token')
   const cookieToken = request.cookies.get('csrf-token')?.value
@@ -305,12 +305,12 @@ export async function validateAdminRequest(request: NextRequest) {
   
   return { valid: true }
 }
-```
+\`\`\`
 
 ### 5.2 CSRF Usage in UI
 
 **ReviewLetterModal Component** (components/review-letter-modal.tsx):
-```typescript
+\`\`\`typescript
 const getAdminHeaders = async (includeContentType = true) => {
   const csrfToken = await getAdminCsrfToken()
   return {
@@ -325,7 +325,7 @@ const response = await fetch(`/api/letters/${letter.id}/approve`, {
   headers: await getAdminHeaders(),
   body: JSON.stringify(body)
 })
-```
+\`\`\`
 
 ---
 
@@ -334,7 +334,7 @@ const response = await fetch(`/api/letters/${letter.id}/approve`, {
 ### 6.1 Row Level Security (RLS) Policies
 
 **Letter Access Control**:
-```sql
+\`\`\`sql
 -- Subscribers see only their own letters
 CREATE POLICY "Users can view own letters"
   ON letters FOR SELECT
@@ -355,10 +355,10 @@ CREATE POLICY "Admins can update letters"
     SELECT 1 FROM profiles
     WHERE id = auth.uid() AND role = 'admin'
   ));
-```
+\`\`\`
 
 **Audit Trail** - Immutable and read-only by authenticated users:
-```sql
+\`\`\`sql
 CREATE TABLE letter_audit_trail (
   id UUID PRIMARY KEY,
   letter_id UUID REFERENCES letters(id),
@@ -382,7 +382,7 @@ CREATE POLICY "Admins can view all audits"
   USING (EXISTS (
     SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'
   ));
-```
+\`\`\`
 
 ---
 
@@ -391,7 +391,7 @@ CREATE POLICY "Admins can view all audits"
 ### 7.1 Audit Trail Entries
 
 **When admin performs actions**, entry is logged:
-```typescript
+\`\`\`typescript
 await supabase.rpc('log_letter_audit', {
   p_letter_id: letterId,
   p_action: 'approved',  // or 'rejected', 'improved', 'started_review'
@@ -399,7 +399,7 @@ await supabase.rpc('log_letter_audit', {
   p_new_status: 'approved',
   p_notes: `Approved by ${adminEmail}: ${reviewNotes}`
 })
-```
+\`\`\`
 
 **Audit Entry Fields**:
 - `id` - Unique audit entry ID
@@ -498,7 +498,7 @@ await supabase.rpc('log_letter_audit', {
 ## 9. Dashboard Structure
 
 ### System Admin Dashboard
-```
+\`\`\`
 /secure-admin-gateway/dashboard/
 ├── page.tsx                    # Main dashboard
 ├── layout.tsx                  # Sidebar with navigation
@@ -514,17 +514,17 @@ await supabase.rpc('log_letter_audit', {
 ├── page.tsx                    # Review center
 ├── [id]/page.tsx               # Letter detail + review modal
 └── layout.tsx                  # (Optional) Review layout
-```
+\`\`\`
 
 ### Attorney Admin Dashboard
-```
+\`\`\`
 /attorney-portal/
 ├── login/page.tsx              # Attorney login page
 └── review/
     ├── page.tsx                # Review center (letter list)
     ├── [id]/page.tsx           # Letter detail + review modal
     └── layout.tsx              # Sidebar with minimal navigation
-```
+\`\`\`
 
 ---
 
@@ -533,17 +533,17 @@ await supabase.rpc('log_letter_audit', {
 ### Manual Testing Steps
 
 #### 1. Test System Admin Access
-```
+\`\`\`
 1. Navigate to /secure-admin-gateway/login
 2. Login with System Admin credentials
 3. Verify: Redirected to /secure-admin-gateway/dashboard
 4. Verify: Can access all dashboard pages
 5. Verify: Can access /secure-admin-gateway/review
 6. Verify: Can approve/reject letters in review center
-```
+\`\`\`
 
 #### 2. Test Attorney Admin Access
-```
+\`\`\`
 1. Navigate to /attorney-portal/login
 2. Login with attorney admin credentials
 3. Verify: Redirected to /attorney-portal/review
@@ -551,19 +551,19 @@ await supabase.rpc('log_letter_audit', {
 5. Verify: Can view and approve/reject letters
 6. Verify: CANNOT access /secure-admin-gateway/dashboard
 7. Verify: If try to access, redirected to attorney-portal
-```
+\`\`\`
 
 #### 3. Test Cross-Admin Access Prevention
-```
+\`\`\`
 1. Login as attorney admin at /attorney-portal/login
 2. Try to navigate to /secure-admin-gateway/dashboard
 3. Verify: Redirected to /attorney-portal/review
 4. Try to directly visit /secure-admin-gateway/review
 5. Verify: Can access (since attorney admins can review letters)
-```
+\`\`\`
 
 #### 4. Test CSRF Protection
-```
+\`\`\`
 1. Open Review Center
 2. Open Network tab in DevTools
 3. Click "Review Letter" button
@@ -572,19 +572,19 @@ await supabase.rpc('log_letter_audit', {
 6. Check Cookies: csrf-token HTTP-only cookie set
 7. Click "Approve" button
 8. Verify: POST request includes x-csrf-token header
-```
+\`\`\`
 
 #### 5. Test Session Timeout
-```
+\`\`\`
 1. Login as admin
 2. Note: Session expires in ~30 minutes
 3. Wait 30+ minutes without activity
 4. Try to perform an admin action
 5. Verify: Session expired, redirected to login
-```
+\`\`\`
 
 #### 6. Test Audit Logging
-```
+\`\`\`
 1. Login as admin
 2. Approve a letter with review notes
 3. Go to letter detail page
@@ -595,7 +595,7 @@ await supabase.rpc('log_letter_audit', {
    - Action (approved)
    - Status change (pending_review → approved)
    - Review notes
-```
+\`\`\`
 
 ---
 
@@ -623,7 +623,7 @@ The system is **production-ready** with comprehensive security:
 - Rate limit hits on admin endpoints
 
 **Commands**:
-```bash
+\`\`\`bash
 # View failed logins in server logs
 grep "Failed login attempt" server.log
 
@@ -636,36 +636,36 @@ ORDER BY created_at DESC
 SELECT COUNT(*) as active_sessions 
 FROM (SELECT DISTINCT performed_by FROM letter_audit_trail 
       WHERE created_at > NOW() - INTERVAL '30 minutes')
-```
+\`\`\`
 
 ### 📋 Admin Management
 
 **Creating a New Admin**:
-```sql
+\`\`\`sql
 -- 1. Admin signs up at /auth/signup (creates auth.users entry)
 -- 2. Update profile to set role and admin_sub_role
 UPDATE profiles 
 SET role = 'admin',
     admin_sub_role = 'attorney_admin'  -- or 'super_admin'
 WHERE id = '...'
-```
+\`\`\`
 
 **Deactivating an Admin**:
-```sql
+\`\`\`sql
 -- Change role from 'admin' to 'subscriber'
 UPDATE profiles 
 SET role = 'subscriber'
 WHERE id = '...'
 -- This automatically blocks all admin API access
-```
+\`\`\`
 
 **Changing Admin Sub-Role**:
-```sql
+\`\`\`sql
 UPDATE profiles 
 SET admin_sub_role = 'super_admin'  -- or 'attorney_admin'
 WHERE id = '...'
 -- Takes effect on next login
-```
+\`\`\`
 
 ---
 

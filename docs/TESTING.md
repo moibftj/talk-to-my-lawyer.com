@@ -20,16 +20,16 @@ Test mode allows testing the complete letter generation and review workflow with
 ### Environment Variables
 
 **Local Development** (`.env.local`):
-```env
+\`\`\`env
 ENABLE_TEST_MODE="true"
 NEXT_PUBLIC_TEST_MODE="true"
-```
+\`\`\`
 
 **Production** (MUST be false):
-```env
+\`\`\`env
 ENABLE_TEST_MODE="false"
 NEXT_PUBLIC_TEST_MODE="false"
-```
+\`\`\`
 
 ### Test Mode Indicators
 
@@ -207,7 +207,7 @@ OpenTelemetry provides distributed tracing for observability into:
 
 Add to `.env.local`:
 
-```env
+\`\`\`env
 # Optional: OTLP endpoint (defaults to localhost:4318)
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
 
@@ -217,24 +217,24 @@ OTEL_SERVICE_VERSION=1.0.0
 
 # Optional: Disable tracing
 OTEL_SDK_DISABLED=false
-```
+\`\`\`
 
 #### 2. Run Jaeger (Local Collector)
 
-```bash
+\`\`\`bash
 docker run -d --name jaeger \
   -p 16686:16686 \
   -p 4318:4318 \
   jaegertracing/all-in-one:latest
-```
+\`\`\`
 
 Then visit http://localhost:16686 to view traces.
 
 #### 3. Start Application
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Tracing automatically initializes.
 
@@ -261,7 +261,7 @@ Tracing automatically initializes.
 
 #### Manual Span Creation
 
-```typescript
+\`\`\`typescript
 import { createAISpan } from '@/lib/monitoring/tracing'
 
 const span = createAISpan('custom_ai_operation', {
@@ -279,11 +279,11 @@ try {
 } finally {
   span.end()
 }
-```
+\`\`\`
 
 #### Async Function Tracing
 
-```typescript
+\`\`\`typescript
 import { traceAsync } from '@/lib/monitoring/tracing'
 
 const result = await traceAsync(
@@ -293,7 +293,7 @@ const result = await traceAsync(
   },
   { 'custom.attribute': 'value' }
 )
-```
+\`\`\`
 
 ### Production Considerations
 
@@ -306,21 +306,21 @@ const result = await traceAsync(
 
 For production, configure for your observability platform:
 
-```env
+\`\`\`env
 OTEL_EXPORTER_OTLP_ENDPOINT=https://your-platform.com/v1/traces
 OTEL_EXPORTER_OTLP_HEADERS='{"authorization":"Bearer YOUR_TOKEN"}'
-```
+\`\`\`
 
 #### Sampling
 
 For high-traffic applications:
 
-```typescript
+\`\`\`typescript
 // In lib/monitoring/tracing.ts
 import { TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-node'
 
 sampler: new TraceIdRatioBasedSampler(0.1), // Sample 10% of traces
-```
+\`\`\`
 
 ---
 
@@ -346,13 +346,13 @@ sampler: new TraceIdRatioBasedSampler(0.1), // Sample 10% of traces
 
 ### Health Checks
 
-```bash
+\`\`\`bash
 # Basic health check
 curl http://localhost:3000/api/health
 
 # Detailed system status
 curl http://localhost:3000/api/health/detailed
-```
+\`\`\`
 
 ### Troubleshooting
 
@@ -397,11 +397,11 @@ curl http://localhost:3000/api/health/detailed
 **To disable test mode** (production):
 
 1. **Local**:
-   ```bash
+   \`\`\`bash
    # Edit .env.local
    ENABLE_TEST_MODE="false"
    NEXT_PUBLIC_TEST_MODE="false"
-   ```
+   \`\`\`
 
 2. **Vercel**:
    Update environment variables in dashboard

@@ -10,12 +10,12 @@ Talk-To-My-Lawyer uses Stripe for all payment processing, including subscription
 
 ### Stripe Configuration
 
-```bash
+\`\`\`bash
 # Stripe Keys
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_YOUR_PUBLISHABLE_KEY_HERE
 STRIPE_SECRET_KEY=sk_test_YOUR_SECRET_KEY_HERE
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_WEBHOOK_SECRET_HERE
-```
+\`\`\`
 
 **Production Note**: Replace `test` keys with `live` keys in production.
 
@@ -25,10 +25,10 @@ The Stripe CLI enables local webhook testing during development.
 
 ### Verify Installation
 
-```bash
+\`\`\`bash
 stripe --version
 # Should output: stripe version 1.19.0 or higher
-```
+\`\`\`
 
 ## Local Development with Webhooks
 
@@ -36,9 +36,9 @@ stripe --version
 
 Run the webhook setup script:
 
-```bash
+\`\`\`bash
 ./scripts/setup-stripe-webhooks.sh
-```
+\`\`\`
 
 This script will:
 1. Authenticate with Stripe (using your STRIPE_SECRET_KEY)
@@ -48,17 +48,17 @@ This script will:
 ### Option 2: Manual Setup
 
 1. **Start your dev server:**
-   ```bash
+   \`\`\`bash
    pnpm dev
-   ```
+   \`\`\`
 
 2. **In a new terminal, login to Stripe:**
-   ```bash
+   \`\`\`bash
    stripe login --api-key sk_test_YOUR_SECRET_KEY_HERE
-   ```
+   \`\`\`
 
 3. **Start webhook forwarding:**
-   ```bash
+   \`\`\`bash
    stripe listen --forward-to http://localhost:3000/api/stripe/webhook \
      --events checkout.session.completed \
      --events customer.subscription.created \
@@ -68,19 +68,19 @@ This script will:
      --events invoice.payment_failed \
      --events payment_intent.succeeded \
      --events payment_intent.payment_failed
-   ```
+   \`\`\`
 
 4. **Copy the webhook secret:**
    
    The CLI will output a webhook secret like:
-   ```
+   \`\`\`
    whsec_1234567890abcdef...
-   ```
+   \`\`\`
    
    Copy this and update your `.env.local`:
-   ```bash
+   \`\`\`bash
    STRIPE_WEBHOOK_SECRET=whsec_1234567890abcdef...
-   ```
+   \`\`\`
 
 5. **Test a payment:**
    - Go to your local app: http://localhost:3000
@@ -106,9 +106,9 @@ The platform uses these Stripe webhook events:
 ## Webhook Endpoint
 
 The webhook endpoint is located at:
-```
+\`\`\`
 /app/api/stripe/webhook/route.ts
-```
+\`\`\`
 
 ## Testing Payments
 
@@ -134,7 +134,7 @@ For any test card:
 
 ### Step 1: Start Services
 
-```bash
+\`\`\`bash
 # Terminal 1: Start dev server
 pnpm dev
 
@@ -144,7 +144,7 @@ stripe listen --forward-to http://localhost:3000/api/stripe/webhook \
   --events customer.subscription.created \
   --events invoice.paid \
   --events payment_intent.succeeded
-```
+\`\`\`
 
 ### Step 2: Test Subscription Flow
 
@@ -158,13 +158,13 @@ stripe listen --forward-to http://localhost:3000/api/stripe/webhook \
 
 You'll be redirected to Stripe Checkout. Use:
 
-```
+\`\`\`
 Card Number: 4242 4242 4242 4242
 Expiry: 12/34
 CVC: 123
 Name: Test User
 ZIP: 12345
-```
+\`\`\`
 
 ### Step 4: Verify Results
 
@@ -223,7 +223,7 @@ After successful payment:
 
 ### Debug Commands
 
-```bash
+\`\`\`bash
 # Check Stripe CLI connection
 stripe --version
 
@@ -238,21 +238,21 @@ stripe listen --forward-to http://localhost:3000/api/stripe/webhook --print-secr
 
 # Trigger test event
 stripe trigger checkout.session.completed
-```
+\`\`\`
 
 ### Webhook Status Check
 
-```bash
+\`\`\`bash
 # Check if webhook forwarding is running
 ps aux | grep "stripe listen"
 
 # View webhook logs
 cat /tmp/stripe-webhook.log  # If redirected to file
-```
+\`\`\`
 
 ### Verify Database Updates
 
-```sql
+\`\`\`sql
 -- Check subscription created
 SELECT * FROM subscriptions WHERE user_id = 'YOUR_USER_ID' ORDER BY created_at DESC LIMIT 1;
 
@@ -261,7 +261,7 @@ SELECT * FROM commissions WHERE subscription_id = 'SUBSCRIPTION_ID';
 
 -- Check coupon usage
 SELECT * FROM coupon_usage WHERE subscription_id = 'SUBSCRIPTION_ID';
-```
+\`\`\`
 
 ## Production Setup
 
@@ -295,18 +295,18 @@ Go to Stripe Dashboard → Developers → Webhooks
 
 In Vercel or your hosting platform:
 
-```env
+\`\`\`env
 STRIPE_SECRET_KEY=sk_live_YOUR_LIVE_SECRET_KEY
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_YOUR_LIVE_PUBLISHABLE_KEY
 STRIPE_WEBHOOK_SECRET=whsec_YOUR_PRODUCTION_WEBHOOK_SECRET
-```
+\`\`\`
 
 ### 4. Test Production Webhook
 
-```bash
+\`\`\`bash
 # Use Stripe CLI to test production endpoint
 stripe listen --forward-to https://yourdomain.com/api/stripe/webhook --api-key sk_live_YOUR_KEY
-```
+\`\`\`
 
 ### 5. Verify Domain in Stripe
 
@@ -330,7 +330,7 @@ Go to Stripe Dashboard → Settings → Branding
 
 The application automatically verifies webhook signatures:
 
-```typescript
+\`\`\`typescript
 // In /app/api/stripe/webhook/route.ts
 const signature = headers().get("stripe-signature")
 const event = stripe.webhooks.constructEvent(
@@ -338,7 +338,7 @@ const event = stripe.webhooks.constructEvent(
   signature,
   process.env.STRIPE_WEBHOOK_SECRET
 )
-```
+\`\`\`
 
 ## Stripe Dashboard Links
 

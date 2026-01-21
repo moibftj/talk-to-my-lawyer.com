@@ -9,9 +9,9 @@
 When emails aren't working for subscribers, employees, attorneys, or admins:
 
 1. **Check Environment Variables**:
-   ```bash
+   \`\`\`bash
    node check-email-config.js
-   ```
+   \`\`\`
    Required: `RESEND_API_KEY`, `EMAIL_FROM`, Supabase keys
 
 2. **Check Supabase Auth Emails** (Confirmation emails):

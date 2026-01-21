@@ -10,7 +10,6 @@
  * - isFreeTrial: boolean
  * - isSuperAdmin: boolean
  */
-import { step } from "workflow"
 import { checkAndDeductAllowance } from "@/lib/services/allowance-service"
 
 export interface AllowanceResult {
@@ -22,15 +21,13 @@ export interface AllowanceResult {
 }
 
 export async function checkAllowanceStep(userId: string): Promise<AllowanceResult> {
-  return await step("check-allowance", async () => {
-    const result = await checkAndDeductAllowance(userId)
+  const result = await checkAndDeductAllowance(userId)
 
-    return {
-      success: result.success,
-      remaining: result.remaining || 0,
-      errorMessage: result.errorMessage,
-      isFreeTrial: result.isFreeTrial || false,
-      isSuperAdmin: result.isSuperAdmin || false,
-    }
-  })
+  return {
+    success: result.success,
+    remaining: result.remaining || 0,
+    errorMessage: result.errorMessage,
+    isFreeTrial: result.isFreeTrial || false,
+    isSuperAdmin: result.isSuperAdmin || false,
+  }
 }

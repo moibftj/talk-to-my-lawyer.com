@@ -34,7 +34,7 @@ This test plan outlines the scenarios and SQL scripts required to verify the upd
 
 Before running tests, create a dummy test user and subscription:
 
-```sql
+\`\`\`sql
 -- 1. Create a test profile
 INSERT INTO public.profiles (id, email, full_name, role)
 VALUES ('00000000-0000-0000-0000-000000000001', 'test@example.com', 'Test User', 'subscriber')
@@ -43,20 +43,20 @@ ON CONFLICT (id) DO NOTHING;
 -- 2. Create a test subscription with 2 letters
 INSERT INTO public.subscriptions (user_id, status, plan_type, remaining_letters, credits_remaining)
 VALUES ('00000000-0000-0000-0000-000000000001', 'active', 'standard_4_month', 2, 2);
-```
+\`\`\`
 
 ---
 
 ## 3. Execution Scripts
 
 ### Test 1: Check Initial Allowance
-```sql
+\`\`\`sql
 SELECT * FROM public.check_letter_allowance('00000000-0000-0000-0000-000000000001');
 -- Expected: true, 2, 'standard_4_month'
-```
+\`\`\`
 
 ### Test 2: Deduct First Letter
-```sql
+\`\`\`sql
 SELECT public.deduct_letter_allowance('00000000-0000-0000-0000-000000000001');
 -- Expected: true
 
@@ -64,28 +64,28 @@ SELECT remaining_letters, credits_remaining, total_letters_generated
 FROM public.subscriptions s JOIN public.profiles p ON s.user_id = p.id
 WHERE p.id = '00000000-0000-0000-0000-000000000001';
 -- Expected: 1, 1, 1
-```
+\`\`\`
 
 ### Test 3: Deduct Last Letter
-```sql
+\`\`\`sql
 SELECT public.deduct_letter_allowance('00000000-0000-0000-0000-000000000001');
 -- Expected: true
 
 SELECT * FROM public.check_letter_allowance('00000000-0000-0000-0000-000000000001');
 -- Expected: false, 0, 'standard_4_month'
-```
+\`\`\`
 
 ### Test 4: Attempt Deduction with Zero Credits
-```sql
+\`\`\`sql
 SELECT public.deduct_letter_allowance('00000000-0000-0000-0000-000000000001');
 -- Expected: false
-```
+\`\`\`
 
 ---
 
 ## 4. Cleanup
 
-```sql
+\`\`\`sql
 DELETE FROM public.subscriptions WHERE user_id = '00000000-0000-0000-0000-000000000001';
 DELETE FROM public.profiles WHERE id = '00000000-0000-0000-0000-000000000001';
-```
+\`\`\`

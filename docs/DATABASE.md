@@ -15,7 +15,7 @@ Talk-To-My-Lawyer uses Supabase (PostgreSQL) with Row Level Security (RLS) for d
 #### profiles
 User profiles extending Supabase Auth users
 
-```sql
+\`\`\`sql
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id),
   email TEXT NOT NULL,
@@ -29,12 +29,12 @@ CREATE TABLE profiles (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
+\`\`\`
 
 #### subscriptions
 User subscription and letter allowances
 
-```sql
+\`\`\`sql
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -54,12 +54,12 @@ CREATE TABLE subscriptions (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
+\`\`\`
 
 #### letters
 Letter documents and workflow
 
-```sql
+\`\`\`sql
 CREATE TABLE letters (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -78,12 +78,12 @@ CREATE TABLE letters (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
+\`\`\`
 
 #### employee_coupons
 Employee referral coupons
 
-```sql
+\`\`\`sql
 CREATE TABLE employee_coupons (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   employee_id UUID REFERENCES profiles(id) UNIQUE,
@@ -93,12 +93,12 @@ CREATE TABLE employee_coupons (
   usage_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
+\`\`\`
 
 #### commissions
 Employee commission tracking
 
-```sql
+\`\`\`sql
 CREATE TABLE commissions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   employee_id UUID REFERENCES profiles(id),
@@ -109,7 +109,7 @@ CREATE TABLE commissions (
   status TEXT DEFAULT 'pending',
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
+\`\`\`
 
 ### Audit & Security Tables
 
@@ -126,55 +126,55 @@ CREATE TABLE commissions (
 #### check_letter_allowance(user_id)
 Check available letter credits
 
-```sql
+\`\`\`sql
 SELECT * FROM check_letter_allowance('USER_UUID');
 -- Returns: has_allowance, remaining, plan_name
-```
+\`\`\`
 
 #### deduct_letter_allowance(user_id)
 Atomically deduct one letter credit
 
-```sql
+\`\`\`sql
 SELECT deduct_letter_allowance('USER_UUID');
 -- Returns: true if successful, false if no credits
-```
+\`\`\`
 
 #### add_letter_allowances(user_id, amount)
 Add credits based on plan type
 
-```sql
+\`\`\`sql
 SELECT add_letter_allowances('USER_UUID', 4);
-```
+\`\`\`
 
 ### Admin Helper Functions
 
 #### is_super_admin()
 Check if current user is Super Admin
 
-```sql
+\`\`\`sql
 SELECT is_super_admin();
-```
+\`\`\`
 
 #### is_attorney_admin()
 Check if current user is Attorney Admin
 
-```sql
+\`\`\`sql
 SELECT is_attorney_admin();
-```
+\`\`\`
 
 #### get_admin_dashboard_stats()
 Get comprehensive platform statistics
 
-```sql
+\`\`\`sql
 SELECT * FROM get_admin_dashboard_stats();
-```
+\`\`\`
 
 ### Audit Functions
 
 #### log_letter_audit(...)
 Log letter state transitions
 
-```sql
+\`\`\`sql
 SELECT log_letter_audit(
   p_letter_id := 'LETTER_UUID',
   p_action := 'approved',
@@ -182,7 +182,7 @@ SELECT log_letter_audit(
   p_new_status := 'approved',
   p_notes := 'Approved by admin'
 );
-```
+\`\`\`
 
 ## Database Migrations
 
@@ -195,13 +195,13 @@ Execute in sequence for clean setup:
 
 ### Running Migrations
 
-```bash
+\`\`\`bash
 # Via npm script
 pnpm db:migrate
 
 # Or manually in Supabase SQL Editor
 # Execute each file in numeric order
-```
+\`\`\`
 
 ### Migration Files
 
@@ -239,7 +239,7 @@ pnpm db:migrate
 
 #### Test Execution
 
-```sql
+\`\`\`sql
 -- Create test user
 INSERT INTO profiles (id, email, role)
 VALUES ('00000000-0000-0000-0000-000000000001', 'test@example.com', 'subscriber');
@@ -271,7 +271,7 @@ SELECT deduct_letter_allowance('00000000-0000-0000-0000-000000000001');
 -- Cleanup
 DELETE FROM subscriptions WHERE user_id = '00000000-0000-0000-0000-000000000001';
 DELETE FROM profiles WHERE id = '00000000-0000-0000-0000-000000000001';
-```
+\`\`\`
 
 ## Row Level Security (RLS)
 
@@ -295,7 +295,7 @@ DELETE FROM profiles WHERE id = '00000000-0000-0000-0000-000000000001';
 
 ### Verifying RLS
 
-```sql
+\`\`\`sql
 -- Check if RLS is enabled
 SELECT tablename, rowsecurity 
 FROM pg_tables 
@@ -307,13 +307,13 @@ SELECT schemaname, tablename, policyname, permissive, roles, cmd, qual
 FROM pg_policies
 WHERE schemaname = 'public'
 ORDER BY tablename, policyname;
-```
+\`\`\`
 
 ## Common Queries
 
 ### User Statistics
 
-```sql
+\`\`\`sql
 -- Count users by role
 SELECT role, COUNT(*) as count
 FROM profiles
@@ -324,11 +324,11 @@ SELECT COUNT(*) FROM subscriptions WHERE status = 'active';
 
 -- Letters by status
 SELECT status, COUNT(*) FROM letters GROUP BY status;
-```
+\`\`\`
 
 ### Admin Operations
 
-```sql
+\`\`\`sql
 -- List all admin users
 SELECT id, email, full_name, admin_sub_role, created_at
 FROM profiles
@@ -349,11 +349,11 @@ SELECT
 FROM commissions c
 JOIN profiles e ON c.employee_id = e.id
 GROUP BY e.email;
-```
+\`\`\`
 
 ### Performance Queries
 
-```sql
+\`\`\`sql
 -- Slow queries
 SELECT query, mean_exec_time, calls
 FROM pg_stat_statements
@@ -376,7 +376,7 @@ SELECT
 FROM pg_stat_user_indexes
 WHERE schemaname = 'public'
 ORDER BY idx_scan DESC;
-```
+\`\`\`
 
 ## Backup & Recovery
 
@@ -387,10 +387,10 @@ ORDER BY idx_scan DESC;
 
 ### Manual Backup
 
-```bash
+\`\`\`bash
 # Via pg_dump (if direct access available)
 pg_dump $DATABASE_URL > backup_$(date +%Y%m%d_%H%M%S).sql
-```
+\`\`\`
 
 ### Point-in-Time Recovery
 
@@ -417,7 +417,7 @@ Via Supabase Dashboard:
 
 ### Optimization
 
-```sql
+\`\`\`sql
 -- Vacuum and analyze
 VACUUM ANALYZE profiles;
 VACUUM ANALYZE letters;
@@ -429,7 +429,7 @@ ANALYZE letters;
 
 -- Reindex if needed
 REINDEX TABLE profiles;
-```
+\`\`\`
 
 ## Troubleshooting
 

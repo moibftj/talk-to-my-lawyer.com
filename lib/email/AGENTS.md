@@ -8,10 +8,10 @@ When debugging email issues, follow this order:
 
 ### 1. Check Resend Configuration
 
-```bash
+\`\`\`bash
 # Run the config checker
 node check-email-config.js
-```
+\`\`\`
 
 **Required Environment Variables:**
 
@@ -26,17 +26,17 @@ node check-email-config.js
 
 ### 2. Test Email Sending
 
-```bash
+\`\`\`bash
 # Test direct send
 node test-email-send.js
 
 # Or use API
 curl -X POST http://localhost:3000/api/test-email
-```
+\`\`\`
 
 ### 3. Check Email Queue
 
-```sql
+\`\`\`sql
 -- Check queue status
 SELECT status, COUNT(*)
 FROM email_queue
@@ -53,7 +53,7 @@ SELECT id, to, subject, attempts, next_retry_at, error
 FROM email_queue
 WHERE status = 'pending'
 AND created_at < NOW() - INTERVAL '1 hour';
-```
+\`\`\`
 
 ### 4. Verify Resend Dashboard
 
@@ -66,7 +66,7 @@ AND created_at < NOW() - INTERVAL '1 hour';
 
 ### Email Sending Flow
 
-```
+\`\`\`
 Application Code
     ↓
 queueTemplateEmail()  (Recommended)
@@ -80,7 +80,7 @@ Try Immediate Send via Resend
         Cron job processes queue every 10 min
             ↓
         Retry with exponential backoff
-```
+\`\`\`
 
 **Key Files:**
 
@@ -93,7 +93,7 @@ Try Immediate Send via Resend
 
 **Method 1: Queue with Immediate Send (Recommended)**
 
-```typescript
+\`\`\`typescript
 import { queueTemplateEmail } from '@/lib/email'
 
 // Sends immediately, falls back to queue on failure
@@ -102,18 +102,18 @@ await queueTemplateEmail(
   'user@example.com',
   { userName: 'John', actionUrl: 'https://...' }
 )
-```
+\`\`\`
 
 Implementation: [service.ts:152-195](service.ts#L152-L195)
 
 **Method 2: Direct Send (For urgent notifications only)**
 
-```typescript
+\`\`\`typescript
 import { sendTemplateEmail } from '@/lib/email'
 
 // No retry - fails if Resend is down
 await sendTemplateEmail('security-alert', 'admin@example.com', { ... })
-```
+\`\`\`
 
 Implementation: [service.ts:130-136](service.ts#L130-L136)
 
@@ -129,13 +129,13 @@ Implementation: [service.ts:130-136](service.ts#L130-L136)
 
 **Diagnosis:**
 
-```bash
+\`\`\`bash
 # Check environment
 node check-email-config.js
 
 # Check service status
 curl http://localhost:3000/api/health/detailed
-```
+\`\`\`
 
 **Solutions:**
 
@@ -165,35 +165,35 @@ curl http://localhost:3000/api/health/detailed
 
 **Diagnosis:**
 
-```sql
+\`\`\`sql
 SELECT id, to, subject, attempts, next_retry_at, created_at
 FROM email_queue
 WHERE status = 'pending'
 ORDER BY created_at DESC;
-```
+\`\`\`
 
 **Solutions:**
 
 1. **Manually Trigger Queue Processing**
 
-   ```bash
+   \`\`\`bash
    curl -X POST "https://your-domain.com/api/cron/process-email-queue?secret=YOUR_CRON_SECRET"
-   ```
+   \`\`\`
 
 2. **Check for Errors**
 
-   ```sql
+   \`\`\`sql
    SELECT error FROM email_queue WHERE status = 'failed';
-   ```
+   \`\`\`
 
 3. **Reset Stuck Emails**
 
-   ```sql
+   \`\`\`sql
    UPDATE email_queue
    SET next_retry_at = NOW(), attempts = 0
    WHERE status = 'pending'
    AND created_at < NOW() - INTERVAL '1 hour';
-   ```
+   \`\`\`
 
 ### Issue 3: Template Rendering Errors
 
@@ -232,7 +232,7 @@ See [templates/AGENTS.md](templates/AGENTS.md) for template-specific troubleshoo
 
 ### Local Testing
 
-```bash
+\`\`\`bash
 # 1. Set up environment
 cp .env.example .env.local
 # Add RESEND_API_KEY
@@ -245,11 +245,11 @@ pnpm dev
 
 # 4. Test via UI
 # Sign up new user → check for welcome email
-```
+\`\`\`
 
 ### Production Testing
 
-```bash
+\`\`\`bash
 # 1. Check environment variables in Vercel
 # Dashboard → Settings → Environment Variables
 
@@ -262,13 +262,13 @@ vercel logs
 
 # 4. Monitor queue
 # Run SQL queries against production database
-```
+\`\`\`
 
 ## Monitoring
 
 ### Key Metrics
 
-```sql
+\`\`\`sql
 -- Email success rate (last 24 hours)
 SELECT
   status,
@@ -290,7 +290,7 @@ FROM email_queue
 WHERE status = 'failed'
 GROUP BY error
 ORDER BY count DESC;
-```
+\`\`\`
 
 ### Alerts to Set Up
 
@@ -308,7 +308,7 @@ ORDER BY count DESC;
 
 ## Environment Variables
 
-```bash
+\`\`\`bash
 # Required
 RESEND_API_KEY=re_xxxxx
 EMAIL_FROM=noreply@yourdomain.com
@@ -320,7 +320,7 @@ EMAIL_FROM_NAME=Talk-To-My-Lawyer
 SUPABASE_SECRET_KEY=xxxxx
 SUPABASE_SERVICE_ROLE_KEY=xxxxx
 CRON_SECRET=xxxxx
-```
+\`\`\`
 
 ## Quick Reference
 

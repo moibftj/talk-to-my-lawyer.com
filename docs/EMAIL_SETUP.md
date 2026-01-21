@@ -30,7 +30,7 @@ The Talk-To-My-Lawyer email system uses **Resend** as the email provider with a 
 
 ## Required Environment Variables
 
-```bash
+\`\`\`bash
 # Resend API Key (Required)
 # Get from: https://resend.com/api-keys
 RESEND_API_KEY=re_your-resend-api-key
@@ -51,7 +51,7 @@ CRON_SECRET=your-random-cron-secret-key
 # Supabase secret key (Required for queue; service role key legacy supported)
 SUPABASE_SECRET_KEY=your-secret-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-```
+\`\`\`
 
 ## Setup Instructions
 
@@ -72,19 +72,19 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 Create or update your `.env.local` file:
 
-```bash
+\`\`\`bash
 RESEND_API_KEY=re_xxxxxxxxxxxxx
 EMAIL_FROM=noreply@yourdomain.com
 EMAIL_FROM_NAME=Talk-To-My-Lawyer
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 CRON_SECRET=your-secure-random-string
-```
+\`\`\`
 
 ### 3. Verify Database Table
 
 Ensure the `email_queue` table exists in Supabase:
 
-```sql
+\`\`\`sql
 CREATE TABLE IF NOT EXISTS email_queue (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   to TEXT NOT NULL,
@@ -103,13 +103,13 @@ CREATE TABLE IF NOT EXISTS email_queue (
 
 CREATE INDEX IF NOT EXISTS idx_email_queue_status ON email_queue(status);
 CREATE INDEX IF NOT EXISTS idx_email_queue_next_retry ON email_queue(next_retry_at);
-```
+\`\`\`
 
 ### 4. Deploy Cron Job
 
 The cron job is already configured in `vercel.json` to run every 10 minutes:
 
-```json
+\`\`\`json
 {
   "crons": [
     {
@@ -118,7 +118,7 @@ The cron job is already configured in `vercel.json` to run every 10 minutes:
     }
   ]
 }
-```
+\`\`\`
 
 When you deploy to Vercel, the cron job will automatically start processing emails.
 
@@ -156,7 +156,7 @@ All emails are **queued** instead of sent directly:
 
 **✅ RECOMMENDED: Queue emails for reliable delivery**
 
-```typescript
+\`\`\`typescript
 import { queueTemplateEmail } from '@/lib/email'
 
 // Queue an email (preferred method)
@@ -168,11 +168,11 @@ await queueTemplateEmail(
     actionUrl: 'https://yourdomain.com/dashboard'
   }
 )
-```
+\`\`\`
 
 **⚠️ NOT RECOMMENDED: Direct send (no retries)**
 
-```typescript
+\`\`\`typescript
 import { sendTemplateEmail } from '@/lib/email'
 
 // Direct send - only for urgent notifications
@@ -184,7 +184,7 @@ await sendTemplateEmail(
     actionUrl: 'https://yourdomain.com/admin'
   }
 )
-```
+\`\`\`
 
 ## Monitoring & Troubleshooting
 
@@ -192,7 +192,7 @@ await sendTemplateEmail(
 
 Query the database to see email status:
 
-```sql
+\`\`\`sql
 -- Check pending emails
 SELECT * FROM email_queue WHERE status = 'pending' ORDER BY created_at DESC;
 
@@ -206,7 +206,7 @@ SELECT
   AVG(attempts) as avg_attempts
 FROM email_queue
 GROUP BY status;
-```
+\`\`\`
 
 ### Common Issues
 
@@ -253,13 +253,13 @@ GROUP BY status;
 
 For testing or emergency processing:
 
-```bash
+\`\`\`bash
 # Using curl
 curl -X POST "https://yourdomain.com/api/cron/process-email-queue?secret=YOUR_CRON_SECRET"
 
 # Check queue status
 curl "https://yourdomain.com/api/cron/process-email-queue?secret=YOUR_CRON_SECRET"
-```
+\`\`\`
 
 ### Email Delivery Logs
 
@@ -276,9 +276,9 @@ Check Resend dashboard for delivery details:
 2. Use a test email address
 3. Manually trigger queue processing:
 
-```bash
+\`\`\`bash
 curl -X POST "http://localhost:3000/api/cron/process-email-queue?secret=your-local-secret"
-```
+\`\`\`
 
 ### Production Testing
 
@@ -301,7 +301,7 @@ curl -X POST "http://localhost:3000/api/cron/process-email-queue?secret=your-loc
 
 Old emails should be periodically cleaned:
 
-```sql
+\`\`\`sql
 -- Delete sent emails older than 30 days
 DELETE FROM email_queue
 WHERE status = 'sent'
@@ -311,7 +311,7 @@ AND sent_at < NOW() - INTERVAL '30 days';
 DELETE FROM email_queue
 WHERE status = 'failed'
 AND created_at < NOW() - INTERVAL '7 days';
-```
+\`\`\`
 
 ## Security Best Practices
 

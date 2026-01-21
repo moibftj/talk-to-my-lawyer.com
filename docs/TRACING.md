@@ -16,15 +16,15 @@ OpenTelemetry tracing has been added to provide observability into:
 
 The required OpenTelemetry dependencies have been added to `package.json`:
 
-```bash
+\`\`\`bash
 pnpm install
-```
+\`\`\`
 
 ### 2. Configure Environment
 
 Add tracing configuration to your `.env.local`:
 
-```bash
+\`\`\`bash
 # Optional: OTLP endpoint (defaults to localhost:4318)
 OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318/v1/traces
 
@@ -37,14 +37,14 @@ OTEL_SERVICE_VERSION=1.0.0
 
 # Optional: Disable tracing
 OTEL_SDK_DISABLED=false
-```
+\`\`\`
 
 ### 3. Run a Local Trace Collector
 
 For local development, you can use Jaeger or OTEL Collector:
 
 #### Option A: Jaeger (Simple)
-```bash
+\`\`\`bash
 docker run -d --name jaeger \\
   -p 14268:14268 \\
   -p 14250:14250 \\
@@ -54,14 +54,14 @@ docker run -d --name jaeger \\
   -p 4317:4317 \\
   -p 4318:4318 \\
   jaegertracing/all-in-one:latest
-```
+\`\`\`
 
 Then visit http://localhost:16686 to view traces.
 
 #### Option B: OTEL Collector + Jaeger
 Create `otel-collector.yaml`:
 
-```yaml
+\`\`\`yaml
 receivers:
   otlp:
     protocols:
@@ -85,21 +85,21 @@ service:
       receivers: [otlp]
       processors: [batch]
       exporters: [jaeger]
-```
+\`\`\`
 
-```bash
+\`\`\`bash
 docker run -d --name otel-collector \\
   -p 4317:4317 -p 4318:4318 \\
   -v ./otel-collector.yaml:/etc/otel-collector.yaml \\
   otel/opentelemetry-collector:latest \\
   --config=/etc/otel-collector.yaml
-```
+\`\`\`
 
 ### 4. Start the Application
 
-```bash
+\`\`\`bash
 pnpm dev
-```
+\`\`\`
 
 Tracing will be automatically initialized when the app starts.
 
@@ -131,7 +131,7 @@ Tracing will be automatically initialized when the app starts.
 
 ### Manual Span Creation
 
-```typescript
+\`\`\`typescript
 import { createAISpan, createBusinessSpan, createDatabaseSpan } from '@/lib/monitoring/tracing'
 
 // AI operations
@@ -150,11 +150,11 @@ try {
 } finally {
   span.end()
 }
-```
+\`\`\`
 
 ### Async Function Tracing
 
-```typescript
+\`\`\`typescript
 import { traceAsync } from '@/lib/monitoring/tracing'
 
 const result = await traceAsync(
@@ -165,11 +165,11 @@ const result = await traceAsync(
   },
   { 'custom.attribute': 'value' }
 )
-```
+\`\`\`
 
 ### Database Tracing
 
-```typescript
+\`\`\`typescript
 import { traceDbQuery, traceDbRpc } from '@/lib/monitoring/db-tracing'
 
 // Query tracing
@@ -193,11 +193,11 @@ const allowance = await traceDbRpc(
   },
   { 'user.id': userId }
 )
-```
+\`\`\`
 
 ### Adding Events and Attributes
 
-```typescript
+\`\`\`typescript
 import { addSpanAttributes, recordSpanEvent } from '@/lib/monitoring/tracing'
 
 // Add attributes to current span
@@ -210,7 +210,7 @@ addSpanAttributes({
 recordSpanEvent('processing_started', {
   batch_size: items.length
 })
-```
+\`\`\`
 
 ## Span Conventions
 
@@ -238,16 +238,16 @@ recordSpanEvent('processing_started', {
 - HTTP instrumentation filters out health checks and static assets
 
 ### Configuration
-```typescript
+\`\`\`typescript
 // In production, configure for your observability platform
 OTEL_EXPORTER_OTLP_ENDPOINT=https://your-observability-platform.com/v1/traces
 OTEL_EXPORTER_OTLP_HEADERS='{"authorization":"Bearer YOUR_PRODUCTION_TOKEN"}'
-```
+\`\`\`
 
 ### Sampling
 Consider adding sampling for high-traffic applications:
 
-```typescript
+\`\`\`typescript
 // In lib/monitoring/tracing.ts
 import { TraceIdRatioBasedSampler } from '@opentelemetry/sdk-trace-node'
 
@@ -255,7 +255,7 @@ const provider = new NodeTracerProvider({
   resource: resource,
   sampler: new TraceIdRatioBasedSampler(0.1), // Sample 10% of traces
 })
-```
+\`\`\`
 
 ## Observability Platforms
 
@@ -299,10 +299,10 @@ const provider = new NodeTracerProvider({
 
 This implementation focuses on **distributed tracing** (understanding request flow). For **metrics** (counters, gauges), consider adding OpenTelemetry metrics later:
 
-```typescript
+\`\`\`typescript
 // Future enhancement - metrics
 import { metrics } from '@opentelemetry/api'
 const meter = metrics.getMeter('talk-to-my-lawyer')
 const letterCounter = meter.createCounter('letters_generated_total')
 letterCounter.add(1, { letter_type: 'demand' })
-```
+\`\`\`

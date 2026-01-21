@@ -22,16 +22,16 @@ This document provides a quick reference for the dual-admin model alignment comp
 ### How to Identify Each Role
 
 **In the Database:**
-```sql
+\`\`\`sql
 -- System Admin
 WHERE role = 'admin' AND admin_sub_role = 'super_admin'
 
 -- Attorney Admin  
 WHERE role = 'admin' AND admin_sub_role = 'attorney_admin'
-```
+\`\`\`
 
 **In TypeScript:**
-```typescript
+\`\`\`typescript
 // Types
 type AdminSubRole = 'super_admin' | 'attorney_admin'
 
@@ -40,10 +40,10 @@ await requireSuperAdminAuth()      // System Admin only
 await requireAttorneyAdminAccess() // Both admin types
 await isSuperAdmin()               // Returns boolean
 await isAttorneyAdmin()            // Returns boolean
-```
+\`\`\`
 
 **In SQL Functions:**
-```sql
+\`\`\`sql
 -- Check functions (return boolean)
 is_super_admin()      -- System Admin
 is_attorney_admin()   -- Attorney Admin
@@ -56,7 +56,7 @@ get_subscriber_analytics()
 -- Review functions (Both admin types)
 get_letters_for_review()
 update_letter_review(...)
-```
+\`\`\`
 
 ## 🐛 Critical Bugs Fixed
 
@@ -90,7 +90,7 @@ update_letter_review(...)
 ### In Code (Types, Variables, Database)
 
 ✅ **Correct:**
-```typescript
+\`\`\`typescript
 // TypeScript types
 'super_admin'
 'attorney_admin'
@@ -104,17 +104,17 @@ validateSuperAdminAction()
 // SQL functions
 is_super_admin()
 is_attorney_admin()
-```
+\`\`\`
 
 ❌ **Incorrect:**
-```typescript
+\`\`\`typescript
 // Never use these
 'system_admin'
 'super-admin'
 'SystemAdmin'
 is_system_admin()
 validateSystemAdminAction()
-```
+\`\`\`
 
 ## 📂 Where to Find What
 
@@ -171,14 +171,14 @@ Before deploying, verify:
 ## 🚀 Quick Admin Creation
 
 ### Create System Admin
-```bash
+\`\`\`bash
 pnpm dlx dotenv-cli -e .env.local -- pnpm tsx scripts/create-additional-admin.ts admin@example.com password123
-```
+\`\`\`
 
 ### Create Attorney Admin
-```bash
+\`\`\`bash
 pnpm dlx dotenv-cli -e .env.local -- pnpm tsx scripts/create-additional-admin.ts attorney@example.com password123 attorney
-```
+\`\`\`
 
 ## 📊 Permission Matrix (Quick Reference)
 

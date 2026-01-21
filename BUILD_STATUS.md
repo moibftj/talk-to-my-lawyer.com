@@ -9,18 +9,18 @@
 ## Build Attempt Summary
 
 ### Command Executed
-```bash
+\`\`\`bash
 NODE_OPTIONS="--max-old-space-size=1024" npm run build
-```
+\`\`\`
 
 ### Result
-```
+\`\`\`
 Exit code: 137 (SIGKILL - Out of Memory)
 Status: Killed by system OOM killer
-```
+\`\`\`
 
 ### Build Progress Before Termination
-```
+\`\`\`
 ▲ Next.js 16.1.1 (Turbopack)
 - Environments: .env
 - Experiments (use with caution):
@@ -29,7 +29,7 @@ Status: Killed by system OOM killer
 (No file-convention warning after switching to `proxy.ts`)
   Creating an optimized production build ...
 Killed
-```
+\`\`\`
 
 ---
 
@@ -79,12 +79,12 @@ Exit code 137 indicates the process was terminated by the system's Out-of-Memory
 | **Package Installation** | ✅ PASS | 921 packages, no conflicts |
 
 ### TypeScript Compilation (Full Strict Check)
-```bash
+\`\`\`bash
 npx tsc --noEmit --skipLibCheck
 Exit Code: 0 (Success)
 Errors: 0
 Warnings: 0
-```
+\`\`\`
 
 **What this proves:**
 - All TypeScript syntax is correct
@@ -94,12 +94,12 @@ Warnings: 0
 - Code structure is sound
 
 ### ESLint (Code Quality)
-```bash
+\`\`\`bash
 npm run lint
 Exit Code: 0 (Success)
 Warnings: 0
 Errors: 0
-```
+\`\`\`
 
 **What this proves:**
 - Code follows best practices
@@ -109,12 +109,12 @@ Errors: 0
 - React hooks rules followed
 
 ### Development Server (Runtime Verification)
-```bash
+\`\`\`bash
 npm run dev
 Startup: 6.7 seconds
 Status: Ready
 Server: http://localhost:3000
-```
+\`\`\`
 
 **What this proves:**
 - All modules load correctly
@@ -130,12 +130,12 @@ Server: http://localhost:3000
 
 ### Local Development Machine
 On a machine with 8GB+ RAM, the build completes successfully:
-```bash
+\`\`\`bash
 npm run build
 ✓ Compiled successfully
 Build completed in ~2-3 minutes
 Output: .next folder with optimized bundles
-```
+\`\`\`
 
 ### Vercel Deployment
 When deployed to Vercel (standard build environment):
@@ -156,21 +156,21 @@ GitHub Actions with `ubuntu-latest` runner:
 ## Why This Environment Fails
 
 ### Container Memory Limits
-```
+\`\`\`
 Available RAM: ~1-1.5GB (shared)
 Next.js Build Requirement: 4GB+
 Result: OOM Killer terminates process
-```
+\`\`\`
 
 ### Build Process Memory Usage
-```
+\`\`\`
 Phase 1: Package loading          ~400MB
 Phase 2: TypeScript compilation   ~600MB
 Phase 3: React compilation        ~800MB
 Phase 4: Optimization            ~1.2GB  ← Killed here
 Phase 5: Bundle generation       ~1.5GB
 Phase 6: Static generation       ~2.0GB
-```
+\`\`\`
 
 The build is killed during Phase 4 (optimization) when memory usage exceeds container limits.
 
@@ -213,14 +213,14 @@ All of these environments have sufficient memory for successful builds:
    - Status: Will build successfully
 
 ### Local Machine Build
-```bash
+\`\`\`bash
 # On Mac/Linux/Windows with 4GB+ available:
 npm run build
 
 # Expected result:
 ✓ Compiled successfully
 Build completed in ~2-3 minutes
-```
+\`\`\`
 
 ---
 
@@ -288,14 +288,14 @@ Deploy to any standard hosting platform (Vercel, Netlify, etc.) with 4GB+ RAM. B
 If you need immediate build verification without 4GB+ RAM:
 
 ### Option 1: Use Docker with Memory Limit
-```bash
+\`\`\`bash
 docker run --rm -v $(pwd):/app -w /app --memory="4g" node:20 npm run build
-```
+\`\`\`
 
 ### Option 2: Deploy to Vercel (Free Tier)
-```bash
+\`\`\`bash
 vercel deploy
-```
+\`\`\`
 Vercel will build in cloud with adequate resources.
 
 ### Option 3: GitHub Actions CI

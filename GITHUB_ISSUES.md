@@ -19,12 +19,12 @@ Copy each issue below to create GitHub issues. Issues are ordered by priority.
 
 The check and deduct operations are not atomic:
 
-```typescript
+\`\`\`typescript
 // app/api/generate-letter/route.ts:88-127
 const eligibility = await checkGenerationEligibility(user.id)  // Line 89
 // ... validation ...
 const deductionResult = await deductLetterAllowance(user.id)   // Line 119
-```
+\`\`\`
 
 **Attack Scenario:**
 1. User has 1 letter remaining
@@ -45,7 +45,7 @@ const deductionResult = await deductLetterAllowance(user.id)   // Line 119
 Combine check and deduct into a single atomic database operation using a new RPC function.
 
 **New RPC Function:**
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.check_and_deduct_allowance(u_id UUID)
 RETURNS TABLE(
     success BOOLEAN,
@@ -55,7 +55,7 @@ RETURNS TABLE(
     is_super_admin BOOLEAN
 ) AS $$
 -- Implementation with SELECT FOR UPDATE lock
-```
+\`\`\`
 
 ### Files to Modify
 
@@ -76,7 +76,7 @@ RETURNS TABLE(
 
 ### Testing Instructions
 
-```bash
+\`\`\`bash
 # Test concurrent requests using curl
 for i in {1..5}; do
   curl -X POST http://localhost:3000/api/generate-letter \
@@ -86,7 +86,7 @@ done
 wait
 
 # Verify only 1 letter was generated (if user had 1 remaining)
-```
+\`\`\`
 
 ### References
 
@@ -110,7 +110,7 @@ wait
 
 Non-atomic read-then-update pattern:
 
-```typescript
+\`\`\`typescript
 // app/api/create-checkout/route.ts:238-255
 const { data: currentCoupon } = await supabase
   .from('employee_coupons')
@@ -125,7 +125,7 @@ const { error: updateError } = await supabase
     updated_at: new Date().toISOString()
   })
   .eq('code', couponCode)
-```
+\`\`\`
 
 **Attack Scenario:**
 1. Employee coupon used by 3 users simultaneously
@@ -146,7 +146,7 @@ const { error: updateError } = await supabase
 Use atomic increment operation via RPC function.
 
 **New RPC Function:**
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.increment_coupon_usage(coupon_code TEXT)
 RETURNS TABLE(usage_count INTEGER) AS $$
 BEGIN
@@ -157,7 +157,7 @@ BEGIN
     RETURNING employee_coupons.usage_count INTO usage_count;
 END;
 $$ LANGUAGE plpgsql;
-```
+\`\`\`
 
 ### Files to Modify
 
@@ -174,7 +174,7 @@ $$ LANGUAGE plpgsql;
 
 ### Testing Instructions
 
-```bash
+\`\`\`bash
 # Simulate 10 concurrent checkouts with same coupon
 for i in {1..10}; do
   curl -X POST http://localhost:3000/api/create-checkout \
@@ -184,7 +184,7 @@ done
 wait
 
 # Verify usage_count increased by exactly 10
-```
+\`\`\`
 
 ### References
 
@@ -208,13 +208,13 @@ wait
 
 Multiple database operations not wrapped in transaction:
 
-```typescript
+\`\`\`typescript
 // app/api/create-checkout/route.ts:182-256
 1. Create subscription             // Success
 2. Create commission               // If this fails...
 3. Update coupon usage             // ...user gets subscription but employee loses commission
 4. Return success
-```
+\`\`\`
 
 If any step fails, previous steps are not rolled back.
 
@@ -231,7 +231,7 @@ If any step fails, previous steps are not rolled back.
 Wrap all checkout operations in a single atomic database transaction using an RPC function.
 
 **New RPC Function:**
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.create_subscription_with_commission(
     p_user_id UUID,
     p_plan_type TEXT,
@@ -252,7 +252,7 @@ RETURNS TABLE(
     error_message TEXT
 ) AS $$
 -- All operations succeed or all fail together
-```
+\`\`\`
 
 ### Files to Modify
 
@@ -274,7 +274,7 @@ RETURNS TABLE(
 
 ### Testing Instructions
 
-```bash
+\`\`\`bash
 # Test normal checkout flow
 curl -X POST http://localhost:3000/api/create-checkout \
   -H "Authorization: Bearer $TOKEN" \
@@ -288,7 +288,7 @@ curl -X POST http://localhost:3000/api/create-checkout \
 
 # Test rollback (simulate failure in commission creation)
 # Verify subscription is NOT created if commission fails
-```
+\`\`\`
 
 ### References
 
@@ -312,14 +312,14 @@ curl -X POST http://localhost:3000/api/create-checkout \
 
 No tracking of processed webhook IDs:
 
-```typescript
+\`\`\`typescript
 // app/api/stripe/webhook/route.ts:65-89
 const metadata = session.metadata || {}
 const userId = metadata.user_id
 
 // No check if this webhook was already processed!
 // If Stripe retries, creates duplicate subscription
-```
+\`\`\`
 
 **Scenario:**
 1. Webhook delivered successfully → subscription created ✅
@@ -339,7 +339,7 @@ const userId = metadata.user_id
 Track processed webhook events in database and check before processing.
 
 **New Table:**
-```sql
+\`\`\`sql
 CREATE TABLE public.webhook_events (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     stripe_event_id TEXT UNIQUE NOT NULL,
@@ -348,17 +348,17 @@ CREATE TABLE public.webhook_events (
     metadata JSONB,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
-```
+\`\`\`
 
 **New RPC Function:**
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.check_and_record_webhook(
     p_stripe_event_id TEXT,
     p_event_type TEXT,
     p_metadata JSONB DEFAULT NULL
 )
 RETURNS TABLE(already_processed BOOLEAN, event_id UUID)
-```
+\`\`\`
 
 ### Files to Modify
 
@@ -379,7 +379,7 @@ RETURNS TABLE(already_processed BOOLEAN, event_id UUID)
 
 ### Testing Instructions
 
-```bash
+\`\`\`bash
 # Send same webhook twice
 WEBHOOK_PAYLOAD='{"id":"evt_test_123","type":"checkout.session.completed",...}'
 
@@ -397,7 +397,7 @@ curl -X POST http://localhost:3000/api/stripe/webhook \
 # - Only 1 subscription created
 # - Second request returns "already processed"
 # - webhook_events table has 1 record
-```
+\`\`\`
 
 ### References
 
@@ -420,7 +420,7 @@ curl -X POST http://localhost:3000/api/stripe/webhook \
 
 ### Current Problem
 
-```typescript
+\`\`\`typescript
 // app/api/create-checkout/route.ts:12
 const TEST_MODE = process.env.ENABLE_TEST_MODE === 'true'
 
@@ -429,7 +429,7 @@ if (TEST_MODE) {
   // Creates active subscription without payment
   // Anyone can get free subscription
 }
-```
+\`\`\`
 
 **Risk Scenario:**
 1. Developer accidentally sets `ENABLE_TEST_MODE=true` in production
@@ -457,7 +457,7 @@ if (TEST_MODE) {
 
 Add runtime production guard:
 
-```typescript
+\`\`\`typescript
 const TEST_MODE = process.env.ENABLE_TEST_MODE === 'true'
 
 // Add production guard
@@ -465,7 +465,7 @@ if (TEST_MODE && process.env.NODE_ENV === 'production') {
   console.error('[CRITICAL] Test mode enabled in production environment!')
   throw new Error('Test mode is not allowed in production. Set ENABLE_TEST_MODE=false.')
 }
-```
+\`\`\`
 
 ### Files to Modify
 
@@ -481,14 +481,14 @@ if (TEST_MODE && process.env.NODE_ENV === 'production') {
 
 ### Testing Instructions
 
-```bash
+\`\`\`bash
 # Test in development - should work
 ENABLE_TEST_MODE=true NODE_ENV=development npm run dev
 
 # Test in production - should error
 ENABLE_TEST_MODE=true NODE_ENV=production npm start
 # Should see: Error: Test mode is not allowed in production
-```
+\`\`\`
 
 ### References
 
@@ -510,13 +510,13 @@ ENABLE_TEST_MODE=true NODE_ENV=production npm start
 
 ### Current Problem
 
-```typescript
+\`\`\`typescript
 // lib/email/templates.ts
 html: `
   <p>Rejection Reason: ${data.rejectionReason}</p>
   <p>Review Notes: ${data.reviewNotes}</p>
 `
-```
+\`\`\`
 
 If admin enters: `<script>alert('xss')</script>` as rejection reason, it's injected directly into email HTML.
 
@@ -530,16 +530,16 @@ If admin enters: `<script>alert('xss')</script>` as rejection reason, it's injec
 ### Real-World Example
 
 **Admin rejects letter with reason:**
-```
+\`\`\`
 </p><h1 style="color:red">URGENT: ACCOUNT SUSPENDED</h1><p>
-```
+\`\`\`
 
 **Resulting email looks like:**
-```html
+\`\`\`html
 <p>Rejection Reason: </p>
 <h1 style="color:red">URGENT: ACCOUNT SUSPENDED</h1>
 <p></p>
-```
+\`\`\`
 
 User sees fake urgent message.
 
@@ -547,7 +547,7 @@ User sees fake urgent message.
 
 HTML escape all dynamic template variables:
 
-```typescript
+\`\`\`typescript
 function escapeHtml(text: string | undefined | null): string {
   if (!text) return ''
   const map: Record<string, string> = {
@@ -563,7 +563,7 @@ function escapeHtml(text: string | undefined | null): string {
 
 // Usage
 html: `<p>Rejection Reason: ${escapeHtml(data.rejectionReason)}</p>`
-```
+\`\`\`
 
 ### Files to Modify
 
@@ -580,7 +580,7 @@ html: `<p>Rejection Reason: ${escapeHtml(data.rejectionReason)}</p>`
 
 ### Testing Instructions
 
-```bash
+\`\`\`bash
 # Test with malicious input
 const testData = {
   rejectionReason: '<script>alert("xss")</script>',
@@ -594,7 +594,7 @@ await sendTemplateEmail('letter-rejected', 'test@example.com', testData)
 # - HTML tags are escaped (visible as text)
 # - No script execution
 # - Professional appearance maintained
-```
+\`\`\`
 
 ### Templates to Update
 
@@ -634,20 +634,20 @@ await sendTemplateEmail('letter-rejected', 'test@example.com', testData)
 ### Impact
 
 **Enumeration Attack Example:**
-```bash
+\`\`\`bash
 # Try to enumerate valid user IDs
 for i in {1..1000}; do
   curl -X POST /api/gdpr/export-data -d "{\"userId\":\"$i\"}"
 done
-```
+\`\`\`
 
 **DoS Attack Example:**
-```bash
+\`\`\`bash
 # Flood profile creation
 while true; do
   curl -X POST /api/create-profile -d "{...}"
 done
-```
+\`\`\`
 
 ### Current State
 
@@ -665,7 +665,7 @@ Most endpoints properly rate limited:
 
 Add rate limiting to all unprotected endpoints:
 
-```typescript
+\`\`\`typescript
 export async function POST(request: NextRequest) {
   try {
     // Add rate limiting
@@ -680,7 +680,7 @@ export async function POST(request: NextRequest) {
     // ... rest of handler ...
   }
 }
-```
+\`\`\`
 
 ### Files to Modify
 
@@ -699,7 +699,7 @@ export async function POST(request: NextRequest) {
 
 ### Testing Instructions
 
-```bash
+\`\`\`bash
 # Test rate limiting
 for i in {1..15}; do
   echo "Request $i:"
@@ -713,7 +713,7 @@ done
 # - First 10 requests succeed (200)
 # - Requests 11-15 return 429 (Too Many Requests)
 # - Retry-After header present
-```
+\`\`\`
 
 ### References
 
@@ -735,12 +735,12 @@ done
 
 ### Current Problem
 
-```toml
+\`\`\`toml
 # netlify.toml
 [build]
 command = "npx next build"
 publish = "out"
-```
+\`\`\`
 
 **But:**
 - `next.config.mjs` has `output: 'standalone'` (not static export)
@@ -758,31 +758,31 @@ publish = "out"
 ### Solution Options
 
 **Option 1: Remove netlify.toml (Recommended)**
-```bash
+\`\`\`bash
 git rm netlify.toml
 git commit -m "Remove netlify.toml - using Vercel deployment"
-```
+\`\`\`
 
 Use Vercel instead (Next.js is optimized for Vercel).
 
 **Option 2: Fix for Netlify**
-```toml
+\`\`\`toml
 [build]
   command = "npm run build"
   publish = ".next"
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
-```
+\`\`\`
 
 **Option 3: Static Export (Breaks API routes)**
-```javascript
+\`\`\`javascript
 // next.config.mjs
 export default {
   output: 'export',  // Change to export
   // ... other config
 }
-```
+\`\`\`
 
 ⚠️ **Not recommended** - Breaks all API routes.
 
@@ -806,7 +806,7 @@ export default {
 ### Testing Instructions
 
 **If fixing for Netlify:**
-```bash
+\`\`\`bash
 # Test local build
 npm run build
 
@@ -818,7 +818,7 @@ netlify deploy --prod
 
 # Test deployed site
 curl https://your-site.netlify.app/api/health
-```
+\`\`\`
 
 ### Recommendation
 
@@ -878,7 +878,7 @@ curl https://your-site.netlify.app/api/health
 
 ### Using GitHub CLI (if available)
 
-```bash
+\`\`\`bash
 # Install gh CLI first
 # Then create all issues:
 
@@ -889,7 +889,7 @@ gh issue create \
   --milestone "Production Ready"
 
 # Repeat for all issues
-```
+\`\`\`
 
 ### Using GitHub API Script
 

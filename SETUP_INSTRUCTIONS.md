@@ -24,11 +24,11 @@ Your `.env.local` file has been created with secure random secrets!
 
 ### Step 2: Restart Your Dev Server
 
-```bash
+\`\`\`bash
 # Stop the current dev server (Ctrl+C)
 # Then restart:
 pnpm dev
-```
+\`\`\`
 
 After restarting, try signing up again - the 401 error should be gone!
 

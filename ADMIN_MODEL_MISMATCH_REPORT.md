@@ -26,9 +26,9 @@ This report documents all naming, type, and terminology mismatches found during 
 **Impact**: CRITICAL - Function calls will fail at runtime. The function `is_system_admin()` does not exist in the database; only `is_super_admin()` exists.
 
 **Evidence**: Migration `20250102000000_013_admin_role_separation.sql` defines:
-```sql
+\`\`\`sql
 CREATE OR REPLACE FUNCTION public.is_super_admin()
-```
+\`\`\`
 
 Migration `20260103120000_017_rename_system_admin_to_super_admin.sql` explicitly renamed this function.
 
@@ -41,9 +41,9 @@ Migration `20260103120000_017_rename_system_admin_to_super_admin.sql` explicitly
 **Issue**: Function named `validateSystemAdminAction` instead of `validateSuperAdminAction`
 
 **Line**: 45
-```typescript
+\`\`\`typescript
 export async function validateSystemAdminAction(request: NextRequest): Promise<NextResponse | null>
-```
+\`\`\`
 
 **Expected**: `validateSuperAdminAction`
 
@@ -62,14 +62,14 @@ export async function validateSystemAdminAction(request: NextRequest): Promise<N
 **Issue**: Line 146 comment says "system admin" instead of "Super Admin"
 
 **Line 146**:
-```sql
+\`\`\`sql
 COMMENT ON FUNCTION public.is_super_admin IS 'Returns true if current user is a system admin with full access';
-```
+\`\`\`
 
 **Expected**: 
-```sql
+\`\`\`sql
 COMMENT ON FUNCTION public.is_super_admin IS 'Returns true if current user is a Super Admin with full access';
-```
+\`\`\`
 
 **Impact**: LOW - Documentation only, but creates confusion
 
@@ -82,14 +82,14 @@ COMMENT ON FUNCTION public.is_super_admin IS 'Returns true if current user is a 
 **Issue**: Line 59 checks for role `'super_admin'` but should check `admin_sub_role`
 
 **Line 59**:
-```sql
+\`\`\`sql
 IF user_record.role = 'super_admin' THEN
-```
+\`\`\`
 
 **Expected**:
-```sql
+\`\`\`sql
 IF user_record.role = 'admin' AND user_record.admin_sub_role = 'super_admin' THEN
-```
+\`\`\`
 
 **Impact**: CRITICAL - Super Admins will never be detected because `role` column only contains `'subscriber'`, `'employee'`, or `'admin'`, never `'super_admin'`. The `super_admin` value is stored in the `admin_sub_role` column.
 
@@ -175,9 +175,9 @@ Extensive use of "Super Admin" terminology throughout - all instances should be 
 #### 6a. lib/auth/admin-session.ts
 
 **Line 9**: 
-```typescript
+\`\`\`typescript
 export type AdminSubRole = 'super_admin' | 'attorney_admin'
-```
+\`\`\`
 **Comment**: Type definition is correct
 
 **Line 184-185**: Comments say "super_admin" (correct) but prose documentation should standardize on "System Admin" when describing the role in human-readable form

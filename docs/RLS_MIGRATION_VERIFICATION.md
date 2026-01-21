@@ -24,7 +24,7 @@ Navigate to: `Database > Migrations` in your Supabase dashboard
 
 Run this SQL query in the Supabase SQL Editor:
 
-```sql
+\`\`\`sql
 SELECT
   schemaname,
   tablename,
@@ -32,7 +32,7 @@ SELECT
 FROM pg_tables
 WHERE schemaname = 'public'
 ORDER BY tablename;
-```
+\`\`\`
 
 **Expected:** All sensitive tables should have `rls_enabled = true`:
 - ✅ profiles
@@ -55,7 +55,7 @@ ORDER BY tablename;
 
 Run this SQL query:
 
-```sql
+\`\`\`sql
 SELECT
   schemaname,
   tablename,
@@ -67,7 +67,7 @@ SELECT
 FROM pg_policies
 WHERE schemaname = 'public'
 ORDER BY tablename, policyname;
-```
+\`\`\`
 
 **Expected:** Should return **50+ policies** across all tables.
 
@@ -75,44 +75,44 @@ ORDER BY tablename, policyname;
 
 #### Test 1: Subscribers Can Only See Their Own Letters
 
-```sql
+\`\`\`sql
 -- As a subscriber user, run:
 SELECT * FROM letters;
 
 -- Should ONLY return letters where user_id = current user's ID
 -- Should NOT return other users' letters
-```
+\`\`\`
 
 #### Test 2: Employees CANNOT See Letter Content
 
-```sql
+\`\`\`sql
 -- As an employee user, run:
 SELECT * FROM letters;
 
 -- Should return ZERO rows (employees have no SELECT policy on letters)
-```
+\`\`\`
 
 #### Test 3: Admins Can See All Letters
 
-```sql
+\`\`\`sql
 -- As an admin user, run:
 SELECT COUNT(*) FROM letters;
 
 -- Should return total count of all letters in the system
-```
+\`\`\`
 
 #### Test 4: Users Can Only See Their Own Subscriptions
 
-```sql
+\`\`\`sql
 -- As a subscriber user, run:
 SELECT * FROM subscriptions;
 
 -- Should ONLY return subscriptions where user_id = current user's ID
-```
+\`\`\`
 
 ### 5. Verify Database Functions Still Work
 
-```sql
+\`\`\`sql
 -- Test allowance check
 SELECT * FROM check_and_deduct_allowance('YOUR_USER_ID_HERE');
 
@@ -122,7 +122,7 @@ SELECT is_attorney_admin();
 
 -- Test coupon validation
 SELECT * FROM validate_coupon('TEST-CODE');
-```
+\`\`\`
 
 ### 6. Application-Level Testing
 
@@ -163,7 +163,7 @@ If the migration failed or was partially applied:
 
 1. Check migration logs for errors
 2. If safe, drop all policies manually:
-   ```sql
+   \`\`\`sql
    -- WARNING: Only run if you understand the implications
    DO $$
    DECLARE
@@ -174,7 +174,7 @@ If the migration failed or was partially applied:
        EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON ' || quote_ident(r.tablename);
      END LOOP;
    END $$;
-   ```
+   \`\`\`
 3. Re-run migration file
 
 ## MONITORING

@@ -78,17 +78,17 @@ Automated security scanning pipeline with multiple jobs:
 ### 3. Updated .gitignore
 
 Added wildcard patterns to prevent accidental commits:
-```gitignore
+\`\`\`gitignore
 *_SECRETS*
 *_CREDENTIALS*
-```
+\`\`\`
 
 ### 4. Package.json Integration
 
 Added npm script for easy access:
-```bash
+\`\`\`bash
 pnpm security:scan
-```
+\`\`\`
 
 ### 5. Comprehensive Documentation
 
@@ -153,13 +153,13 @@ These findings demonstrate the scanner is working correctly and catching real se
 ## Usage Examples
 
 ### Local Development
-```bash
+\`\`\`bash
 # Run security scan before committing
 pnpm security:scan
 
 # Run with other pre-commit checks
 pnpm precommit
-```
+\`\`\`
 
 ### CI/CD
 The workflow runs automatically on:

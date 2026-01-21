@@ -36,7 +36,7 @@ Successfully completed core workflow infrastructure and implementation. The lett
 - Workflow DevKit now integrated into build pipeline
 
 **3. Directory Structure Created**
-```
+\`\`\`
 app/
   workflows/
     letter-generation.workflow.ts       ✅ Main orchestration
@@ -52,7 +52,7 @@ app/
       trigger/route.ts                  ✅ Start workflow
       resume/route.ts                   ✅ Attorney decision
       status/[id]/route.ts              ✅ Status query
-```
+\`\`\`
 
 **4. Environment Configuration**
 - Added `WORKFLOW_DB_URL` to `.env.example`
@@ -115,7 +115,7 @@ app/
 ### Main Workflow: letter-generation.workflow.ts
 
 **Flow:**
-```
+\`\`\`
 1. Check allowance (atomic)
    ↓
 2. Generate AI draft (auto-retry)
@@ -135,7 +135,7 @@ app/
 9. Notify user
    ↓
 ✅ Complete
-```
+\`\`\`
 
 **Error Handling:**
 - Automatic cleanup on failure
@@ -166,17 +166,17 @@ app/
 - Input validation with Zod schemas
 
 **Request:**
-```typescript
+\`\`\`typescript
 {
   letterType: string
   intakeData: Record<string, unknown>
   recipientInfo?: { name, email, address }
   title?: string
 }
-```
+\`\`\`
 
 **Response:**
-```typescript
+\`\`\`typescript
 {
   success: true,
   data: {
@@ -185,7 +185,7 @@ app/
     status: "processing"
   }
 }
-```
+\`\`\`
 
 ### POST /api/workflows/resume
 
@@ -197,7 +197,7 @@ app/
 - Input validation with Zod
 
 **Request:**
-```typescript
+\`\`\`typescript
 {
   workflowId: string       // UUID of paused workflow
   approved: boolean        // true = approve, false = reject
@@ -206,10 +206,10 @@ app/
   reason?: string         // Rejection reason (if rejected)
   csrfToken: string       // CSRF protection
 }
-```
+\`\`\`
 
 **Response:**
-```typescript
+\`\`\`typescript
 {
   success: true,
   data: {
@@ -218,7 +218,7 @@ app/
     status: "approved" | "rejected"
   }
 }
-```
+\`\`\`
 
 ### GET /api/workflows/status/[id]
 
@@ -230,7 +230,7 @@ app/
 - TODO: Add ownership verification
 
 **Response:**
-```typescript
+\`\`\`typescript
 {
   success: true,
   data: {
@@ -249,7 +249,7 @@ app/
     }>
   }
 }
-```
+\`\`\`
 
 ---
 
@@ -261,12 +261,12 @@ app/
 **File:** `components/letter-generation-form.tsx` (or similar)
 
 **Current:**
-```typescript
+\`\`\`typescript
 const response = await fetch("/api/generate-letter", { ... })
-```
+\`\`\`
 
 **New:**
-```typescript
+\`\`\`typescript
 const response = await fetch("/api/workflows/trigger", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
@@ -283,18 +283,18 @@ if (result.success) {
   // Store workflowId for status tracking
   router.push(`/dashboard/letters?workflow=${result.data.workflowId}`)
 }
-```
+\`\`\`
 
 #### 2. Attorney Portal - Approval Action
 **File:** `app/attorney-portal/letters/[id]/page.tsx` (or similar)
 
 **Current:**
-```typescript
+\`\`\`typescript
 await fetch(`/api/letters/${letterId}/approve`, { ... })
-```
+\`\`\`
 
 **New:**
-```typescript
+\`\`\`typescript
 // 1. Get CSRF token first
 const csrfResponse = await fetch("/api/admin/csrf")
 const { csrfToken } = await csrfResponse.json()
@@ -311,12 +311,12 @@ await fetch("/api/workflows/resume", {
     csrfToken
   })
 })
-```
+\`\`\`
 
 #### 3. Letter Status Display
 **New Component:** `components/workflow-status.tsx`
 
-```typescript
+\`\`\`typescript
 import { useWorkflowStatus } from "workflow/react"
 
 export function WorkflowStatus({ workflowId }: { workflowId: string }) {
@@ -339,7 +339,7 @@ export function WorkflowStatus({ workflowId }: { workflowId: string }) {
     </div>
   )
 }
-```
+\`\`\`
 
 ---
 
@@ -349,7 +349,7 @@ export function WorkflowStatus({ workflowId }: { workflowId: string }) {
 
 **File:** `supabase/migrations/YYYYMMDDHHMMSS_add_workflow_tracking.sql`
 
-```sql
+\`\`\`sql
 BEGIN;
 
 -- Add workflow tracking columns to letters table
@@ -367,7 +367,7 @@ COMMENT ON COLUMN letters.workflow_id IS 'Workflow DevKit execution ID for track
 COMMENT ON COLUMN letters.workflow_status IS 'Current workflow execution status (running, completed, failed, paused)';
 
 COMMIT;
-```
+\`\`\`
 
 **Migration Steps:**
 1. Test in local development first

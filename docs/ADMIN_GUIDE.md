@@ -33,7 +33,7 @@ The platform uses a **dual-admin system** that allows multiple administrators wi
 
 ## Authentication Flow
 
-```
+\`\`\`
 ┌─────────────────────────────────────────────────────────────┐
 │               ADMIN AUTHENTICATION FLOW                      │
 ├─────────────────────────────────────────────────────────────┤
@@ -60,20 +60,20 @@ The platform uses a **dual-admin system** that allows multiple administrators wi
 │   /secure-admin-gateway/dashboard                            │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
-```
+\`\`\`
 
 ## Creating Admin Users
 
 ### Method 1: Using the Script (Recommended)
 
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts <email> <password>
-```
+\`\`\`
 
 **Example:**
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts john@company.com SecurePass123!
-```
+\`\`\`
 
 **What the script does:**
 1. Creates a Supabase Auth user (or updates if exists)
@@ -83,7 +83,7 @@ npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts john@
 
 ### Method 2: Manual Database Update
 
-```sql
+\`\`\`sql
 -- Step 1: Create user in Supabase Auth (via dashboard or API)
 
 -- Step 2: Update role to admin
@@ -92,26 +92,26 @@ SET role = 'admin',
     admin_sub_role = 'super_admin',  -- or 'attorney_admin'
     updated_at = NOW()
 WHERE email = 'admin@example.com';
-```
+\`\`\`
 
 ## Environment Variables
 
 ### Required for Dual-Admin System
 
-```env
+\`\`\`env
 # Admin Portal Key (shared secret for all admins)
 ADMIN_PORTAL_KEY=your-secure-random-key-here
-```
+\`\`\`
 
 ### Generating a Secure Portal Key
 
-```bash
+\`\`\`bash
 # Generate a random 64-character key
 node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 # Or use OpenSSL
 openssl rand -hex 32
-```
+\`\`\`
 
 ## Admin Login
 
@@ -180,20 +180,20 @@ System Admins and Attorney Admins access different portals:
 
 ### Add New Admin
 
-```bash
+\`\`\`bash
 npx dotenv-cli -e .env.local -- npx tsx scripts/create-additional-admin.ts new@admin.com SecurePassword123!
-```
+\`\`\`
 
 ### Remove Admin Access
 
-```sql
+\`\`\`sql
 -- Demote admin to subscriber
 UPDATE profiles
 SET role = 'subscriber',
     admin_sub_role = NULL,
     updated_at = NOW()
 WHERE email = 'former-admin@example.com';
-```
+\`\`\`
 
 ### Change Admin Password
 
@@ -211,18 +211,18 @@ Since passwords are managed by Supabase Auth:
 
 ### Update Admin Sub-Role
 
-```sql
+\`\`\`sql
 UPDATE profiles
 SET admin_sub_role = 'attorney_admin',  -- or 'super_admin' for System Admin
     updated_at = NOW()
 WHERE email = 'admin@example.com';
-```
+\`\`\`
 
 ## Database Schema
 
 ### Profiles Table
 
-```sql
+\`\`\`sql
 CREATE TABLE profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id),
   email TEXT NOT NULL,
@@ -236,11 +236,11 @@ CREATE TABLE profiles (
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
-```
+\`\`\`
 
 ### Query Admin Users
 
-```sql
+\`\`\`sql
 -- List all admin users
 SELECT id, email, full_name, admin_sub_role, created_at
 FROM profiles
@@ -252,16 +252,16 @@ SELECT admin_sub_role, COUNT(*) as count
 FROM profiles
 WHERE role = 'admin'
 GROUP BY admin_sub_role;
-```
+\`\`\`
 
 ## Security Best Practices
 
 ### 1. Use Strong Portal Keys
 
-```bash
+\`\`\`bash
 # Generate a secure 64-character key
 openssl rand -hex 32
-```
+\`\`\`
 
 ### 2. Limit Admin Access
 
@@ -274,14 +274,14 @@ Only grant admin access to trusted personnel who need it for:
 
 All admin actions are logged in the audit trail:
 
-```sql
+\`\`\`sql
 SELECT * FROM letter_audit_trail
 WHERE performed_by IN (
   SELECT id FROM profiles WHERE role = 'admin'
 )
 ORDER BY created_at DESC
 LIMIT 50;
-```
+\`\`\`
 
 ### 4. Regular Access Review
 
@@ -303,16 +303,16 @@ Rotate `ADMIN_PORTAL_KEY` quarterly:
 ### Admin Cannot Login
 
 **Check 1: Verify Role**
-```sql
+\`\`\`sql
 SELECT email, role, admin_sub_role FROM profiles WHERE email = 'admin@example.com';
 -- Should return: role = 'admin'
-```
+\`\`\`
 
 **Check 2: Verify Portal Key**
-```env
+\`\`\`env
 # Check .env.local has correct ADMIN_PORTAL_KEY
 ADMIN_PORTAL_KEY=correct-key-here
-```
+\`\`\`
 
 **Check 3: Supabase Auth User Exists**
 - Go to Supabase Dashboard → Authentication → Users
@@ -324,9 +324,9 @@ ADMIN_PORTAL_KEY=correct-key-here
 Admin sessions expire after **30 minutes** of inactivity. This is intentional for security.
 
 To change this, edit `lib/auth/admin-session.ts`:
-```typescript
+\`\`\`typescript
 const ADMIN_SESSION_TIMEOUT = 30 * 60 * 1000 // 30 minutes
-```
+\`\`\`
 
 ### Multiple Admins Seeing Same Data
 
