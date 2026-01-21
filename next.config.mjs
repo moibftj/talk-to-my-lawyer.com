@@ -7,9 +7,7 @@
  * - Image optimization enabled for Supabase storage
  * - Security headers and CSP configured
  * - Extended timeouts for AI generation endpoints
- * - Workflow DevKit integration for durable workflows
  */
-import { withWorkflow } from "workflow/next"
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -180,5 +178,4 @@ const nextConfig = {
   },
 }
 
-// Wrap config with Workflow DevKit integration
-export default withWorkflow(nextConfig)
+export default nextConfig
